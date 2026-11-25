@@ -143,12 +143,12 @@ img, svg { display: block; }
 
 .rotating-material {
   display: flex;
-  min-height: 22px;
+  min-height: 34px;
   align-items: center;
   gap: 6px;
   margin: 0;
   color: var(--steel);
-  font: 400 13px/1.4 var(--mono);
+  font: 500 24px/1.4 var(--mono);
   letter-spacing: .025em;
 }
 
@@ -172,7 +172,7 @@ img, svg { display: block; }
   width: 100%;
   min-width: 0;
   min-height: 0;
-  grid-template-rows: minmax(0, 1fr) 15px 54px 11px;
+  grid-template-rows: minmax(0, 1fr) 18px 88px 14px;
   padding: 0 clamp(8px, 2vw, 24px);
 }
 
@@ -296,11 +296,11 @@ img, svg { display: block; }
 .action-button {
   display: inline-flex;
   min-width: 104px;
-  height: 44px;
+  height: 64px;
   align-items: center;
   justify-content: center;
-  padding: 0 16px;
-  font: 500 14px/1 var(--mono);
+  padding: 0 28px;
+  font: 500 28px/1 var(--display);
   transition: background-color 140ms ease, color 140ms ease, border-color 140ms ease;
 }
 
@@ -312,8 +312,8 @@ img, svg { display: block; }
 }
 
 .action-button--primary::before {
-  width: 4px;
-  height: 4px;
+  width: 7px;
+  height: 7px;
   background: var(--orange);
   content: "";
 }
@@ -479,15 +479,15 @@ body.is-ready .ring-card {
   .headline-materials { font-size: clamp(3.2rem, 15.2vw, 3.5rem); }
   .headline-find { font-size: clamp(1rem, 5vw, 1.3rem); }
   .headline-next { font-size: clamp(1.2rem, 6vw, 1.5rem); }
-  .rotating-material { min-height: 20px; font-size: 11px; }
-  .material-explorer { grid-template-rows: minmax(0, 1fr) 14px 50px 10px; padding-inline: 5px; }
+  .rotating-material { min-height: 28px; font-size: 18px; }
+  .material-explorer { grid-template-rows: minmax(0, 1fr) 14px auto 12px; padding-inline: 5px; }
   .carousel-viewport { perspective: 1250px; }
   .card-caption { min-height: 42px; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 4px; padding-top: 8px; }
   .card-title { font-size: clamp(10px, 3.2vw, 16px); }
   .card-subtitle { max-width: 100%; font-size: 6px; text-align: left; }
-  .account-actions { gap: 6px; }
-  .action-button { min-width: 0; height: 42px; padding-inline: 10px; font-size: 12px; }
-  .action-button.play-button { min-width: 58px; }
+  .account-actions { flex-direction: column; gap: 8px; padding-block: 8px; }
+  .action-button { width: min(100%, 300px); min-width: 0; min-height: 48px; height: 48px; padding-inline: 18px; font-size: 20px; flex-shrink: 0; }
+  .action-button.play-button { width: 90px; min-width: 58px; height: 40px; min-height: 40px; font-size: 16px; }
   .asset-note { font-size: 5.5px; }
   .fact-list { gap: 15px; }
   .fact-list li { gap: 15px; font-size: 6px; }
@@ -496,8 +496,8 @@ body.is-ready .ring-card {
 @media (max-height: 650px) {
   .landing-shell { grid-template-rows: 38px auto minmax(0, 1fr) 18px; }
   .page-intro { gap: 3px; padding-top: 4px; padding-bottom: 3px; }
-  .material-explorer { grid-template-rows: minmax(0, 1fr) 13px 48px 9px; }
-  .action-button { height: 40px; }
+  .material-explorer { grid-template-rows: minmax(0, 1fr) 13px auto 12px; }
+  .action-button { height: 52px; min-height: 48px; }
   .asset-note { font-size: 5px; }
   .fact-list li { font-size: 6px; }
   .coming-soon-shell { grid-template-rows: 38px minmax(0, 1fr); }
