@@ -5,23 +5,21 @@ let registration;
 export function mountMaterialLoop(host) {
   if (!host) return () => {};
   const viewer = host.querySelector("model-viewer");
-  const button = host.querySelector("[data-loop-toggle]");
   const status = host.querySelector("[data-loop-status]");
   const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
   let disposed = false,
     visible = true,
-    userPaused = motion.matches,
+    reducedMotionEnabled = motion.matches,
     ready = false,
     failure = false;
   const update = () => {
     if (disposed || failure) return;
-    const playing = ready && visible && !document.hidden && !userPaused;
+    const playing =
+      ready && visible && !document.hidden && !reducedMotionEnabled;
     if (playing) viewer.play?.();
     else viewer.pause?.();
-    button.textContent = userPaused ? "Play loop" : "Pause loop";
-    button.setAttribute("aria-pressed", String(userPaused));
     status.textContent = ready
-      ? userPaused
+      ? reducedMotionEnabled
         ? "Loop paused · drag to explore"
         : "Materials in motion · drag to explore"
       : "Loading the material loop";
@@ -30,10 +28,8 @@ export function mountMaterialLoop(host) {
     if (disposed) return;
     ready = true;
     failure = false;
-    button.hidden = false;
     host.classList.remove("is-fallback");
     host.classList.add("is-ready");
-    button.disabled = false;
     update();
   };
   const failed = () => {
@@ -42,20 +38,14 @@ export function mountMaterialLoop(host) {
     viewer.pause?.();
     host.classList.remove("is-ready");
     host.classList.add("is-fallback");
-    button.hidden = true;
     status.textContent = "The material loop · static view";
   };
-  const toggle = () => {
-    userPaused = !userPaused;
-    update();
-  };
   const reducedMotion = () => {
-    userPaused = motion.matches;
+    reducedMotionEnabled = motion.matches;
     update();
   };
   viewer.addEventListener("load", loaded);
   viewer.addEventListener("error", failed);
-  button.addEventListener("click", toggle);
   motion.addEventListener("change", reducedMotion);
   document.addEventListener("visibilitychange", update);
   const observer = new IntersectionObserver(
@@ -86,7 +76,6 @@ export function mountMaterialLoop(host) {
     viewer.pause?.();
     viewer.removeEventListener("load", loaded);
     viewer.removeEventListener("error", failed);
-    button.removeEventListener("click", toggle);
     motion.removeEventListener("change", reducedMotion);
     document.removeEventListener("visibilitychange", update);
   };

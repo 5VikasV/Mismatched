@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-test("Blender sculpture loads, animates, pauses and survives navigation", async ({
+test("Blender sculpture animates on the page and survives navigation", async ({
   page,
 }, info) => {
   const errors = [];
@@ -22,10 +22,8 @@ test("Blender sculpture loads, animates, pauses and survives navigation", async 
   await page.waitForTimeout(250);
   const after = await viewer.evaluate((v) => v.currentTime);
   expect(after).not.toEqual(before);
-  await page.getByRole("button", { name: "Pause loop", exact: true }).click();
-  await expect.poll(() => viewer.evaluate((v) => v.paused)).toBe(true);
-  await page.getByRole("button", { name: "Play loop", exact: true }).click();
-  await expect.poll(() => viewer.evaluate((v) => v.paused)).toBe(false);
+  await expect(page.locator("[data-loop-toggle]")).toHaveCount(0);
+  await expect(host).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
   await page.screenshot({
     path: info.outputPath("material-loop.png"),
     fullPage: true,
@@ -49,20 +47,22 @@ test("reduced motion starts the Blender loop paused", async ({ page }) => {
   await expect(page.locator("[data-material-loop]")).toHaveClass(/is-ready/, {
     timeout: 45000,
   });
-  await expect(
-    page.getByRole("button", { name: "Play loop", exact: true }),
-  ).toBeVisible();
   expect(await page.locator("model-viewer").evaluate((v) => v.paused)).toBe(
     true,
   );
 });
 
-test('a failed 3D asset retains the rendered fallback poster',async({page})=>{
- await page.route('**/assets/3d/material-loop.glb',route=>route.abort());
- await page.goto('/#overview');
- await expect(page.locator('[data-material-loop]')).toHaveClass(/is-fallback/,{timeout:45000});
- await expect(page.locator('.loop-poster')).toBeVisible();
- await expect(page.locator('.loop-poster')).toHaveCSS('opacity','1');
- await expect(page.locator('[data-loop-toggle]')).toBeHidden();
- await expect(page.locator('[data-loop-status]')).toContainText('static view');
+test("a failed 3D asset retains the rendered fallback poster", async ({
+  page,
+}) => {
+  await page.route("**/assets/3d/material-loop.glb", (route) => route.abort());
+  await page.goto("/#overview");
+  await expect(page.locator("[data-material-loop]")).toHaveClass(
+    /is-fallback/,
+    { timeout: 45000 },
+  );
+  await expect(page.locator(".loop-poster")).toBeVisible();
+  await expect(page.locator(".loop-poster")).toHaveCSS("opacity", "1");
+  await expect(page.locator("[data-loop-toggle]")).toHaveCount(0);
+  await expect(page.locator("[data-loop-status]")).toContainText("static view");
 });

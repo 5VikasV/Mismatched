@@ -1,72 +1,25 @@
-/* A miniature industrial exhibit, framed like a physical product rather than a dashboard card. */
+/* The sculpture sits directly on the page, with no card, backdrop or controls. */
 .loop-exhibit {
   position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
   min-width: 0;
-  background: #142c2a;
-  color: #e5e8d5;
-  border: 1px solid #345047;
-  border-radius: 5px;
-  min-height: 455px;
-}
-.loop-exhibit::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    radial-gradient(ellipse at 50% 35%, #3c5e50 0, transparent 62%),
-    linear-gradient(130deg, transparent 50%, #0a222129 50%);
-}
-.loop-exhibit-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 22px 24px 0;
-  font:
-    10px ui-monospace,
-    SFMono-Regular,
-    monospace;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: #b6c5ad;
-}
-.loop-exhibit-head span:last-child {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-.loop-exhibit-head span:last-child::before {
-  content: "";
-  width: 6px;
-  height: 6px;
-  background: #c8ed68;
-  border-radius: 50%;
-  box-shadow: 0 0 12px #c8ed683f;
+  background: transparent;
+  border: 0;
 }
 .loop-stage {
   position: relative;
-  flex: 1;
-  min-height: 310px;
-  margin: -10px 0 -5px;
+  height: 430px;
 }
 .loop-stage model-viewer {
   display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 345px;
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   --poster-color: transparent;
-  --progress-bar-color: #d2ed67;
+  --progress-bar-color: #73865e;
   --progress-bar-height: 2px;
   --progress-mask: transparent;
   background: transparent;
-  z-index: 1;
   outline-offset: -5px;
 }
 .loop-poster {
@@ -83,69 +36,6 @@
 }
 .loop-exhibit.is-fallback model-viewer {
   visibility: hidden;
-}
-.loop-exhibit-foot {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 4px 24px 20px;
-  font:
-    10px ui-monospace,
-    SFMono-Regular,
-    monospace;
-  letter-spacing: 0.03em;
-  color: #c2cdb7;
-}
-.loop-toggle {
-  background: transparent;
-  border: 1px solid #6d8067;
-  color: #eff4df;
-  font:
-    11px ui-monospace,
-    SFMono-Regular,
-    monospace;
-  border-radius: 2px;
-  padding: 9px 12px;
-  cursor: pointer;
-  white-space: nowrap;
-  min-height: 38px;
-}
-.loop-toggle:hover {
-  background: #ffffff0d;
-  border-color: #cadc98;
-}
-.loop-toggle:disabled {
-  opacity: 0.45;
-  cursor: wait;
-}
-.loop-toggle:focus-visible {
-  outline: 2px solid #d2ed67;
-  outline-offset: 3px;
-}
-.loop-material-key {
-  display: flex;
-  gap: 15px;
-  flex-wrap: wrap;
-  padding: 0 24px 20px;
-  font:
-    10px ui-monospace,
-    SFMono-Regular,
-    monospace;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #b5c7b6;
-}
-.loop-material-key span {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.loop-material-key i {
-  width: 6px;
-  height: 6px;
-  background: var(--swatch);
-  border-radius: 1px;
 }
 body[data-page="overview"] .intro-panel {
   display: block;
@@ -175,40 +65,13 @@ body[data-page="overview"] .intro-visual {
   display: none;
 }
 @media (min-width: 1500px) {
-  .loop-exhibit {
-    min-height: 500px;
-  }
-  .loop-stage model-viewer {
-    min-height: 390px;
+  .loop-stage {
+    height: 480px;
   }
 }
 @media (max-width: 600px) {
-  .loop-exhibit {
-    min-height: 370px;
-  }
   .loop-stage {
-    min-height: 265px;
-    margin: 0 -20px;
-  }
-  .loop-stage model-viewer {
-    min-height: 280px;
-  }
-  .loop-exhibit-head {
-    padding: 18px 18px 0;
-    font-size: 9px;
-  }
-  .loop-exhibit-foot {
-    padding: 0 18px 15px;
-    gap: 10px;
-  }
-  .loop-exhibit-foot [data-loop-status] {
-    max-width: 180px;
-    line-height: 1.6;
-  }
-  .loop-material-key {
-    padding: 0 18px 18px;
-    gap: 12px;
-    font-size: 9px;
+    height: 320px;
   }
   body[data-page="overview"] .intro-title {
     font-size: 2.9rem;
