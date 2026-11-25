@@ -76,3 +76,9 @@ The working branches are `feat/specialist-vision-benchmark`, `feat/material-anal
 The Overview includes an original Blender-built factory and circular conveyor carrying recovered copper, polymer offcuts and cardboard. Its authored eight-second animation repeats seamlessly. The model sits directly on the page with a transparent background and no surrounding labels or playback controls. Drag to rotate. Reduced-motion users start paused, and the animation pauses when off-screen or the tab is hidden. A rendered WebP poster is the loading/error fallback. The existing overview map remains visible.
 
 The GLB and locally hosted viewer work without Blender installed. The editable scene is [design/blender/material-loop.blend](design/blender/material-loop.blend); the generator and rebuild instructions are in [design/blender/README.md](design/blender/README.md). This is an illustrative sculpture, not live facility or inventory data.
+
+## Root HTML planning desk
+
+`index.html` at the repository root is a separate, file-openable planning desk. Open that exact file in a browser for the simplified overview, attributed public directory, browser-local reviewed material notes and pool-cost estimates. It starts with no available stock or invented transactions. Its notes are separate from the server's SQLite records; the visible analysis link opens the existing application at localhost:4173.
+
+The standalone file embeds the public snapshot and the project's shared planner/CSV functions so it works without a server. Rebuild it after changing shared logic or the source snapshot with `npm run build:standalone`. Edit `design/standalone/index.template.html` for layout/content changes. Browser checks cover the file directly at phone, tablet and laptop widths. This entry point does not run image inference, book transport, track vehicles or issue regulatory documents.
