@@ -1,3 +1,6 @@
+import {calculateImpact} from "../dist/impact.js";
+import {createBookings} from "./bookings.mjs";
+import { createVision } from './vision.mjs';
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
@@ -129,6 +132,28 @@ function validateSuggestions(value) {
   return clean;
 }
 
+const editableFields = ['title',...textFields,'notes','quantityKg','pricePerKg','latitude','longitude'];
+function reviewedRecord(value, original = null) {
+  if(value.confirmed!==true) fail(400,'confirmation_required','Review and confirm the research details before saving.');
+  const record={...(original||{}),title:string(value.title,'Title',{required:true,max:200}),confirmed:true};
+  for(const field of textFields) record[field]=string(value[field],field,{max:2000});
+  record.notes=string(value.notes,'Notes',{max:10000});
+  record.quantityKg=number(value.quantityKg,'Quantity',0,1e12);
+  record.pricePerKg=number(value.pricePerKg,'Price',0,1e12);
+  Object.assign(record,locationPair(value));
+  if(value.fieldReview!==undefined && !object(value.fieldReview)) fail(400,'validation_error','Field review must be an object.');
+  if(value.fieldReview && Object.keys(value.fieldReview).some(k=>!editableFields.includes(k))) fail(400,'validation_error','Unknown review field.');
+  record.fieldReview={};
+  for(const field of editableFields){
+    const state=value.fieldReview?.[field];
+    if(state!==undefined&&!['ai_suggestion','user_confirmed','unknown'].includes(state)) fail(400,'validation_error','Invalid field review status.');
+    const present=record[field]!==null&&record[field]!==undefined&&record[field]!=='';
+    if(present&&state==='unknown') fail(400,'validation_error','A populated field cannot be marked unknown.');
+    record.fieldReview[field]=present ? state||'user_confirmed' : 'unknown';
+  }
+  return record;
+}
+
 export function createApp(options = {}) {
   const dataDir = resolve(options.dataDir || resolve(projectDir, 'data'));
   const dbPath = options.dbPath || resolve(dataDir, 'research.sqlite');
@@ -140,17 +165,42 @@ export function createApp(options = {}) {
   const fetchImpl = options.fetchImpl || globalThis.fetch;
   const publicDataPath = options.publicDataPath || resolve(projectDir, 'data/public-facilities.json');
   const staticDir = resolve(options.staticDir || resolve(projectDir, 'dist'));
+  const vision = options.vision || createVision();
+  const reportPath = options.reportPath || resolve(projectDir, 'reports/model/latest.json');
   let analyzing = false;
   const all = table => db.prepare(`SELECT json FROM ${table}`).all().map(r => JSON.parse(r.json));
   const get = (table, id) => { const row = db.prepare(`SELECT json FROM ${table} WHERE id = ?`).get(id); return row ? JSON.parse(row.json) : null; };
   const count = table => db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;
+  const bookings = createBookings({db,body,send,fail,all});
   async function handle(req, res) {
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'same-origin');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'");
+    const landingPaths = ['/', '/workspace', '/workspace/', '/index.html', '/landing', '/landing/', '/landing/landing.html'];
+    const landingPage = landingPaths.some(path => req.url === path || req.url.startsWith(`${path}?`));
+    res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'${landingPage ? ' https://fonts.googleapis.com' : ''}; font-src 'self'${landingPage ? ' https://fonts.gstatic.com' : ''}; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'`);
     try {
       guard(req);
       const parsed = new URL(req.url, 'http://localhost'); const pathname = parsed.pathname;
-      if (req.method === 'GET' && pathname === '/api/status') return send(res, 200, { aiConfigured: !!apiKey.trim(), model, facilityCount: count('facilities'), sourceCount: count('sources'), recordCount: count('records') });
+      if (req.method === 'GET' && pathname === '/api/status') return send(res, 200, { aiConfigured: !!apiKey.trim(), model, vision: vision.status(), facilityCount: count('facilities'), sourceCount: count('sources'), recordCount: count('records'), bookingRequestCount: count('booking_requests') });
+      if (req.method === 'GET' && pathname === '/api/model-report') {
+        return send(res, 200, { report: existsSync(reportPath) ? JSON.parse(readFileSync(reportPath, 'utf8')) : null, status: vision.status() });
+      }
+      if (req.method === 'POST' && pathname === '/api/classify') {
+        const value = await body(req);
+        const name = string(value.name, 'File name', { required: true, max: 200 });
+        if (!['image/jpeg','image/png','image/webp'].includes(value.mimeType)) fail(415, 'unsupported_file', 'Local classification accepts JPG, PNG, and WebP images. Review PDFs manually or explicitly choose document analysis.');
+        if (typeof value.dataBase64 !== 'string' || value.dataBase64.length > Math.ceil(MAX_FILE_BYTES/3)*4) fail(413, 'file_too_large', 'Upload an image up to 10 MB.');
+        const file=Buffer.from(value.dataBase64,'base64');
+        if (!file.length || file.toString('base64')!==value.dataBase64) fail(400,'invalid_file','Invalid image data.');
+        if (file.length>MAX_FILE_BYTES) fail(413,'file_too_large','Upload an image up to 10 MB.');
+        const magic=value.mimeType==='image/jpeg' ? file[0]===255&&file[1]===216&&file[2]===255 : value.mimeType==='image/png' ? file.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) : file.subarray(0,4).toString()==='RIFF'&&file.subarray(8,12).toString()==='WEBP';
+        if(!magic) fail(400,'invalid_file','Image content does not match its file type.');
+        let result;
+        try { result=await vision.classify(value.dataBase64); } catch(error) { fail(error.status||502,'classifier_unavailable',error.message); }
+        const suggestions={material:result.category,grade:null,quantityKg:null,pricePerKg:null,company:null,location:null,condition:null,evidence:[{field:'material',quote:`Local model suggestion: ${result.category}. Not a verified specification.`,page:null}],warnings:['Review the category. Exact grade, quantity, condition, and price are unknown from this classifier.']};
+        const analysis={id:randomUUID(),filename:name,createdAt:new Date().toISOString(),model:result.modelVersion,classification:result,suggestions};
+        db.prepare('INSERT INTO analyses (id,json) VALUES (?,?)').run(analysis.id,JSON.stringify(analysis));
+        return send(res,200,analysis);
+      }
       if (req.method === 'GET' && pathname === '/api/sources') return send(res, 200, { sources: all('sources') });
       if (req.method === 'GET' && pathname === '/api/facilities') {
         const every = all('facilities'); const q = (parsed.searchParams.get('q') || '').toLowerCase().trim();
@@ -172,15 +222,27 @@ export function createApp(options = {}) {
       if (req.method === 'GET' && pathname === '/api/records') return send(res, 200, { records: all('records').sort((a, b) => b.createdAt.localeCompare(a.createdAt)) });
       if (req.method === 'POST' && pathname === '/api/records') {
         const value = await body(req); if (value.confirmed !== true) fail(400, 'confirmation_required', 'Review and confirm the research details before saving.');
-        const record = { id: randomUUID(), title: string(value.title, 'Title', { required: true, max: 200 }), createdAt: new Date().toISOString(), confirmed: true };
-        for (const field of textFields) record[field] = string(value[field], field, { max: 2000 });
-        record.notes = string(value.notes, 'Notes', { max: 10000 }); record.quantityKg = number(value.quantityKg, 'Quantity', 0, 1e12); record.pricePerKg = number(value.pricePerKg, 'Price', 0, 1e12); Object.assign(record, locationPair(value));
+        const record = {...reviewedRecord(value), id:randomUUID(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
         record.analysisId = string(value.analysisId, 'Analysis ID', { max: 100 });
         if (record.analysisId && !get('analyses', record.analysisId)) fail(400, 'analysis_not_found', 'The linked analysis could not be found.');
         db.prepare('INSERT INTO records (id,analysis_id,json) VALUES (?,?,?)').run(record.id, record.analysisId, JSON.stringify(record));
         return send(res, 201, { record });
       }
       const recordMatch = pathname.match(/^\/api\/records\/([a-zA-Z0-9-]+)$/);
+      if (req.method === 'PATCH' && recordMatch) {
+        const original=get('records',recordMatch[1]);
+        if(!original) fail(404,'record_not_found','This research record could not be found.');
+        const value=await body(req);
+        if(Object.keys(value).some(k=>![...editableFields,'confirmed','fieldReview'].includes(k))) fail(400,'validation_error','Only editable fields and confirmation may be updated.');
+        if(value.confirmed!==true) fail(400,'confirmation_required','Confirm the reviewed edits before saving.');
+        if(value.fieldReview!==undefined&&!object(value.fieldReview)) fail(400,'validation_error','Field review must be an object.');
+        const merged={...original,...value,fieldReview:{...(original.fieldReview||{}),...(value.fieldReview||{})}};
+        // A changed value without explicit metadata is confirmed by this request's confirmation.
+        for(const key of editableFields) if(Object.hasOwn(value,key)&&!Object.hasOwn(value.fieldReview||{},key)) merged.fieldReview[key]=value[key]==null||value[key]===''?'unknown':'user_confirmed';
+        const record={...reviewedRecord(merged,original),updatedAt:new Date().toISOString()};
+        db.prepare('UPDATE records SET json=? WHERE id=?').run(JSON.stringify(record),record.id);
+        return send(res,200,{record});
+      }
       if (req.method === 'DELETE' && recordMatch) { await body(req); const deleted = db.prepare('DELETE FROM records WHERE id = ?').run(recordMatch[1]); if (!deleted.changes) fail(404, 'record_not_found', 'This research record could not be found.'); return send(res, 200, { deleted: true }); }
       const analysisMatch = pathname.match(/^\/api\/analyses\/([a-zA-Z0-9-]+)$/);
       if (req.method === 'GET' && analysisMatch) { const analysis = get('analyses', analysisMatch[1]); if (!analysis) fail(404, 'analysis_not_found', 'This analysis could not be found.'); return send(res, 200, analysis); }
@@ -215,15 +277,25 @@ export function createApp(options = {}) {
         } catch (error) { if (error instanceof AppError) throw error; fail(502, 'ai_service_error', 'The AI service could not be reached or timed out. Your file has not been saved.'); }
         finally { analyzing = false; }
       }
+      if(req.method==='GET'&&pathname==='/api/impact')return send(res,200,calculateImpact(all('booking_requests'),parsed.searchParams.get('scenario')==='warm-closed-loop'));
+      if(req.method==='GET'&&pathname==='/api/compatibility-rules')return send(res,200,JSON.parse(readFileSync(resolve(projectDir,'data/compatibility-rules.json'),'utf8')));
+      if (await bookings(req,res,pathname)) return;
       if (pathname.startsWith('/api/')) fail(404, 'not_found', 'This API endpoint could not be found.');
       if (!['GET', 'HEAD'].includes(req.method)) fail(405, 'method_not_allowed', 'This method is not available.');
+      const aliases = {
+        '/landing': '/', '/landing/': '/', '/landing/landing.html': '/',
+        '/workspace/': '/workspace', '/index.html': '/workspace',
+        '/landing/signin.html': '/workspace#overview', '/landing/signup.html': '/workspace#overview'
+      };
+      if (Object.hasOwn(aliases, pathname)) { res.writeHead(308, { Location: aliases[pathname] }); return res.end(); }
       let decoded; try { decoded = decodeURIComponent(pathname); } catch { fail(400, 'invalid_path', 'Invalid file path.'); }
-      const filePath = resolve(staticDir, decoded === '/' ? 'index.html' : `.${decoded}`);
+      const staticPath = decoded === '/' ? 'landing/landing.html' : decoded === '/workspace' ? 'index.html' : `.${decoded}`;
+      const filePath = resolve(staticDir, staticPath);
       if (!filePath.startsWith(`${staticDir}${sep}`) || decoded.split('/').some(part => part.startsWith('.')) || !existsSync(filePath) || !statSync(filePath).isFile()) fail(404, 'not_found', 'This page could not be found.');
-      const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp' };
+      const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.glb': 'model/gltf-binary' };
       res.writeHead(200, { 'Content-Type': types[extname(filePath)] || 'application/octet-stream' }); res.end(req.method === 'HEAD' ? undefined : readFileSync(filePath));
     } catch (error) { if (!res.headersSent) send(res, error.status || 500, { error: error.code || 'server_error', message: error instanceof AppError ? error.message : 'The workspace could not complete this request.' }); else res.end(); }
   }
   const server = http.createServer(handle);
-  return { server, db, handle, close: () => { server.close(); db.close(); } };
+  return { server, db, handle, close: () => { vision.close?.(); server.close(); db.close(); } };
 }

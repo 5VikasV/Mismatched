@@ -12,7 +12,7 @@ The source material was reviewed on **24 November 2026**. `checkedAt` and `retri
 
 ## Import behavior
 
-`public-facilities.json` is a reviewed source bundle for the explicit **Import public records** action. It does not create records merely by starting the server. Source IDs and facility IDs are stable so repeated imports can update the same records. No runtime database or uploaded documents are included in this directory.
+`public-facilities.json` is a reviewed source bundle for the explicit **Import public records** action. It does not create records merely by starting the server. Source IDs and facility IDs are stable so repeated imports can update the same records idempotently without duplication. No runtime database or uploaded documents are included in this directory.
 
 ## What a record establishes
 
@@ -25,6 +25,16 @@ Each record establishes that the facility name, address and stated activity appe
 - Individual contact people, telephone numbers, email addresses, consent numbers and capacity figures are omitted.
 - Separate facilities of the same company can have separate IDs. The duplicate Green Valley entry appearing twice in the Maharashtra list was imported once.
 - State and district spellings follow the records rather than claiming present-day administrative boundary normalization.
+
+## Geographic coverage and district distribution
+
+The reviewed snapshot covers 3 of India's 28 states and 8 Union Territories. Facilities are distributed across the following administrative districts:
+
+- **Maharashtra (20 facilities)**: Covers industrial zones in Thane, Pune, Raigad, Palghar, Dhule, and Mumbai suburban areas.
+- **Rajasthan (10 facilities)**: Focused primarily on industrial estates in Alwar (including Bhiwadi) and Jaipur.
+- **Haryana (10 facilities)**: Concentrated in the National Capital Region industrial hubs including Faridabad, Gurugram, and Sonipat.
+
+All 40 facilities retain physical street and industrial estate addresses. Because primary registers published text addresses without geospatial coordinates, 0 of 40 records include coordinates. ScrapLoop rejects synthetic centroid geocoding or approximation; unmapped facilities remain searchable by name, district, and address.
 
 ## Sources and reuse assessment
 
@@ -52,6 +62,11 @@ The official document's factual rows were visible through the primary-source sea
 
 ## Excluded candidate sources and coverage gaps
 
-The Tamil Nadu Pollution Control Board's [Recycling Directory 2025](https://tnpcb.gov.in/PDF/Updates/Whats_New/Recyclers_Directory_2025.pdf) was downloaded to a temporary research location and its disclaimer reviewed. The publication explicitly requires prior written permission for reproduction or storage; none of its directory records or document bytes are bundled here.
+The following candidate registers were evaluated and excluded from this release:
 
-National CPCB PDFs and Udyam/OGD candidates were investigated but were not substituted with inferred facility records. The first bundle therefore has **no records for the other states and union territories**, no verified coordinates, and no plastic, textile, food-waste or general metal-working facility coverage. The interface should show these gaps honestly. Future additions should document the source, reuse basis, review date, coverage, and individual record evidence before import.
+1. **Tamil Nadu Pollution Control Board**: The TNPCB [Recycling Directory 2025](https://tnpcb.gov.in/PDF/Updates/Whats_New/Recyclers_Directory_2025.pdf) disclaimer requires prior written permission for reproduction or digital storage. In accordance with policy, no records or content from this directory are bundled.
+2. **Central Pollution Control Board (CPCB) aggregate registers**: Scanned aggregate national tables lacked individual state verification timestamps and included ambiguous or overlapping operational statuses. Rather than inferring active operations, these entries were excluded.
+3. **Udyam and OGD candidate listings**: Examined datasets lacked clear scrap processing classification and contained self-declared entity types without pollution board authorization references.
+4. **General industrial and non-e-waste sectors**: Plastics, textile waste, metallurgical scrap, and organic waste directories lacked comparable verified state pollution control board registers with clear reuse permissions.
+
+**Conclusion**: The initial bundle intentionally retains the 40 verified e-waste records across Maharashtra, Rajasthan, and Haryana. Uncovered states remain explicit gaps in the interface. No speculative or synthetic records have been added.

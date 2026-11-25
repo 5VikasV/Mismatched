@@ -37,7 +37,8 @@ const suggestions = () => ({ material: 'PP', grade: null, quantityKg: 120, price
 test('new database is empty, persists research across reopen, and never exposes an API key', async t => {
   const { app, dir } = setup(t, { apiKey: 'super-secret-test-key' });
   const status = await call(app, '/api/status');
-  assert.deepEqual(status.json, { aiConfigured: true, model: 'gpt-4.1-mini', facilityCount: 0, sourceCount: 0, recordCount: 0 });
+  const {vision,...existing}=status.json; assert.equal(typeof vision.available,'boolean');
+  assert.deepEqual(existing, { aiConfigured: true, model: 'gpt-4.1-mini', facilityCount: 0, sourceCount: 0, recordCount: 0, bookingRequestCount: 0 });
   assert.equal(status.text.includes('super-secret'), false);
   const saved = await call(app, '/api/records', { method: 'POST', data: record() });
   assert.equal(saved.status, 201); assert.equal(saved.json.record.quantityKg, null);
@@ -189,8 +190,48 @@ test('loopback host and same-origin checks protect local endpoints and reject no
   assert.equal((await call(app, '/api/import-public', { method: 'POST', raw: 'bad JSON' })).status, 400);
 });
 
-test('static server serves application assets but never local settings or path escapes', async t => {
-  const { app } = setup(t);
-  const home = await call(app, '/'); assert.equal(home.status, 200); assert.match(home.headers['content-type'], /text\/html/);
-  for (const path of ['/server/app.mjs', '/.env', '/%2e%2e/%2e%2e/etc/passwd', '/api/unknown']) assert.equal((await call(app, path)).status, 404);
+test('landing-first routing serves workspace, redirects old URLs and keeps private files inaccessible',async t=>{
+ const {app}=setup(t);
+ const home=await call(app,'/');assert.equal(home.status,200);assert.match(home.text,/carousel-ring/);assert.match(home.text,/Open workspace/);assert.doesNotMatch(home.text,/Coming soon/);
+ assert.match(home.headers['content-security-policy'],/fonts\.googleapis\.com/);
+ assert.match(home.headers['content-security-policy'],/wasm-unsafe-eval/);
+ const workspace=await call(app,'/workspace');assert.equal(workspace.status,200);assert.match(workspace.text,/id="app"/);assert.match(workspace.text,/src="\/app.js"/);assert.match(workspace.headers['content-security-policy'],/fonts\.gstatic\.com/);
+ assert.equal((await call(app,'/workspace',{method:'HEAD'})).text,'');
+ for(const [path,target]of Object.entries({'/landing':'/','/landing/':'/','/landing/landing.html':'/','/workspace/':'/workspace','/index.html':'/workspace','/landing/signin.html':'/workspace#overview','/landing/signup.html':'/workspace#overview'})){
+  const result=await call(app,path);assert.equal(result.status,308);assert.equal(result.headers.location,target);
+ }
+ assert.doesNotMatch((await call(app,'/api/status')).headers['content-security-policy'],/fonts\.googleapis\.com/);
+ for(const path of ['/server/app.mjs','/.env','/%2e%2e/%2e%2e/etc/passwd','/api/unknown','/ml/artifacts/model.pt','/SCRAPLOOP_CHANGES.md'])assert.equal((await call(app,path)).status,404);
+});
+
+test('local classifier validates images, saves versioned suggestions and never calls a paid provider',async t=>{
+ let calls=0;
+ const {app}=setup(t,{fetchImpl:()=>{throw new Error('Paid provider must not run');},vision:{status:()=>({available:true}),close(){},async classify(){calls++;return{category:'metal',confidence:.91,scores:[{category:'metal',score:.91}],reviewRequired:true,needsReview:false,experimental:false,modelVersion:'fixture-v1'};}}});
+ const image={name:'metal.png',mimeType:'image/png',dataBase64:Buffer.from([137,80,78,71,13,10,26,10,1]).toString('base64')};
+ const result=await call(app,'/api/classify',{method:'POST',data:image});assert.equal(result.status,200);assert.equal(calls,1);assert.equal(result.json.suggestions.grade,null);assert.equal(result.json.classification.reviewRequired,true);
+ const evidence=await call(app,`/api/analyses/${result.json.id}`);assert.equal(evidence.json.model,'fixture-v1');
+ assert.equal((await call(app,'/api/classify',{method:'POST',data:{...image,mimeType:'application/pdf'}})).status,415);
+ assert.equal((await call(app,'/api/classify',{method:'POST',data:{...image,dataBase64:'AAAA'}})).status,400);assert.equal(calls,1);
+});
+test('model report starts honestly empty and local worker failures are actionable',async t=>{
+ const {app,dir}=setup(t,{reportPath:'/tmp/nonexistent-scraploop-report.json',vision:{status:()=>({available:false}),close(){},classify(){throw Object.assign(new Error('Install the local ML environment'),{status:503});}}});
+ assert.equal((await call(app,'/api/model-report')).json.report,null);
+ const result=await call(app,'/api/classify',{method:'POST',data:{name:'image.jpg',mimeType:'image/jpeg',dataBase64:Buffer.from([255,216,255,1]).toString('base64')}});
+ assert.equal(result.status,503);assert.match(result.json.message,/Install/);
+});
+
+test('partial record edits preserve evidence and identity and reject invalid changes atomically',async t=>{
+ const {app}=setup(t,{apiKey:'test',fetchImpl:async()=>({ok:true,json:async()=>({output_text:JSON.stringify(suggestions())})})});
+ const analysis=await call(app,'/api/analyze',{method:'POST',data:file()});
+ const saved=(await call(app,'/api/records',{method:'POST',data:{...record(),analysisId:analysis.json.id}})).json.record;
+ const patch=data=>call(app,`/api/records/${saved.id}`,{method:'PATCH',data});
+ const edited=await patch({quantityKg:12.5,confirmed:true});assert.equal(edited.status,200);assert.equal(edited.json.record.analysisId,saved.analysisId);assert.equal(edited.json.record.createdAt,saved.createdAt);assert.equal(edited.json.record.title,saved.title);assert.equal(edited.json.record.fieldReview.quantityKg,'user_confirmed');
+ for(const bad of [{quantityKg:-1,confirmed:true},{title:'',confirmed:true},{analysisId:null,confirmed:true},{quantityKg:1},{fieldReview:null,confirmed:true},{latitude:20,confirmed:true}])assert.equal((await patch(bad)).status,400);
+ assert.equal((await call(app,'/api/records')).json.records[0].quantityKg,12.5);
+ assert.deepEqual((await call(app,`/api/analyses/${saved.analysisId}`)).json,analysis.json);
+ assert.equal((await call(app,'/api/records/unknown',{method:'PATCH',data:{title:'x',confirmed:true}})).status,404);
+});
+test('legacy records without field metadata remain editable with unknowns preserved',async t=>{
+ const {app}=setup(t);const old={id:'legacy',...record(),createdAt:'2024-01-01T00:00:00Z',analysisId:null};app.db.prepare('INSERT INTO records(id,json) VALUES (?,?)').run(old.id,JSON.stringify(old));
+ const edit=await call(app,'/api/records/legacy',{method:'PATCH',data:{notes:'Reviewed again',confirmed:true}});assert.equal(edit.status,200);assert.equal(edit.json.record.createdAt,old.createdAt);assert.equal(edit.json.record.fieldReview.quantityKg,'unknown');assert.equal(edit.json.record.fieldReview.material,'user_confirmed');
 });

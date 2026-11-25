@@ -1,0 +1,168 @@
+@charset "UTF-8";
+
+.scraploop-diagram {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin: 0 auto;
+  flex: 0 0 auto;
+  user-select: none;
+}
+
+.scraploop-diagram--compact {
+  width: 64px;
+  height: 64px;
+}
+
+.btn .scraploop-diagram--compact,
+.compact-loop--inline .scraploop-diagram--compact {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.scraploop-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.scraploop-track {
+  fill: none;
+  stroke: var(--line, #8A9099);
+  stroke-width: 1.75;
+  stroke-dasharray: 4 5;
+  opacity: .65;
+}
+
+.scraploop-ring {
+  fill: none;
+  stroke: var(--line, #8A9099);
+  stroke-width: 1.5;
+}
+
+.scraploop-orbit {
+  transform-origin: 110px 110px;
+  animation: scraploop-orbit-spin 9s linear infinite;
+}
+
+.scraploop-diagram--compact .scraploop-orbit {
+  animation-duration: 2.2s;
+}
+
+.scraploop-travel-dot {
+  fill: var(--accent, #FF5A1F);
+  stroke: var(--paper, #FFFFFF);
+  stroke-width: 2;
+}
+
+.scraploop-center-label {
+  fill: var(--muted, #8A9099);
+  font: 500 9px/1 var(--mono, "IBM Plex Mono", monospace);
+  letter-spacing: .12em;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.scraploop-diagram--compact .scraploop-center-label {
+  display: none;
+}
+
+.scraploop-stop-marker {
+  fill: var(--paper, #FFFFFF);
+  stroke: var(--line, #8A9099);
+  stroke-width: 2;
+  transition: fill 140ms ease, stroke 140ms ease;
+}
+
+.scraploop-stop-marker.is-active {
+  fill: var(--accent, #FF5A1F);
+  stroke: var(--accent, #FF5A1F);
+}
+
+.scraploop-stops {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.scraploop-diagram--compact .scraploop-stops {
+  display: none;
+}
+
+.scraploop-stop {
+  position: absolute;
+  top: var(--stop-y, 50%);
+  left: var(--stop-x, 50%);
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 9px;
+  border: 1.5px solid var(--line, #8A9099);
+  border-radius: 999px;
+  background: var(--paper, #FFFFFF);
+  color: var(--ink, #1E2124);
+  font: 500 11px/1 var(--mono, "IBM Plex Mono", monospace);
+  letter-spacing: .02em;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgb(30 33 36 / 8%);
+  transition:
+    transform 140ms ease,
+    border-color 140ms ease,
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.scraploop-stop::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--line, #8A9099);
+  flex: 0 0 auto;
+  transition: background-color 140ms ease;
+}
+
+.scraploop-stop.is-active {
+  border-color: var(--accent, #FF5A1F);
+  color: var(--ink, #1E2124);
+  font-weight: 600;
+}
+
+.scraploop-stop.is-active::before {
+  background: var(--accent, #FF5A1F);
+}
+
+.scraploop-stop:hover {
+  transform: translate(-50%, calc(-50% - 1.5px));
+  border-color: var(--accent, #FF5A1F);
+}
+
+.scraploop-stop:active {
+  transform: translate(-50%, calc(-50% + .5px));
+}
+
+.scraploop-stop:focus-visible {
+  outline: 2px solid var(--accent, #FF5A1F);
+  outline-offset: 2px;
+}
+
+@keyframes scraploop-orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scraploop-orbit {
+    animation: none !important;
+  }
+  .scraploop-stop,
+  .scraploop-stop-marker {
+    transition: none !important;
+  }
+}

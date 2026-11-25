@@ -1,76 +1,484 @@
-import { icon } from './icons.js';
-import { planPool } from './planner.js';
+import { renderLoop } from "./shared/loop.js";
+import { icon } from "./icons.js";
+import { mountMaterialLoop } from "./material-loop.js";
 
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const number=v=>new Intl.NumberFormat('en-IN',{maximumFractionDigits:6}).format(Number(v)||0);
-const money=v=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR',maximumFractionDigits:2}).format(Number(v)||0);
-const date=v=>{const d=new Date(v);return v&&!Number.isNaN(d.getTime())?d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'Not published';};
-const safeURL=v=>{try{const u=new URL(v);return ['https:','http:'].includes(u.protocol)?u.href:'';}catch{return '';}};
-const link=(url,label='Open source')=>safeURL(url)?`<a class="text-link" href="${esc(safeURL(url))}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'<span class="muted">Source unavailable</span>';
-const nav=[['overview','grid','Overview'],['directory','building','Facility directory'],['analysis','spark','Material analysis'],['planner','box','Pool planner'],['sources','list','Sources & setup']];
-const state={status:{aiConfigured:false,model:'',facilityCount:0,recordCount:0,sourceCount:0},facilities:[],sources:[],records:[],loaded:false,error:'',search:'',region:'',industry:'',view:'list',importing:false,analysing:false,saving:false};
-let route='overview',selectedFile=null,previewURL=null,analysisId=null,analysisResult=null,toastTimer,previousFocus,requestNumber=0;
-let draft=emptyDraft();
-let planner={material:'',grade:'',quantityKg:'',comparisonPrice:'',transportCost:'0',feePercent:'0'};
+const esc = (value) =>
+  String(value ?? "").replace(
+    /[&<>"']/g,
+    (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
+        c
+      ],
+  );
+const number = (value) =>
+  new Intl.NumberFormat("en-IN", { maximumFractionDigits: 6 }).format(
+    Number(value) || 0,
+  );
+const date = (value) =>
+  value
+    ? new Date(value).toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      })
+    : "Not published";
+const safeURL = (value) => {
+  try {
+    const url = new URL(value);
+    return ["https:", "http:"].includes(url.protocol) &&
+      !url.username &&
+      !url.password
+      ? url.href
+      : "";
+  } catch {
+    return "";
+  }
+};
+const nav = [
+  ["overview", "grid", "Overview"],
+  ["directory", "building", "Facility directory"],
+  ["analysis", "spark", "Material analysis"],
+  ["planner", "box", "Pool planner"],
+  ["bookings", "truck", "Booking requests"],
+  ["results", "shield", "Model results"],
+  ["impact", "leaf", "Planned impact"],
+  ["loop", "loop", "Loop graph"],
+  ["sources", "list", "Sources & setup"],
+];
+const loaders = {
+  directory: () => import("./features/directory.js"),
+  analysis: () => import("./features/analysis.js"),
+  planner: () => import("./features/planner.js"),
+  bookings: () => import("./features/bookings.js"),
+  results: () => import("./features/results.js"),
+  impact: () => import("./features/impact.js"),
+  loop: () => import("./features/loop.js"),
+};
+const state = {
+  status: { aiConfigured: false, vision: { available: false } },
+  facilities: [],
+  sources: [],
+  records: [],
+  bookingRequests: [],
+  loaded: false,
+  error: "",
+};
+let cleanup = null,
+  generation = 0,
+  refreshGeneration = 0,
+  toastTimer,
+  importing = false;
+const main = () => document.getElementById("main");
 
-function emptyDraft(){return {title:'',company:'',material:'',grade:'',condition:'',quantityKg:'',pricePerKg:'',location:'',latitude:'',longitude:'',notes:'',confirmed:false};}
-async function api(path,options={}){const response=await fetch(path,{...options,headers:{...(options.body?{'Content-Type':'application/json'}:{}),...options.headers}});let data;try{data=await response.json();}catch{throw new Error('The local research server did not return valid data. Start it with npm run dev.');}if(!response.ok)throw new Error(data.message||data.error||'The request could not be completed.');return data;}
-async function refreshData(){const id=++requestNumber;try{const [s,f,so,r]=await Promise.all([api('/api/status'),api('/api/facilities'),api('/api/sources'),api('/api/records')]);if(id!==requestNumber)return;state.status=s;state.facilities=f.facilities||[];state.sources=so.sources||[];state.records=r.records||[];state.error='';}catch(error){state.error=error.message;}state.loaded=true;document.body.dataset.ready='true';render();}
-function toast(message,error=false){clearTimeout(toastTimer);const el=document.getElementById('toast');el.textContent=message;el.className=`toast ${error?'toast-error':''}`;el.hidden=false;toastTimer=setTimeout(()=>el.hidden=true,6500);}
-function closeMenu(restore=false){document.getElementById('sidebar').classList.remove('open');document.querySelector('.sidebar-overlay').classList.remove('visible');document.querySelector('.mobile-menu-btn').setAttribute('aria-expanded','false');if(restore)document.querySelector('.mobile-menu-btn').focus();}
-function go(page){if(location.hash===`#${page}`)render();else location.hash=page;closeMenu();}
-function heading(label,title,description,actions=''){return `<div class="page-heading"><div><div class="eyebrow">${label}</div><h1 class="page-title">${title}</h1><p class="page-subtitle">${description}</p></div><div class="heading-actions">${actions}</div></div>`;}
-function badge(text,cls='neutral'){return `<span class="badge ${cls}">${esc(text)}</span>`;}
-function sourceFor(f){return state.sources.find(s=>s.id===f.sourceId);}
-function empty(title,description,action=''){return `<div class="empty-state">${icon('box')}<h3>${title}</h3><p>${description}</p>${action}</div>`;}
-function importButton(){return `<button class="btn btn-primary" data-action="import" ${state.importing?'disabled':''}>${icon('download')}${state.importing?'Importing records…':'Import public records'}</button>`;}
-function mount(){document.getElementById('app').innerHTML=`<div class="app-shell"><aside id="sidebar" class="sidebar" aria-label="Main navigation"><a class="brand" href="#overview"><span class="brand-mark">${icon('loop')}</span><span class="brand-name">ScrapLoop<span>RESEARCH WORKSPACE</span></span></a><div class="nav-section">WORKSPACE</div><nav>${nav.map(([id,i,label])=>`<a href="#${id}" class="nav-link" data-nav="${id}">${icon(i)}<span>${label}</span></a>`).join('')}</nav><div class="sidebar-foot"><div class="local-workspace">${icon('shield')}<strong>Private by design</strong><p>Research records stored<br>on this computer.</p></div><a href="#sources" class="sidebar-setup">${icon('sliders')}Sources & connection</a><div class="workspace-profile"><span>SL</span><div><strong>Local workspace</strong><small>All India · Research</small></div></div></div></aside><div class="sidebar-overlay" data-action="close-menu"></div><div class="workspace"><header class="topbar"><div class="breadcrumbs"><button class="icon-btn mobile-menu-btn" data-action="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">${icon('menu')}</button><span>Workspace</span><span>/</span><strong id="breadcrumb">Overview</strong></div><div class="topbar-actions"><span class="server-status">${icon('shield')}Local database</span><a class="btn btn-primary btn-sm" href="#analysis">${icon('plus')}Analyse material</a></div></header><main id="main" class="main-content" tabindex="-1"></main><footer class="workspace-footer"><span>ScrapLoop / Research workspace</span><span>Evidence first. Possibilities next.</span></footer></div></div>`;}
-function render(){route=location.hash.slice(1)||'overview';if(!nav.some(n=>n[0]===route))route='overview';document.body.dataset.page=route;document.title=`ScrapLoop — ${nav.find(n=>n[0]===route)[2]}`;document.querySelectorAll('[data-nav]').forEach(a=>{const active=a.dataset.nav===route;a.classList.toggle('active',active);if(active)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});document.getElementById('breadcrumb').textContent=nav.find(n=>n[0]===route)[2];document.getElementById('main').innerHTML=!state.loaded?`<div class="loading-state">${icon('loop')}<p>Opening your research workspace…</p></div>`:state.error?`${heading('LOCAL CONNECTION','Let’s reconnect your workspace.','The interface needs the local research server to load real records.')}<div class="error-message" role="alert">${esc(state.error)}</div><button class="btn btn-primary" data-action="refresh">Try again</button><p class="help-text">Run npm run dev from the ScrapLoop project directory.</p>`:({overview,directory,analysis,planner:plannerPage,sources:sourcesPage}[route])();if(route==='analysis'&&!state.error)bindUpload();}
+async function api(path, options = {}) {
+  const response = await fetch(path, {
+    ...options,
+    headers: {
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
+      ...options.headers,
+    },
+  });
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error(
+      "The workspace server returned an unreadable response. Restart npm run dev and retry.",
+    );
+  }
+  if (!response.ok)
+    throw new Error(data.message || "This request could not be completed.");
+  return data;
+}
+async function refreshData(renderPage = true) {
+  const request = ++refreshGeneration;
+  try {
+    const [status, facilities, sources, records, bookings] = await Promise.all([
+      api("/api/status"),
+      api("/api/facilities"),
+      api("/api/sources"),
+      api("/api/records"),
+      api("/api/booking-requests"),
+    ]);
+    if (request !== refreshGeneration) return;
+    Object.assign(state, {
+      status,
+      facilities: facilities.facilities || [],
+      sources: sources.sources || [],
+      records: records.records || [],
+      bookingRequests: bookings.requests || [],
+      loaded: true,
+      error: "",
+    });
+  } catch (error) {
+    if (request !== refreshGeneration) return;
+    state.error = error.message;
+    state.loaded = true;
+  }
+  document.body.dataset.ready = "true";
+  updateShellStatus();
+  if (renderPage) render();
+  else if (state.error) throw new Error(state.error);
+  return state;
+}
+function toast(message, isError = false) {
+  clearTimeout(toastTimer);
+  const el = document.getElementById("toast");
+  el.textContent = message;
+  el.className = `toast ${isError ? "toast-error" : ""}`;
+  el.hidden = false;
+  toastTimer = setTimeout(() => (el.hidden = true), 6000);
+}
+function closeMenu(restore = false) {
+  document.getElementById("sidebar").classList.remove("open");
+  document.querySelector(".sidebar-overlay").classList.remove("visible");
+  document
+    .querySelector(".mobile-menu-btn")
+    .setAttribute("aria-expanded", "false");
+  if (restore) document.querySelector(".mobile-menu-btn").focus();
+}
+function navigate(route) {
+  if (!nav.some((n) => n[0] === route)) return;
+  if (location.hash === `#${route}`) render();
+  else location.hash = route;
+  closeMenu();
+}
+function updateShellStatus() {
+  const el = document.getElementById("connection-status");
+  if (el)
+    el.textContent = state.error ? "Connection unavailable" : "Local workspace";
+}
+function heading(label, title, description, actions = "") {
+  return `<div class="page-heading"><div><div class="eyebrow">${label}</div><h1 class="page-title">${title}</h1><p class="page-subtitle">${description}</p></div><div class="heading-actions">${actions}</div></div>`;
+}
+function badge(text, kind = "neutral") {
+  return `<span class="badge ${kind}">${esc(text)}</span>`;
+}
+function importButton() {
+  return `<button class="btn btn-primary" data-action="import" ${importing ? "disabled" : ""}>${importing ? "Importing…" : "Import public records"}</button>`;
+}
+function mountShell() {
+  document.getElementById("app").innerHTML = `<div class="app-shell">
+    <header class="desk-masthead"><a class="brand" href="/" aria-label="ScrapLoop home"><svg viewBox="0 0 28 28" class="brand-mark" aria-hidden="true"><path d="M5 8h13l-3-3m8 15H10l3 3M18 8a8 8 0 0 1 4 12M10 20a8 8 0 0 1-4-12"/></svg><span>SCRAPLOOP<span class="brand-caption">THE MATERIAL DESK</span></span></a><div class="masthead-note"><span class="status-dot"></span><span id="connection-status">Local workspace</span><span class="masthead-divider">/</span><span>Saved on this computer</span></div><div class="masthead-actions"><button class="finder-trigger" data-action="finder" aria-label="Search workspace" title="Find anything (Ctrl+K)" aria-haspopup="dialog">${icon("search")}<span>Find anything</span><kbd>⌘ / Ctrl K</kbd></button><a class="btn btn-primary quick-add" href="#analysis">+ <span>Add material</span></a><button type="button" class="icon-btn mobile-menu-btn" data-action="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">${icon("menu")}</button></div></header>
+    <div class="desk-navigation" id="sidebar"><nav aria-label="Main navigation">${nav.map(([id, i, label], index) => `<a class="nav-link" href="#${id}" data-nav="${id}"><span class="nav-number">0${index + 1}</span><span>${label}</span>${icon(i)}</a>`).join("")}</nav><a class="desk-home" href="/">Landing page ↗</a></div><div class="sidebar-overlay" data-action="close-menu"></div>
+    <div class="workspace"><div class="desk-location"><div class="breadcrumbs"><span>WORKSPACE</span><span>/</span><strong id="breadcrumb">Overview</strong></div><span class="workspace-label">INDUSTRIAL MATERIAL REUSE</span></div><main id="main" class="main-content" tabindex="-1"></main><footer class="workspace-footer"><a href="/">SCRAPLOOP<span> / TEAM MISMATCHED</span></a><span>From evidence to a better use.</span><a href="#sources">Sources & setup ↗</a></footer></div></div>
+    <dialog class="finder-dialog" id="workspace-finder" aria-labelledby="finder-title"><div class="finder-header"><label id="finder-title" for="finder-input">Find a page, facility or material</label><button class="icon-btn" data-action="close-finder" aria-label="Close search">${icon("close")}</button></div><input class="input" id="finder-input" type="search" placeholder="Try ‘analysis’, ‘Pune’ or a saved material…" autocomplete="off"><div id="finder-results" class="finder-results" aria-live="polite"></div><p class="finder-hint">Tab to a result · Enter to open · Esc to close</p></dialog>`;
+}
+let finderFocus = null;
+let pendingSearch = null;
+function openFinder() {
+  const dialog = document.getElementById("workspace-finder");
+  if (dialog.open) return;
+  finderFocus = document.activeElement;
+  dialog.showModal();
+  document.getElementById("finder-input").value = "";
+  renderFinder();
+  document.getElementById("finder-input").focus();
+}
+function closeFinder() {
+  document.getElementById("workspace-finder").close();
+  finderFocus?.focus();
+}
+function renderFinder() {
+  const query = document
+    .getElementById("finder-input")
+    .value.trim()
+    .toLowerCase();
+  const matches = (value) => value.toLowerCase().includes(query);
+  const pages = nav
+    .filter((n) => matches(n[2]))
+    .map(([route, i, label]) => ({
+      route,
+      label,
+      detail: "Workspace page",
+      icon: i,
+    }));
+  const facilities = query
+    ? state.facilities
+        .filter((f) =>
+          matches(
+            `${f.name} ${f.state} ${f.district || ""} ${(f.materials || []).join(" ")}`,
+          ),
+        )
+        .slice(0, 5)
+        .map((f) => ({
+          route: "directory",
+          label: f.name,
+          detail: `Facility · ${f.state}`,
+          search: f.name,
+          icon: "building",
+        }))
+    : [];
+  const records = query
+    ? state.records
+        .filter((r) =>
+          matches(`${r.title} ${r.material || ""} ${r.company || ""}`),
+        )
+        .slice(0, 5)
+        .map((r) => ({
+          route: "analysis",
+          label: r.title,
+          detail: `Saved material · ${r.material || "Unspecified"}`,
+          search: r.title,
+          icon: "box",
+        }))
+    : [];
+  const bookings = query
+    ? state.bookingRequests
+        .filter((r) =>
+          matches(
+            `${r.id} ${r.requirements.material} ${r.requirements.grade} ${r.status}`,
+          ),
+        )
+        .slice(0, 5)
+        .map((r) => ({
+          route: "bookings",
+          label: `${r.requirements.material} / ${r.requirements.grade}`,
+          detail: `Booking request · ${r.id}`,
+          search: r.id,
+          icon: "truck",
+        }))
+    : [];
+  document.getElementById("finder-results").innerHTML =
+    [...pages, ...facilities, ...records, ...bookings]
+      .map(
+        (r) =>
+          `<button class="finder-result" data-action="finder-go" data-route="${r.route}" data-query="${esc(r.search || "")}">${icon(r.icon)}<span><strong>${esc(r.label)}</strong><small>${esc(r.detail)}</small></span><span aria-hidden="true">↗</span></button>`,
+      )
+      .join("") ||
+    '<p class="finder-empty">No matches in this workspace. Try a page name or a shorter search.</p>';
+}
 
-function overview(){const states=new Set(state.facilities.map(f=>f.state).filter(Boolean)),coordinates=state.facilities.filter(hasCoordinates);return `${heading('INDUSTRIAL MATERIAL INTELLIGENCE','Research overview','Your facility directory, material evidence, and planning tools in one local workspace.',`<a class="btn btn-secondary" href="#directory">${icon('building')}Explore directory</a>`)}
-<div class="dashboard-grid"><div class="overview-main"><section class="intro-panel"><div class="intro-copy"><span class="eyebrow">RESEARCH. RECOVER. RECONNECT.</span><h2 class="intro-title">Know your material.<br><em>Find its next purpose.</em></h2><p class="intro-description">Find publicly documented facilities. Understand your material. Build a more informed route to reuse.</p><div class="intro-actions"><a href="#analysis" class="btn btn-dark">${icon('spark')}Analyse a material</a><a href="#sources" class="text-link">Explore the evidence</a></div><span class="intro-footnote">Private workspace · Records stored on this computer</span></div><div class="intro-visual" aria-hidden="true"><svg viewBox="0 0 300 260"><defs><pattern id="mesh" width="18" height="18" patternUnits="userSpaceOnUse"><path d="M18 0H0V18" fill="none" stroke="currentColor" stroke-width=".7" opacity=".12"/></pattern></defs><rect width="300" height="260" fill="url(#mesh)"/><g fill="none" stroke="currentColor" stroke-width="1.3"><path d="m150 42 89 51v101l-89 51-89-51V93Z"/><path d="m150 42 0 101 89 51M61 93l89 50 89-50M61 194l89-51v102"/><path d="m105 67 89 51v102M194 67l-89 51v102M61 144l89 51 89-51" opacity=".45"/><circle cx="150" cy="143" r="71" stroke-dasharray="3 7"/></g><g fill="currentColor"><circle cx="150" cy="42" r="4"/><circle cx="239" cy="194" r="4"/><circle cx="61" cy="194" r="4"/></g></svg><span class="visual-tag">MATERIAL → POSSIBILITY</span></div></section><section class="metric-strip" aria-label="Research workspace summary">${[[state.facilities.length,'Public facility records'],[states.size,'States represented'],[state.records.length,'Confirmed material records'],[state.status.aiConfigured?'Connected':'Set up','OpenAI analysis']].map(([v,l])=>`<div class="metric"><strong>${esc(v)}</strong><span>${l}</span></div>`).join('')}</section><section class="panel"><div class="panel-header"><div><span class="eyebrow">THE RESEARCH NETWORK</span><h2>Facilities to investigate</h2></div><a class="text-link" href="#directory">View directory</a></div>${state.facilities.length?`<div class="facility-list">${state.facilities.slice(0,4).map(f=>facilityRow(f,true)).join('')}</div>`:empty('Start with the source.','Import the reviewed public-record bundle to explore facilities with traceable source references.',importButton())}<div class="panel-footer">${icon('info')}A directory record does not establish current material availability.</div></section></div><aside class="overview-rail"><section class="panel map-panel"><div class="panel-header"><div><span class="eyebrow">INDIA / RESEARCH COVERAGE</span><h2>Your wider loop</h2></div>${badge('Public records','green')}</div>${indiaMap(state.facilities)}<div class="map-summary"><strong>${coordinates.length} geolocated</strong><span>of ${state.facilities.length} facility records</span></div></section><section class="panel coverage-panel"><div class="panel-header"><div><span class="eyebrow">START WHERE YOU ARE</span><h2>A clearer next step</h2></div></div><div class="panel-body"><ol class="setup-steps"><li class="${state.facilities.length?'complete':''}"><span>${icon('building')}</span><div><strong>Build your facility directory</strong><p>Import attributable public records.</p></div></li><li class="${state.status.aiConfigured?'complete':''}"><span>${icon('spark')}</span><div><strong>Connect material analysis</strong><p>Configure your OpenAI key on the server.</p></div></li><li class="${state.records.length?'complete':''}"><span>${icon('shield')}</span><div><strong>Review the evidence</strong><p>Save confirmed material information.</p></div></li></ol><a class="btn btn-secondary btn-full" href="#sources">Open sources & setup</a></div></section></aside></div>`;}
-function hasCoordinates(f){return typeof f.latitude==='number'&&Number.isFinite(f.latitude)&&typeof f.longitude==='number'&&Number.isFinite(f.longitude)&&f.latitude>=6&&f.latitude<=38&&f.longitude>=67&&f.longitude<=99;}
-function indiaMap(facilities){const points=facilities.filter(hasCoordinates),coverage=new Set(facilities.map(f=>f.state).filter(Boolean));return `<div class="india-map"><svg viewBox="0 0 440 410" role="img" aria-label="Approximate India overview showing only facility coordinates supplied by verified sources"><defs><pattern id="geogrid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#d9e0d7" stroke-width=".7"/></pattern></defs><rect width="440" height="410" fill="#f0f4ed"/><rect width="440" height="410" fill="url(#geogrid)"/><path d="m130 38 31-8 16 19 19 4 9 22 26 4 13 20-15 21 18 23 45 3 19-18 28 3 21-12 27 6-7 18-25 11-11 22-20-7-27 9-22-7-17 21-16 15-8 28-19 22-13 37-22 42-16 40-15-7-8-28-13-25-8-34-16-14-10-30-17-11-12-34-17-14-24 1-13-20 12-20 22 2 14-19 4-21 19-9 5-21-10-16 8-20Z" fill="#dce7d2" stroke="#a8bba0" stroke-width="1.5"/><path d="m132 123 37 26 24-6 37 27M138 182l36 28 44-4M173 211l-9 45 28 21M203 79l-30 24-5 46M248 156l-41 26 11 24M184 277l-5 41" fill="none" stroke="#c0d0b8" stroke-width="1"/><text x="25" y="32" font-size="11" font-family="monospace" fill="#778471">INDIA · APPROXIMATE PROJECTION</text><text x="330" y="376" font-size="11" font-family="monospace" fill="#778471">N ↑</text>${points.map(f=>`<circle cx="${(f.longitude-67)/32*380+30}" cy="${(38-f.latitude)/32*350+28}" r="5" fill="#335e40" stroke="#fff" stroke-width="2"><title>${esc(f.name)}</title></circle>`).join('')}</svg><div class="map-caption">${points.length?`${points.length} source-supplied coordinate${points.length===1?'':'s'} plotted`:'No reliable facility coordinates in the current records'}<span>${coverage.size} states represented · Addresses remain searchable</span></div></div>`;}
-function facilityRow(f,compact=false){const source=sourceFor(f);return `<article class="facility-row"><span class="facility-icon">${icon('building')}</span><div class="facility-info"><button class="facility-name" data-action="facility" data-id="${esc(f.id)}">${esc(f.name)}</button><span>${esc(f.district||f.state||'Location not recorded')}${f.district&&f.state?`, ${esc(f.state)}`:''}</span><div class="facility-tags">${badge(f.industry||'Industry not specified')}${(f.materials||[]).slice(0,2).map(m=>badge(m,'green')).join('')}</div></div><div class="facility-meta"><span>${esc(source?.publisher||'Public source')}</span><button class="text-link" data-action="facility" data-id="${esc(f.id)}">${compact?'View record':'Source & details'}</button></div></article>`;}
-function filteredFacilities(){return state.facilities.filter(f=>(!state.region||f.state===state.region)&&(!state.industry||f.industry===state.industry)&&`${f.name} ${f.address} ${f.district} ${f.state} ${(f.materials||[]).join(' ')}`.toLowerCase().includes(state.search.toLowerCase()));}
-function directory(){const facilities=filteredFacilities(),states=[...new Set(state.facilities.map(f=>f.state).filter(Boolean))].sort(),industries=[...new Set(state.facilities.map(f=>f.industry).filter(Boolean))].sort();return `${heading('FACILITY DIRECTORY','A network worth understanding.','Publicly documented facilities across India, with a source behind every record.',importButton())}<div class="directory-toolbar"><label class="search-field">${icon('search')}<input id="directory-search" type="search" placeholder="Search facilities, materials, or locations" value="${esc(state.search)}" aria-label="Search facility directory"></label><div class="filter-grid"><label class="field"><span class="field-label">State</span><select class="select" id="state-filter"><option value="">All states</option>${states.map(s=>`<option ${state.region===s?'selected':''}>${esc(s)}</option>`).join('')}</select></label><label class="field"><span class="field-label">Industry</span><select class="select" id="industry-filter"><option value="">All industries</option>${industries.map(s=>`<option ${state.industry===s?'selected':''}>${esc(s)}</option>`).join('')}</select></label></div></div><div class="section-heading"><h2>${number(facilities.length)} facility records</h2><div class="view-switch" aria-label="Directory view"><button data-action="view" data-view="list" aria-pressed="${state.view==='list'}" class="${state.view==='list'?'active':''}">${icon('list')}List</button><button data-action="view" data-view="map" aria-pressed="${state.view==='map'}" class="${state.view==='map'?'active':''}">${icon('globe')}Map</button></div></div>${state.facilities.length?state.view==='map'?`<section class="panel directory-map">${indiaMap(facilities)}<div class="panel-footer">${icon('info')}Only source-provided coordinates are mapped. Missing coordinates are not guessed.</div></section>`:`<section class="panel facility-list">${facilities.map(f=>facilityRow(f)).join('')||empty('No records match these filters.','Try another state, industry, or search term.',`<button class="btn btn-secondary" data-action="clear-filters">Clear filters</button>`)}</section>`:`<section class="panel">${empty('Your directory starts with evidence.','Import reviewed public records. Coverage depends on the source material available.',importButton())}</section>`}<div class="notice">${icon('info')}Listed facilities are research leads. Public registers do not confirm present authorisation, available scrap, pricing, or willingness to trade.</div>`;}
-function textField(name,label,placeholder='',required=false){return `<label class="field"><span class="field-label">${label}${required?' *':''}</span><input class="input" name="${name}" value="${esc(draft[name])}" placeholder="${esc(placeholder)}" maxlength="${name==='title'?200:500}" ${required?'required':''}></label>`;}
-function numericField(name,label,min=0,max=1000000000){return `<label class="field"><span class="field-label">${label}</span><input class="input" name="${name}" type="number" step="any" min="${min}" max="${max}" value="${esc(draft[name])}" placeholder="Unknown"></label>`;}
-function analysis(){return `${heading('MATERIAL ANALYSIS','Know what you’re working with.','Read a photo or document with AI, then turn reviewed information into a material record.',`<button class="btn btn-secondary" data-action="clear-analysis" ${state.analysing?'disabled':''}>${icon('plus')}New record</button>`)}<div class="analysis-layout"><section class="panel analysis-sheet"><div class="panel-header"><div><h2>Material evidence</h2><p>A photo, an invoice, or your own confirmed details.</p></div>${badge(state.status.aiConfigured?'OpenAI connected':'AI setup needed',state.status.aiConfigured?'green':'amber')}</div><div class="panel-body"><label class="upload-zone" id="upload-zone"><input class="upload-input" id="analysis-file" type="file" ${state.analysing?'disabled':''} accept="image/jpeg,image/png,image/webp,application/pdf" aria-label="Choose a material photo or PDF">${icon('upload')}<strong>${selectedFile?esc(selectedFile.name):'Drop a material photo or PDF'}</strong><span>JPG, PNG, WebP, PDF · up to 10 MB</span><div class="upload-preview">${previewURL?`<img src="${previewURL}" alt="Selected material photo">`:selectedFile?icon('file'):''}</div></label><div class="analysis-actions"><button class="btn btn-primary" data-action="analyse" ${!selectedFile||state.analysing||!state.status.aiConfigured?'disabled':''}>${icon('spark')}${state.analysing?'Analysing evidence…':'Analyse'}</button><span>${state.status.aiConfigured?'Files are sent to OpenAI only when you select Analyse.':'Set OPENAI_API_KEY on the local server. Manual entry is available now.'}</span></div>${analysisResult?`<div class="analysis-status">${icon('check')}<div><strong>Analysis ready for your review</strong><span>${esc(selectedFile?.name||'Uploaded file')} · Check each suggested field before saving.</span></div></div>`:''}<form id="record-form" novalidate><div id="record-error" class="error-message" role="alert" hidden></div><div class="form-grid"><div class="form-section span-2"><h3>Review the material</h3><p>Unknown information can stay blank. Quantity and grade need documentary or manual confirmation.</p></div>${textField('title','Record title','e.g. Aluminium machining offcuts',true)}${textField('company','Company or facility','Unknown')}${textField('material','Material','e.g. PP or aluminium')}${textField('grade','Documented grade','Unknown')}<label class="field"><span class="field-label">Condition</span><select class="select" name="condition"><option value="">Unknown</option>${['Clean','Mixed','Contaminated'].map(v=>`<option ${draft.condition===v?'selected':''}>${v}</option>`).join('')}</select></label>${numericField('quantityKg','Quantity (kg)')}${numericField('pricePerKg','Asking price (₹ / kg)')}${textField('location','Location or address','Unknown')}<div class="form-section span-2"><h3>Location & research notes</h3><p>Use coordinates only when you have a reliable source.</p></div>${numericField('latitude','Latitude',-90,90)}${numericField('longitude','Longitude',-180,180)}<label class="field span-2"><span class="field-label">Notes and evidence</span><textarea class="textarea" name="notes" rows="3" maxlength="5000" placeholder="Record supporting information, uncertainties, or questions.">${esc(draft.notes)}</textarea></label></div><label class="confirm-checkbox"><input type="checkbox" name="confirmed" ${draft.confirmed?'checked':''}><span>I have reviewed the fields and recorded uncertainties. AI suggestions are not material certification.</span></label><div class="form-actions"><button type="submit" class="btn btn-primary" ${state.saving?'disabled':''}>${icon('check')}${state.saving?'Saving…':'Save reviewed record'}</button></div></form></div></section><aside class="analysis-rail">${evidencePanel()}<section class="panel"><div class="panel-header"><div><span class="eyebrow">YOUR RESEARCH</span><h2>Saved material records</h2></div>${badge(state.records.length)}</div><div class="record-list">${state.records.length?state.records.map(recordCard).join(''):empty('Keep the useful details.','Reviewed material records appear here and become available to the pool planner.')}</div></section></aside></div>`;}
-function evidencePanel(){const s=analysisResult?.suggestions||{},e=s.evidence||[],w=s.warnings||[];return `<section class="panel evidence-panel"><div class="panel-header"><div><span class="eyebrow">READ THE EVIDENCE</span><h2>What supports the fields?</h2></div>${icon('shield')}</div><div class="panel-body">${e.length?`<div class="evidence-list">${e.map(v=>`<div class="evidence-item"><strong>${esc(v.field)}</strong><blockquote>${esc(v.quote||'No supporting text supplied.')}</blockquote>${v.page?`<span>Page ${esc(v.page)}</span>`:''}</div>`).join('')}</div>`:'<p class="muted">Document excerpts and uncertainties appear after analysis. Manually entered details should be supported by your own evidence.</p>'}${w.length?`<div class="warning-list">${w.map(v=>`<p>${icon('info')}${esc(v)}</p>`).join('')}</div>`:''}<div class="notice">${icon('info')}A photo may suggest a material family. Exact grade, purity, weight, and fitness for reuse need additional evidence.</div></div></section>`;}
-function recordCard(r){return `<article class="record-card"><div><strong>${esc(r.title)}</strong><span>${esc(r.company||'Company not recorded')}</span></div><div class="record-spec">${badge(r.material||'Material unknown')}${r.grade?badge(r.grade,'green'):''}<span>${r.quantityKg==null?'Quantity unknown':`${number(r.quantityKg)} kg`}</span></div><div class="record-actions"><button class="text-link" data-action="record" data-id="${esc(r.id)}">View details</button><button class="icon-btn" data-action="delete-record" data-id="${esc(r.id)}" aria-label="Delete ${esc(r.title)}">${icon('close')}</button></div></article>`;}
-function plannerField(name,label,type,placeholder){return `<label class="field"><span class="field-label">${label}</span><input class="input" name="${name}" type="${type}" value="${esc(planner[name])}" placeholder="${esc(placeholder)}" ${type==='number'?`min="0" max="${name==='feePercent'?100:1000000000}" step="any"`:'maxlength="100"'} required></label>`;}
-function plannerValues(){return Object.fromEntries(Object.entries(planner).map(([k,v])=>[k,['material','grade'].includes(k)?v:v===''?null:Number(v)]));}
-function plannerPage(){const p=planPool(state.records,plannerValues());return `${heading('POOL PLANNER','Make the numbers work together.','Explore compatible quantities and delivered costs using your confirmed research records.',`<a class="btn btn-secondary" href="#analysis">${icon('plus')}Add material record</a>`)}<div class="notice planning-notice">${icon('info')}Planning estimates use your entered quantities and costs. Public facility listings do not establish material availability. No booking or transaction is created.</div><div class="planner-layout"><section class="panel"><div class="panel-header"><div><h2>Your planning requirement</h2><p>Set a material, quantity, and comparison cost.</p></div></div><form id="planner-form" class="panel-body" novalidate><div class="form-grid">${plannerField('material','Material','text','e.g. PP')}${plannerField('grade','Required grade','text','e.g. PP-H')}${plannerField('quantityKg','Required quantity (kg)','number','0')}${plannerField('comparisonPrice','Comparison material price (₹ / kg)','number','0')}${plannerField('transportCost','Pickup cost estimate (₹)','number','0')}${plannerField('feePercent','Platform or handling fee (%)','number','0')}</div><div class="form-actions"><button class="btn btn-primary" type="submit">${icon('sliders')}Calculate a pool</button></div></form><div class="panel-footer">${icon('shield')}Only confirmed records with clean condition, matching material and grade, and known positive quantities and prices are eligible.</div></section><section class="panel planner-result"><div class="panel-header"><div><span class="eyebrow">ESTIMATED SHIPMENT</span><h2>Your material pool</h2></div>${badge(p.viable?'Lower estimated cost':p.complete?'Review costs':'Build a requirement',p.viable?'green':'neutral')}</div><div class="panel-body"><div class="pool-summary"><strong>${number(p.quantityKg)}<span> / ${number(p.requiredKg)} kg</span></strong><span>${p.allocations.length} records</span></div><div class="notice ${p.viable?'positive':''}">${icon(p.viable?'check':'info')}${esc(p.reason)}</div>${p.allocations.map(a=>`<div class="allocation-row"><span><strong>${esc(a.company)}</strong><span>${esc(a.title)} · ${number(a.quantityKg)} kg × ${money(a.pricePerKg)}</span></span><strong>${money(a.payout)}</strong></div>`).join('')}${p.allocations.length?`<div class="cost-row"><span>Material subtotal</span><strong>${money(p.materialCost)}</strong></div><div class="cost-row"><span>Pickup estimate</span><strong>${money(p.transportCost)}</strong></div><div class="cost-row"><span>Fee (${number(p.feePercent)}%)</span><strong>${money(p.fee)}</strong></div><div class="cost-row total"><strong>Estimated delivered cost</strong><strong>${money(p.totalCost)}</strong></div>${p.complete?`<div class="cost-row"><span>Comparison total</span><strong>${money(p.baselineCost)}</strong></div><div class="cost-row saving"><span>${p.savings>0?'Potential savings':'Difference from comparison'}</span><strong>${money(p.savings)}</strong></div>`:''}`:''}<p class="help-text">${p.excludedCount} records excluded for incomplete or incompatible fields. Pickup costs are your assumptions, not road quotes. Review locations and include processing costs separately.</p></div></section></div>`;}
-function sourcesPage(){return `${heading('SOURCES & SETUP','A clear trail behind every record.','Review what your directory contains, where it came from, and what still needs checking.',importButton())}<div class="setup-grid"><section class="panel setup-card"><div class="panel-header"><div><span class="eyebrow">AI CONNECTION</span><h2>OpenAI material analysis</h2></div>${badge(state.status.aiConfigured?'Connected':'Not configured',state.status.aiConfigured?'green':'amber')}</div><div class="panel-body"><p>Use your own API key to analyse photos and PDFs. The server calls OpenAI; the key is never sent to this interface.</p><div class="config-code"><code>OPENAI_API_KEY=your_key</code><code>OPENAI_MODEL=${esc(state.status.model||'gpt-4.1-mini')}</code></div><p class="help-text">Add these values to the local .env file, then restart npm run dev. Keep your key out of project source files and chat.</p><div class="setup-actions"><button class="btn btn-secondary" data-action="refresh">${icon('reset')}Refresh connection status</button><a class="text-link" href="#analysis">Open material analysis</a></div></div></section><section class="panel setup-card"><div class="panel-header"><div><span class="eyebrow">PUBLIC DATA</span><h2>Reviewed source bundle</h2></div>${badge(`${state.sources.length} sources`)}</div><div class="panel-body"><p>Import the bundled factual records and attribution into your local database. Re-importing updates matching records without creating duplicates.</p><div class="data-totals"><strong>${number(state.facilities.length)}<span>facility records</span></strong><strong>${new Set(state.facilities.map(f=>f.state).filter(Boolean)).size}<span>states represented</span></strong></div><p class="help-text">This is a starting directory with uneven coverage, not a complete national census. Published dates and notes determine what each record supports.</p>${importButton()}</div></section></div><div class="section-heading"><h2>Imported sources</h2><span>${state.sources.length} source references</span></div><div class="source-list">${state.sources.length?state.sources.map(s=>`<article class="panel source-card"><div class="source-heading"><span class="source-icon">${icon('file')}</span><div><h3>${esc(s.title)}</h3><p>${esc(s.publisher)}</p></div>${link(s.url)}</div><div class="source-details"><div><span>Published</span><strong>${date(s.publicationDate)}</strong></div><div><span>Retrieved</span><strong>${date(s.retrievedAt)}</strong></div><div><span>Coverage</span><strong>${esc(s.coverage||'See source notes')}</strong></div><div><span>Records</span><strong>${state.facilities.filter(f=>f.sourceId===s.id).length}</strong></div></div><p class="source-note">${esc(s.notes||'Review the original source before drawing conclusions.')}</p><p class="source-terms"><strong>Reuse / terms:</strong> ${esc(s.terms||'Check the original publisher’s terms.')}</p>${s.termsUrl?link(s.termsUrl,'Publisher reuse policy'):''}</article>`).join(''):`<section class="panel">${empty('Source references will appear here.','Import reviewed records to inspect their dates, scope, and attribution.',importButton())}</section>`}</div><div class="notice">${icon('info')}Data is saved in the local database. Uploaded files are processed transiently for analysis; saved records retain reviewed fields and evidence. Old browser demo data is not imported.</div>`;}
-function showModal(title,body,footer=''){previousFocus=document.activeElement;document.getElementById('modal-root').innerHTML=`<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div class="modal-header"><h2 id="modal-title">${title}</h2><button class="icon-btn" data-action="close-modal" aria-label="Close dialog">${icon('close')}</button></div><div class="modal-body">${body}</div>${footer?`<div class="modal-footer">${footer}</div>`:''}</section></div>`;document.body.classList.add('modal-open');document.querySelector('.modal button')?.focus();}
-function closeModal(){document.getElementById('modal-root').innerHTML='';document.body.classList.remove('modal-open');if(previousFocus?.isConnected)previousFocus.focus();}
-function facilityModal(id){const f=state.facilities.find(f=>f.id===id);if(!f)return;const source=sourceFor(f);showModal(esc(f.name),`<div class="facility-tags">${badge(f.industry||'Industry not recorded')}${(f.materials||[]).map(m=>badge(m,'green')).join('')}</div><dl class="detail-grid"><div><dt>Address</dt><dd>${esc(f.address||'Not recorded')}</dd></div><div><dt>State / district</dt><dd>${esc([f.state,f.district].filter(Boolean).join(' / ')||'Not recorded')}</dd></div><div><dt>Coordinates</dt><dd>${hasCoordinates(f)?`${f.latitude}, ${f.longitude}`:'Not supplied by the source'}</dd></div><div><dt>Source publication date</dt><dd>${date(f.sourcePublishedAt||source?.publicationDate)}</dd></div><div><dt>Source reviewed</dt><dd>${date(f.checkedAt)}</dd></div><div><dt>Source reference</dt><dd>${esc(f.sourcePage?'Page '+f.sourcePage+(f.sourceRow?' · row '+f.sourceRow:''):f.sourceRow?'Row '+f.sourceRow:'See original source')}</dd></div></dl><div class="source-reference"><strong>${esc(source?.publisher||'Public record')}</strong><p>${esc(source?.title||'Original facility source')}</p>${link(f.sourceUrl||source?.url,'Read original source')}</div><div class="notice">${icon('info')}Current authorisation and material availability have not been independently confirmed. Review the original registry and contact the facility before planning a transaction.</div>`);}
-function recordModal(id){const r=state.records.find(r=>r.id===id);if(!r)return;showModal(esc(r.title),`<dl class="detail-grid">${[['Company',r.company],['Material',r.material],['Grade',r.grade],['Condition',r.condition],['Quantity',r.quantityKg==null?null:`${number(r.quantityKg)} kg`],['Price',r.pricePerKg==null?null:`${money(r.pricePerKg)} / kg`],['Location',r.location],['Saved',date(r.createdAt)]].map(([label,value])=>`<div><dt>${label}</dt><dd>${esc(value||'Unknown')}</dd></div>`).join('')}</dl><p class="record-notes">${esc(r.notes||'No research notes recorded.')}</p>${r.analysisId?`<button class="btn btn-secondary" data-action="view-analysis" data-id="${esc(r.analysisId)}">View original extraction evidence</button>`:''}`);}
-async function importRecords(){if(state.importing)return;state.importing=true;render();try{const r=await api('/api/import-public',{method:'POST',body:'{}'});await refreshData();toast(`Public records imported. ${number(r.totalFacilities??r.importedFacilities)} facilities in your directory.`);}catch(error){toast(error.message,true);}finally{state.importing=false;render();}}
-function collectDraft(form){const data=new FormData(form);for(const key of Object.keys(draft))draft[key]=key==='confirmed'?data.has(key):String(data.get(key)??'');}
-function formRecord(){const body={...draft,confirmed:draft.confirmed,analysisId};for(const key of ['quantityKg','pricePerKg','latitude','longitude'])body[key]=draft[key]===''?null:Number(draft[key]);return body;}
-function showFormError(message){const el=document.getElementById('record-error');el.hidden=false;el.textContent=message;el.scrollIntoView({block:'nearest'});}
-async function saveRecord(form){collectDraft(form);if(!draft.title.trim())return showFormError('Enter a title for this research record.');if(!draft.confirmed)return showFormError('Review the details and confirm them before saving.');for(const input of form.querySelectorAll('input'))if(!input.checkValidity()){showFormError(`Check ${input.closest('label')?.querySelector('.field-label')?.textContent||'the highlighted field'}.`);input.focus();return;}state.saving=true;render();try{await api('/api/records',{method:'POST',body:JSON.stringify(formRecord())});await refreshData();toast('Reviewed material record saved in your local database.');}catch(error){toast(error.message,true);}finally{state.saving=false;render();}}
-async function analyse(){if(!selectedFile||state.analysing)return;state.analysing=true;render();try{const dataBase64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onerror=()=>reject(new Error('This file could not be read.'));reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.readAsDataURL(selectedFile);});const result=await api('/api/analyze',{method:'POST',body:JSON.stringify({name:selectedFile.name,mimeType:selectedFile.type,dataBase64})});analysisId=result.id;analysisResult=result;const s=result.suggestions||{};for(const key of ['company','material','grade','quantityKg','pricePerKg','location','condition'])draft[key]=s[key]??'';draft.title=draft.title||[s.material,'material record'].filter(Boolean).join(' ')||'Material record';draft.confirmed=false;toast('Analysis complete. Review suggestions and evidence before saving.');}catch(error){toast(error.message,true);}finally{state.analysing=false;render();}}
-function bindUpload(){const input=document.getElementById('analysis-file'),zone=document.getElementById('upload-zone');if(!input||!zone)return;input.addEventListener('change',()=>acceptFile(input.files[0]));zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover');});zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragover');acceptFile(e.dataTransfer.files[0]);});}
-function acceptFile(file){if(!file)return;if(state.analysing)return toast('Wait for the current analysis before choosing another file.',true);if(!['image/jpeg','image/png','image/webp','application/pdf'].includes(file.type))return toast('Choose a JPG, PNG, WebP image, or PDF.',true);if(file.size>10*1024*1024)return toast('Choose a file smaller than 10 MB.',true);if(previewURL)URL.revokeObjectURL(previewURL);selectedFile=file;previewURL=file.type.startsWith('image/')?URL.createObjectURL(file):null;analysisId=null;analysisResult=null;draft.confirmed=false;render();}
-function clearAnalysis(){if(state.analysing)return toast('Wait for the current analysis before starting another record.',true);if(previewURL)URL.revokeObjectURL(previewURL);previewURL=null;selectedFile=null;analysisId=null;analysisResult=null;draft=emptyDraft();render();}
+function loopSpinner() {
+  return "<span data-step-loader></span>";
+}
+function mountLoader(root) {
+  renderLoop(root.querySelector("[data-step-loader]"), { compact: true });
+}
+function render() {
+  const current = ++generation;
+  cleanup?.();
+  cleanup = null;
+  main().replaceChildren();
+  delete main().dataset.feature;
+  let route = location.hash.slice(1) || "overview";
+  if (!nav.some((n) => n[0] === route)) route = "overview";
+  const label = nav.find((n) => n[0] === route)[2];
+  document.body.dataset.page = route;
+  document.title = `ScrapLoop — ${label}`;
+  document.getElementById("breadcrumb").textContent = label;
+  document.querySelectorAll("[data-nav]").forEach((el) => {
+    const active = el.dataset.nav === route;
+    el.classList.toggle("active", active);
+    if (active) el.setAttribute("aria-current", "page");
+    else el.removeAttribute("aria-current");
+  });
+  if (!state.loaded) {
+    main().innerHTML = `<div class="loading-state" role="status">${loopSpinner()}<p>Opening your workspace…</p></div>`;
+    mountLoader(main());
+    return;
+  }
+  if (state.error) {
+    main().innerHTML = `${heading("LOCAL CONNECTION", "Let’s reconnect.", "The workspace needs its local server to load your records.")}<div class="error-message" role="alert">${esc(state.error)}</div><button class="btn btn-primary" data-action="refresh">Try again</button>`;
+    return;
+  }
+  if (loaders[route]) {
+    const root = document.createElement("div");
+    root.dataset.feature = route;
+    root.innerHTML = `<div class="loading-state" role="status">${loopSpinner()}<p>Opening this page…</p></div>`;
+    main().append(root);
+    mountLoader(root);
+    const loader = window.__features?.[route] || loaders[route];
+    Promise.resolve()
+      .then(loader)
+      .then((module) => {
+        if (current !== generation) return;
+        return module.mountFeature(root, {
+          getData: () => state,
+          api,
+          refreshData: () => refreshData(false),
+          navigate,
+          toast,
+          initialSearch:
+            pendingSearch?.route === route ? pendingSearch.query : "",
+        });
+      })
+      .then((dispose) => {
+        if (current === generation) pendingSearch = null;
+        if (current === generation) cleanup = dispose;
+        else dispose?.();
+      })
+      .catch((error) => {
+        if (current === generation)
+          root.innerHTML = `<div class="error-message" role="alert">${esc(error.message)}</div><button class="btn btn-secondary" data-action="refresh" data-shell-action>Reload workspace</button>`;
+      });
+    return;
+  }
+  main().innerHTML = route === "sources" ? sourcesPage() : overview();
+  if (route === "overview")
+    cleanup = mountMaterialLoop(document.querySelector("[data-material-loop]"));
+}
+function overview() {
+  const states = new Set(state.facilities.map((f) => f.state).filter(Boolean));
+  const ready = state.status.vision?.available;
+  const next = !state.facilities.length
+    ? importButton()
+    : !state.records.length
+      ? '<a class="btn btn-primary" href="#analysis">Analyse your first material ↗</a>'
+      : '<a class="btn btn-primary" href="#planner">Plan a material pool ↗</a>';
+  const recent = [...state.records]
+    .sort((a, b) =>
+      String(b.updatedAt || b.createdAt || "").localeCompare(
+        String(a.updatedAt || a.createdAt || ""),
+      ),
+    )
+    .slice(0, 4);
+  return `<section class="desk-hero"><div class="hero-copy"><div class="eyebrow"><span class="orange-rule"></span>THE NEXT LIFE STARTS HERE</div><h1>Less waste.<br><em>More possibility.</em></h1><p>Your desk for finding facilities, understanding materials and making the numbers work.</p><div class="hero-actions">${next}<a class="text-link" href="#directory">Explore the directory ↗</a></div><div class="hero-footnote"><span class="status-dot"></span>${ready ? "Local image classifier ready" : "Manual review available · classifier not installed"}</div></div><section class="loop-exhibit" data-material-loop aria-label="Interactive 3D material reuse loop"><div class="loop-stage"><img class="loop-poster" src="/assets/3d/material-loop-poster.webp" alt="Miniature factory encircled by a conveyor carrying copper coils, polymer offcuts and cardboard"><model-viewer src="/assets/3d/material-loop.glb" alt="A 3D factory with material lots circulating on a conveyor. Drag to rotate." camera-controls touch-action="pan-y" disable-zoom disable-pan camera-orbit="35deg 57deg 10.7m" min-camera-orbit="auto 25deg auto" max-camera-orbit="auto 85deg auto" camera-target="0m 1m 0m" field-of-view="33deg" shadow-intensity="1" shadow-softness=".8" exposure="1.15" environment-image="neutral" interaction-prompt="none" loading="eager" reveal="auto"></model-viewer></div><span class="sr-only" data-loop-status role="status">Loading the material loop</span></section></section>
+  <section class="metric-strip desk-metrics" aria-label="Workspace summary">${[
+    [state.facilities.length, "Public facility records"],
+    [states.size, "States represented"],
+    [state.records.length, "Reviewed material records"],
+    [ready ? "Ready" : "Not installed", "Local classification"],
+  ]
+    .map(
+      ([v, l], i) =>
+        `<div class="metric"><span class="metric-index">0${i + 1} /</span><strong>${esc(v)}</strong><span>${l}</span></div>`,
+    )
+    .join("")}</section>
+  <section class="desk-workflow"><div class="section-heading"><div><div class="eyebrow">A PRACTICAL WORKFLOW</div><h2>Build your local loop.</h2></div><span class="section-note">Three steps. Your evidence at every stage.</span></div><div class="workflow-links">${[
+    [
+      "directory",
+      "01",
+      "Find your network",
+      "Browse attributed facility records. Check the source before making contact.",
+      state.facilities.length
+        ? `${state.facilities.length} records to explore`
+        : "Start with a public import",
+      "building",
+    ],
+    [
+      "analysis",
+      "02",
+      "Know your material",
+      "Drop in a photo. Review the suggestion. Save only the details you can support.",
+      `${state.records.length} reviewed records`,
+      "spark",
+    ],
+    [
+      "planner",
+      "03",
+      "Make a pool work",
+      "Combine compatible lots and compare the full delivered cost.",
+      "Your inputs. Transparent estimates.",
+      "box",
+    ],
+  ]
+    .map(
+      ([route, n, title, copy, note, i]) =>
+        `<a class="workflow-link" href="#${route}"><span class="workflow-number">${n}</span><div class="workflow-symbol">${icon(i)}</div><h3>${title}</h3><p>${copy}</p><div class="workflow-bottom"><span>${note}</span><span class="round-arrow" aria-hidden="true">↗</span></div></a>`,
+    )
+    .join("")}</div></section>
+  <div class="desk-bottom-grid"><section class="desk-ledger"><div class="section-heading"><div><div class="eyebrow">YOUR MATERIAL LEDGER</div><h2>Recently reviewed</h2></div><a class="text-link" href="#analysis">All records ↗</a></div>${recent.length ? `<div class="recent-records">${recent.map((r, i) => `<a href="#analysis" class="recent-record" data-action="open-material" data-query="${esc(r.title)}"><span class="ledger-number">${String(i + 1).padStart(2, "0")}</span><div><strong>${esc(r.title)}</strong><span>${esc(r.company || "Company unknown")} · ${esc(r.material || "Material unknown")}</span></div><span>${r.quantityKg == null ? "Quantity unknown" : number(r.quantityKg) + " kg"}</span><span aria-hidden="true">↗</span></a>`).join("")}</div>` : '<div class="ledger-empty"><span class="ledger-empty-mark">+</span><h3>A place for what you know.</h3><p>Your reviewed materials will appear here. Start with a photo or enter a record yourself.</p><a class="btn btn-secondary" href="#analysis">Add a material ↗</a></div>'}</section><aside class="source-snapshot"><div class="eyebrow">BEHIND THE DIRECTORY</div><h2>Real sources.<br>Visible limits.</h2><p>${state.sources.length} attributed sources covering ${states.size} states. Facility listings are research leads, not confirmed available stock.</p><div class="coverage-bars">${
+    [...states]
+      .sort()
+      .map((st) => {
+        const count = state.facilities.filter((f) => f.state === st).length;
+        return `<div><span>${esc(st)}</span><strong>${count}</strong><meter min="0" max="${state.facilities.length || 1}" value="${count}" aria-label="${esc(st)} facility count">${count}</meter></div>`;
+      })
+      .join("") ||
+    '<p class="help-text">Coverage appears after you import the public records.</p>'
+  }</div><a class="text-link" href="#sources">Inspect the sources ↗</a></aside></div>`;
+}
 
-document.addEventListener('click',async e=>{const target=e.target.closest('[data-action]');if(!target)return;const a=target.dataset.action;
-if(a==='menu'){const open=document.getElementById('sidebar').classList.toggle('open');document.querySelector('.sidebar-overlay').classList.toggle('visible',open);target.setAttribute('aria-expanded',String(open));if(open)(document.querySelector('.nav-link.active')||document.querySelector('.nav-link'))?.focus();return;}
-if(a==='close-menu')return closeMenu(true);if(a==='refresh')return refreshData();if(a==='import')return importRecords();if(a==='facility')return facilityModal(target.dataset.id);if(a==='record')return recordModal(target.dataset.id);if(a==='close-modal')return closeModal();
-if(a==='view'){state.view=target.dataset.view;render();return;}
-if(a==='clear-filters'){state.search='';state.region='';state.industry='';render();return;}
-if(a==='clear-analysis')return clearAnalysis();if(a==='analyse')return analyse();
-if(a==='delete-record'){const r=state.records.find(r=>r.id===target.dataset.id);return showModal('Delete this research record?',`<p>${esc(r?.title||'This record')} will be removed from your local database.</p>`,`<button class="btn btn-secondary" data-action="close-modal">Keep record</button><button class="btn btn-primary" data-action="confirm-delete" data-id="${esc(target.dataset.id)}">Delete record</button>`);}
-if(a==='confirm-delete'){target.disabled=true;try{await api(`/api/records/${encodeURIComponent(target.dataset.id)}`,{method:'DELETE',body:'{}'});closeModal();await refreshData();toast('Research record deleted.');}catch(error){target.disabled=false;toast(error.message,true);}return;}
-if(a==='view-analysis'){try{const r=await api(`/api/analyses/${encodeURIComponent(target.dataset.id)}`);showModal('Original extraction evidence',`<p>${esc(r.filename||'Analysed document')}</p>${(r.suggestions?.evidence||[]).map(item=>`<div class="evidence-item"><strong>${esc(item.field)}</strong><blockquote>${esc(item.quote)}</blockquote>${item.page?`<span>Page ${esc(item.page)}</span>`:''}</div>`).join('')||'<p>No supporting excerpts were returned.</p>'}`);}catch(error){toast(error.message,true);}return;}
+function sourcesPage() {
+  return `${heading("09 / SOURCES & SETUP", "Follow the evidence.", "Check source provenance, local model installation and optional document analysis.")}<div class="setup-grid"><section class="panel"><div class="panel-header"><h2>Local image classification</h2>${badge(state.status.vision?.available ? "Installed" : "Not installed")}</div><div class="panel-body"><p>The specialist model runs on this computer. It suggests broad categories; grade, quantity, condition and price still need review.</p><p class="help-text">${state.status.vision?.available ? esc(state.status.vision.metadata?.modelVersion || "Local checkpoint available") : "Follow the README to install the Python environment and train the checkpoint."}</p><div class="setup-actions"><a class="btn btn-primary" href="#analysis">Material analysis</a><a class="text-link" href="#results">Measured results</a></div></div></section><section class="panel"><div class="panel-header"><h2>Optional document provider</h2>${badge(state.status.aiConfigured ? "Configured" : "Not configured")}</div><div class="panel-body"><p>PDF evidence can be reviewed manually. Optional document extraction uses your server-side key only when you explicitly choose it.</p><div class="config-code"><code>OPENAI_API_KEY=your_key</code><code>OPENAI_MODEL=${esc(state.status.model || "gpt-4.1-mini")}</code></div><p class="help-text">Configure the private .env file and restart the server. Local photo classification needs no provider key. Provider document extraction may incur charges.</p></div></section></div><section class="panel"><div class="panel-header"><div><h2>Public directory snapshot</h2><p>${state.facilities.length} facility records · ${state.sources.length} sources</p></div>${importButton()}</div><div class="panel-body"><p>Import the reviewed bundle explicitly. Re-imports update existing source IDs without duplicating records. Published listings do not confirm current authorisation or available stock.</p></div></section><div class="source-list">${state.sources.map((s) => `<article class="panel source-card"><div class="source-heading"><div><h3>${esc(s.title)}</h3><p>${esc(s.publisher)}</p></div><a class="text-link" href="${esc(safeURL(s.url))}" target="_blank" rel="noopener noreferrer">Read source ↗</a></div><div class="source-details"><div><span>Published</span><strong>${date(s.publicationDate)}</strong></div><div><span>Retrieved</span><strong>${date(s.retrievedAt)}</strong></div><div><span>Coverage</span><strong>${esc(s.coverage)}</strong></div></div><p>${esc(s.notes)}</p><details><summary>Reuse terms</summary><p>${esc(s.terms)}</p>${s.termsUrl ? `<a class="text-link" href="${esc(safeURL(s.termsUrl))}" target="_blank" rel="noopener noreferrer">Publisher policy ↗</a>` : ""}</details></article>`).join("") || '<p class="muted">Source references appear after importing public records.</p>'}</div>`;
+}
+
+async function importRecords() {
+  if (importing) return;
+  importing = true;
+  render();
+  try {
+    const result = await api("/api/import-public", {
+      method: "POST",
+      body: "{}",
+    });
+    await refreshData();
+    toast(`${result.totalFacilities} public records available.`);
+  } catch (error) {
+    toast(error.message, true);
+  } finally {
+    importing = false;
+    render();
+  }
+}
+document.addEventListener("click", (event) => {
+  if (event.target.closest(".skip-link")) {
+    event.preventDefault();
+    main().focus();
+    main().scrollIntoView({ block: "start" });
+    return;
+  }
+  if (
+    event.target.closest("[data-feature]") &&
+    !event.target.closest("[data-shell-action]")
+  )
+    return;
+  const target = event.target.closest("[data-action]");
+  if (!target) return;
+  if (target.dataset.action === "open-material") {
+    event.preventDefault();
+    pendingSearch = { route: "analysis", query: target.dataset.query };
+    navigate("analysis");
+  }
+  if (target.dataset.action === "finder") openFinder();
+  if (target.dataset.action === "close-finder") closeFinder();
+  if (target.dataset.action === "finder-go") {
+    pendingSearch = {
+      route: target.dataset.route,
+      query: target.dataset.query,
+    };
+    closeFinder();
+    navigate(target.dataset.route);
+  }
+  if (target.dataset.action === "menu") {
+    const open = document.getElementById("sidebar").classList.toggle("open");
+    document
+      .querySelector(".sidebar-overlay")
+      .classList.toggle("visible", open);
+    target.setAttribute("aria-expanded", String(open));
+    if (open) document.querySelector(".nav-link.active")?.focus();
+  }
+  if (target.dataset.action === "close-menu") closeMenu(true);
+  if (target.dataset.action === "refresh") refreshData();
+  if (target.dataset.action === "import") importRecords();
 });
-document.addEventListener('input',e=>{if(e.target.closest('#record-form'))collectDraft(e.target.closest('form'));if(e.target.id==='directory-search'){state.search=e.target.value;const pos=e.target.selectionStart;render();const input=document.getElementById('directory-search');input.focus();try{input.setSelectionRange(pos,pos);}catch{}}if(e.target.closest('#planner-form'))planner[e.target.name]=e.target.value;});
-document.addEventListener('change',e=>{if(e.target.id==='state-filter'){state.region=e.target.value;render();document.getElementById('state-filter').focus();}if(e.target.id==='industry-filter'){state.industry=e.target.value;render();document.getElementById('industry-filter').focus();}if(e.target.closest('#record-form'))collectDraft(e.target.closest('form'));if(e.target.closest('#planner-form'))planner[e.target.name]=e.target.value;});
-document.addEventListener('submit',e=>{if(e.target.id==='record-form'){e.preventDefault();saveRecord(e.target);}if(e.target.id==='planner-form'){e.preventDefault();for(const f of e.target.elements)if(f.name)planner[f.name]=f.value;render();document.querySelector('.planner-result').scrollIntoView({block:'nearest',behavior:'smooth'});}});
-document.addEventListener('click',e=>{if(e.target.matches('.modal-backdrop'))closeModal();if(e.target.closest('.nav-link,.brand'))closeMenu();});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){const open=document.getElementById('sidebar').classList.contains('open');closeModal();closeMenu(open);}const modal=document.querySelector('.modal');if(e.key==='Tab'&&modal){const items=[...modal.querySelectorAll('button,a[href],input,select,textarea')].filter(el=>!el.disabled),first=items[0],last=items[items.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}}});
-window.addEventListener('hashchange',()=>{render();closeMenu();window.scrollTo({top:0,behavior:'instant'});document.getElementById('main').focus({preventScroll:true});});
-mount();render();refreshData();
+document.addEventListener("input", (event) => {
+  if (event.target.id === "finder-input") renderFinder();
+});
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    openFinder();
+    return;
+  }
+  if (
+    event.key === "Escape" &&
+    document.getElementById("workspace-finder").open
+  ) {
+    event.preventDefault();
+    closeFinder();
+    return;
+  }
+  if (event.key === "Escape")
+    closeMenu(document.getElementById("sidebar").classList.contains("open"));
+});
+window.addEventListener("hashchange", () => {
+  render();
+  closeMenu();
+  window.scrollTo({ top: 0 });
+  main().focus({ preventScroll: true });
+});
+mountShell();
+render();
+refreshData();
