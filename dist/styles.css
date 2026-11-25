@@ -254,7 +254,7 @@ textarea:focus-visible {
   color: var(--steel);
 }
 .mobile-menu-btn {
-  display: none !important;
+  display: none;
 }
 .sidebar-overlay {
   display: none;
@@ -947,7 +947,7 @@ textarea.input {
     margin-left: 0;
   }
   .mobile-menu-btn {
-    display: inline-flex !important;
+    display: inline-flex;
   }
   .sidebar-overlay.visible {
     display: block;
@@ -1039,7 +1039,7 @@ textarea.input {
     gap: 20px 0;
   }
   .metric {
-    padding: 0 14px !important;
+    padding: 0 14px;
   }
   .metric:nth-child(2) {
     border: 0;

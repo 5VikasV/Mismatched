@@ -15,6 +15,18 @@ Open http://127.0.0.1:4173 for the published landing page, then choose **Open wo
 
 Import the public bundle explicitly using **Import public records**. It currently contains 40 sourced facilities across three states, with dates, source references and coverage gaps. Imports are idempotent. Coordinates are shown only when available from sources. See [public-data documentation](data/README.md).
 
+## Workspace experience
+
+The workspace uses a horizontal material desk with numbered navigation, a responsive mobile menu and a transparent Blender exhibit on Overview. The landing page keeps its existing carousel design.
+
+- **Find anything** (Ctrl+K / Cmd+K) searches pages, imported facilities and saved material records. Opening a result applies its search to the real feature page. Closing the finder preserves the current form draft.
+- **Overview** shows actual counts, recent reviewed records, source coverage and workflow entry points.
+- **Material analysis** separates capture, evidence and review, groups fields by purpose, and displays the original classification score with its review limitations.
+- **Pool planner** shows quantity fulfilment, eligible/excluded lots and an estimate summary alongside the inputs. Estimates and CSV exports use the same calculations.
+- **Model results** adds per-class F1 bars backed by the evaluation report. **Sources & setup** retains attribution, dates, terms and installation/provider status.
+
+The redesign is on `feat/workspace-redesign`, based on `feat/fullstack-integration`. It changes presentation and adds workspace search; it does not change backend data, API schemas or model weights. No account is required.
+
 ## Enable the local specialist model
 
 This machine's model has already been trained and is available locally. A fresh clone needs its own environment and checkpoint. Requires Python 3.14+ for the pinned CPU wheels, internet for initial downloads, and approximately 2 GB free disk space:

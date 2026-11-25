@@ -53,7 +53,7 @@ export async function mountFeature(root, context) {
   root.setAttribute('data-feature', 'directory');
 
   let state = {
-    search: '',
+    search: context.initialSearch || '',
     stateFilter: '',
     districtFilter: '',
     industryFilter: '',
@@ -142,8 +142,8 @@ export async function mountFeature(root, context) {
           <div class="page-heading">
             <div>
               <div class="eyebrow">FACILITY DIRECTORY</div>
-              <h1 class="page-title">A network worth understanding.</h1>
-              <p class="page-subtitle">Publicly documented facilities across India, with a source behind every record.</p>
+              <h1 class="page-title">The facility index.</h1>
+              <p class="page-subtitle">Start with sourced public records. Every listing keeps its attribution.</p>
             </div>
             <div class="heading-actions">
               <button class="btn btn-primary" data-action="import" ${state.importing ? 'disabled' : ''}>
@@ -184,8 +184,8 @@ export async function mountFeature(root, context) {
         <header class="page-heading">
           <div>
             <div class="eyebrow">FACILITY DIRECTORY</div>
-            <h1 class="page-title">A network worth understanding.</h1>
-            <p class="page-subtitle">Publicly documented facilities across India, with verifiable source provenance behind every record.</p>
+            <h1 class="page-title">The facility index.</h1>
+            <p class="page-subtitle">Find an industrial facility. Inspect its source. Understand what is still unknown.</p>
           </div>
           <div class="heading-actions">
             <button class="btn btn-secondary" data-action="import" ${state.importing ? 'disabled' : ''}>

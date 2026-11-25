@@ -148,9 +148,81 @@ function importButton() {
   return `<button class="btn btn-primary" data-action="import" ${importing ? "disabled" : ""}>${importing ? "Importing…" : "Import public records"}</button>`;
 }
 function mountShell() {
-  document.getElementById("app").innerHTML =
-    `<div class="app-shell"><aside class="sidebar" id="sidebar" aria-label="Main navigation"><a class="brand" href="/" aria-label="ScrapLoop home"><svg viewBox="0 0 28 28" class="brand-mark" aria-hidden="true"><path d="M5 8h13l-3-3m8 15H10l3 3M18 8a8 8 0 0 1 4 12M10 20a8 8 0 0 1-4-12"/></svg><span>SCRAPLOOP</span></a><span class="nav-section">MATERIAL WORKSPACE</span><nav>${nav.map(([id, i, label]) => `<a class="nav-link" href="#${id}" data-nav="${id}">${icon(i)}<span>${label}</span></a>`).join("")}</nav><div class="sidebar-foot"><p><span class="status-dot"></span><span id="connection-status">Local workspace</span></p><p class="help-text">Records are saved on this computer.<br>No account needed.</p><a class="text-link" href="/">Back to material exchange ↗</a></div></aside><div class="sidebar-overlay" data-action="close-menu"></div><div class="workspace"><header class="topbar"><div class="breadcrumbs"><button type="button" class="icon-btn mobile-menu-btn" data-action="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">${icon("menu")}</button><a href="/">ScrapLoop</a><span>/</span><strong id="breadcrumb">Overview</strong></div><span class="workspace-label">RESEARCH / PLAN / REUSE</span></header><main id="main" class="main-content" tabindex="-1"></main><footer class="workspace-footer"><span>SCRAPLOOP / TEAM MISMATCHED</span><span>Evidence before estimates.</span></footer></div></div>`;
+  document.getElementById("app").innerHTML = `<div class="app-shell">
+    <header class="desk-masthead"><a class="brand" href="/" aria-label="ScrapLoop home"><svg viewBox="0 0 28 28" class="brand-mark" aria-hidden="true"><path d="M5 8h13l-3-3m8 15H10l3 3M18 8a8 8 0 0 1 4 12M10 20a8 8 0 0 1-4-12"/></svg><span>SCRAPLOOP<span class="brand-caption">THE MATERIAL DESK</span></span></a><div class="masthead-note"><span class="status-dot"></span><span id="connection-status">Local workspace</span><span class="masthead-divider">/</span><span>Saved on this computer</span></div><div class="masthead-actions"><button class="finder-trigger" data-action="finder" aria-label="Search workspace" title="Find anything (Ctrl+K)" aria-haspopup="dialog">${icon("search")}<span>Find anything</span><kbd>⌘ / Ctrl K</kbd></button><a class="btn btn-primary quick-add" href="#analysis">+ <span>Add material</span></a><button type="button" class="icon-btn mobile-menu-btn" data-action="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">${icon("menu")}</button></div></header>
+    <div class="desk-navigation" id="sidebar"><nav aria-label="Main navigation">${nav.map(([id, i, label], index) => `<a class="nav-link" href="#${id}" data-nav="${id}"><span class="nav-number">0${index + 1}</span><span>${label}</span>${icon(i)}</a>`).join("")}</nav><a class="desk-home" href="/">Landing page ↗</a></div><div class="sidebar-overlay" data-action="close-menu"></div>
+    <div class="workspace"><div class="desk-location"><div class="breadcrumbs"><span>WORKSPACE</span><span>/</span><strong id="breadcrumb">Overview</strong></div><span class="workspace-label">INDUSTRIAL MATERIAL REUSE</span></div><main id="main" class="main-content" tabindex="-1"></main><footer class="workspace-footer"><a href="/">SCRAPLOOP<span> / TEAM MISMATCHED</span></a><span>From evidence to a better use.</span><a href="#sources">Sources & setup ↗</a></footer></div></div>
+    <dialog class="finder-dialog" id="workspace-finder" aria-labelledby="finder-title"><div class="finder-header"><label id="finder-title" for="finder-input">Find a page, facility or material</label><button class="icon-btn" data-action="close-finder" aria-label="Close search">${icon("close")}</button></div><input class="input" id="finder-input" type="search" placeholder="Try ‘analysis’, ‘Pune’ or a saved material…" autocomplete="off"><div id="finder-results" class="finder-results" aria-live="polite"></div><p class="finder-hint">Tab to a result · Enter to open · Esc to close</p></dialog>`;
 }
+let finderFocus = null;
+let pendingSearch = null;
+function openFinder() {
+  const dialog = document.getElementById("workspace-finder");
+  if (dialog.open) return;
+  finderFocus = document.activeElement;
+  dialog.showModal();
+  document.getElementById("finder-input").value = "";
+  renderFinder();
+  document.getElementById("finder-input").focus();
+}
+function closeFinder() {
+  document.getElementById("workspace-finder").close();
+  finderFocus?.focus();
+}
+function renderFinder() {
+  const query = document
+    .getElementById("finder-input")
+    .value.trim()
+    .toLowerCase();
+  const matches = (value) => value.toLowerCase().includes(query);
+  const pages = nav
+    .filter((n) => matches(n[2]))
+    .map(([route, i, label]) => ({
+      route,
+      label,
+      detail: "Workspace page",
+      icon: i,
+    }));
+  const facilities = query
+    ? state.facilities
+        .filter((f) =>
+          matches(
+            `${f.name} ${f.state} ${f.district || ""} ${(f.materials || []).join(" ")}`,
+          ),
+        )
+        .slice(0, 5)
+        .map((f) => ({
+          route: "directory",
+          label: f.name,
+          detail: `Facility · ${f.state}`,
+          search: f.name,
+          icon: "building",
+        }))
+    : [];
+  const records = query
+    ? state.records
+        .filter((r) =>
+          matches(`${r.title} ${r.material || ""} ${r.company || ""}`),
+        )
+        .slice(0, 5)
+        .map((r) => ({
+          route: "analysis",
+          label: r.title,
+          detail: `Saved material · ${r.material || "Unspecified"}`,
+          search: r.title,
+          icon: "box",
+        }))
+    : [];
+  document.getElementById("finder-results").innerHTML =
+    [...pages, ...facilities, ...records]
+      .map(
+        (r) =>
+          `<button class="finder-result" data-action="finder-go" data-route="${r.route}" data-query="${esc(r.search || "")}">${icon(r.icon)}<span><strong>${esc(r.label)}</strong><small>${esc(r.detail)}</small></span><span aria-hidden="true">↗</span></button>`,
+      )
+      .join("") ||
+    '<p class="finder-empty">No matches in this workspace. Try a page name or a shorter search.</p>';
+}
+
 function render() {
   const current = ++generation;
   cleanup?.();
@@ -195,9 +267,12 @@ function render() {
           refreshData: () => refreshData(false),
           navigate,
           toast,
+          initialSearch:
+            pendingSearch?.route === route ? pendingSearch.query : "",
         });
       })
       .then((dispose) => {
+        if (current === generation) pendingSearch = null;
         if (current === generation) cleanup = dispose;
         else dispose?.();
       })
@@ -213,49 +288,80 @@ function render() {
 }
 function overview() {
   const states = new Set(state.facilities.map((f) => f.state).filter(Boolean));
-  const primary = !state.facilities.length
+  const ready = state.status.vision?.available;
+  const next = !state.facilities.length
     ? importButton()
     : !state.records.length
-      ? '<a class="btn btn-primary" href="#analysis">Analyse a material</a>'
-      : '<a class="btn btn-primary" href="#planner">Open pool planner</a>';
-  return `${heading("YOUR MATERIAL WORKSPACE", "A clearer next step for every material.", "Find sourced facility information, review material evidence, and plan compatible supply.", primary)}<div class="dashboard-grid"><div class="overview-main"><section class="panel overview-steps"><div class="panel-header"><h2>Build your local loop.</h2></div><ol class="setup-steps"><li class="${state.facilities.length ? "complete" : ""}"><span>01</span><div><a href="#directory">Explore facilities</a><p>Import attributed public records and inspect the sources.</p></div></li><li class="${state.records.length ? "complete" : ""}"><span>02</span><div><a href="#analysis">Review a material</a><p>Use local classification, then confirm supported details.</p></div></li><li><span>03</span><div><a href="#planner">Calculate a pool</a><p>Select compatible lots and compare delivered costs.</p></div></li></ol></section><section class="loop-exhibit" data-material-loop aria-label="Interactive 3D material reuse loop"><div class="loop-stage"><img class="loop-poster" src="/assets/3d/material-loop-poster.webp" alt="Miniature factory encircled by a conveyor carrying copper coils, polymer offcuts and cardboard"><model-viewer src="/assets/3d/material-loop.glb" alt="A 3D factory with material lots circulating on a conveyor. Drag to rotate." camera-controls touch-action="pan-y" disable-zoom disable-pan camera-orbit="35deg 57deg 10.7m" min-camera-orbit="auto 25deg auto" max-camera-orbit="auto 85deg auto" camera-target="0m 1m 0m" field-of-view="33deg" shadow-intensity="1" shadow-softness=".8" exposure="1.15" environment-image="neutral" interaction-prompt="none" loading="eager" reveal="auto"></model-viewer></div><span class="sr-only" data-loop-status role="status">Loading the material loop</span></section><section class="metric-strip" aria-label="Workspace summary">${[
+      ? '<a class="btn btn-primary" href="#analysis">Analyse your first material ↗</a>'
+      : '<a class="btn btn-primary" href="#planner">Plan a material pool ↗</a>';
+  const recent = [...state.records]
+    .sort((a, b) =>
+      String(b.updatedAt || b.createdAt || "").localeCompare(
+        String(a.updatedAt || a.createdAt || ""),
+      ),
+    )
+    .slice(0, 4);
+  return `<section class="desk-hero"><div class="hero-copy"><div class="eyebrow"><span class="orange-rule"></span>THE NEXT LIFE STARTS HERE</div><h1>Less waste.<br><em>More possibility.</em></h1><p>Your desk for finding facilities, understanding materials and making the numbers work.</p><div class="hero-actions">${next}<a class="text-link" href="#directory">Explore the directory ↗</a></div><div class="hero-footnote"><span class="status-dot"></span>${ready ? "Local image classifier ready" : "Manual review available · classifier not installed"}</div></div><section class="loop-exhibit" data-material-loop aria-label="Interactive 3D material reuse loop"><div class="loop-stage"><img class="loop-poster" src="/assets/3d/material-loop-poster.webp" alt="Miniature factory encircled by a conveyor carrying copper coils, polymer offcuts and cardboard"><model-viewer src="/assets/3d/material-loop.glb" alt="A 3D factory with material lots circulating on a conveyor. Drag to rotate." camera-controls touch-action="pan-y" disable-zoom disable-pan camera-orbit="35deg 57deg 10.7m" min-camera-orbit="auto 25deg auto" max-camera-orbit="auto 85deg auto" camera-target="0m 1m 0m" field-of-view="33deg" shadow-intensity="1" shadow-softness=".8" exposure="1.15" environment-image="neutral" interaction-prompt="none" loading="eager" reveal="auto"></model-viewer></div><span class="sr-only" data-loop-status role="status">Loading the material loop</span></section></section>
+  <section class="metric-strip desk-metrics" aria-label="Workspace summary">${[
     [state.facilities.length, "Public facility records"],
     [states.size, "States represented"],
     [state.records.length, "Reviewed material records"],
+    [ready ? "Ready" : "Not installed", "Local classification"],
+  ]
+    .map(
+      ([v, l], i) =>
+        `<div class="metric"><span class="metric-index">0${i + 1} /</span><strong>${esc(v)}</strong><span>${l}</span></div>`,
+    )
+    .join("")}</section>
+  <section class="desk-workflow"><div class="section-heading"><div><div class="eyebrow">A PRACTICAL WORKFLOW</div><h2>Build your local loop.</h2></div><span class="section-note">Three steps. Your evidence at every stage.</span></div><div class="workflow-links">${[
     [
-      state.status.vision?.available ? "Ready" : "Not installed",
-      "Local classification",
+      "directory",
+      "01",
+      "Find your network",
+      "Browse attributed facility records. Check the source before making contact.",
+      state.facilities.length
+        ? `${state.facilities.length} records to explore`
+        : "Start with a public import",
+      "building",
+    ],
+    [
+      "analysis",
+      "02",
+      "Know your material",
+      "Drop in a photo. Review the suggestion. Save only the details you can support.",
+      `${state.records.length} reviewed records`,
+      "spark",
+    ],
+    [
+      "planner",
+      "03",
+      "Make a pool work",
+      "Combine compatible lots and compare the full delivered cost.",
+      "Your inputs. Transparent estimates.",
+      "box",
     ],
   ]
     .map(
-      ([v, l]) =>
-        `<div class="metric"><strong>${esc(v)}</strong><span>${l}</span></div>`,
+      ([route, n, title, copy, note, i]) =>
+        `<a class="workflow-link" href="#${route}"><span class="workflow-number">${n}</span><div class="workflow-symbol">${icon(i)}</div><h3>${title}</h3><p>${copy}</p><div class="workflow-bottom"><span>${note}</span><span class="round-arrow" aria-hidden="true">↗</span></div></a>`,
     )
-    .join(
-      "",
-    )}</section></div><aside class="overview-rail"><section class="panel map-panel"><div class="panel-header"><div><div class="eyebrow">SOURCE COVERAGE / INDIA</div><h2>Your wider loop</h2></div></div>${indiaMap(state.facilities)}<div class="panel-footer">${state.facilities.filter(hasCoordinates).length} geolocated / ${state.facilities.length} public records</div></section><section class="panel"><div class="panel-header"><h2>Evidence, kept separate.</h2></div><div class="panel-body"><p>Directory records are research leads. Your reviewed material notes are the inputs used for planning.</p><a class="text-link" href="#sources">Sources & setup ↗</a></div></section></aside></div>`;
-}
-function sourcesPage() {
-  return `${heading("SOURCES & SETUP", "A clear trail behind every record.", "Check source provenance, local model installation and optional document analysis.")}<div class="setup-grid"><section class="panel"><div class="panel-header"><h2>Local image classification</h2>${badge(state.status.vision?.available ? "Installed" : "Not installed")}</div><div class="panel-body"><p>The specialist model runs on this computer. It suggests broad categories; grade, quantity, condition and price still need review.</p><p class="help-text">${state.status.vision?.available ? esc(state.status.vision.metadata?.modelVersion || "Local checkpoint available") : "Follow the README to install the Python environment and train the checkpoint."}</p><div class="setup-actions"><a class="btn btn-primary" href="#analysis">Material analysis</a><a class="text-link" href="#results">Measured results</a></div></div></section><section class="panel"><div class="panel-header"><h2>Optional document provider</h2>${badge(state.status.aiConfigured ? "Configured" : "Not configured")}</div><div class="panel-body"><p>PDF evidence can be reviewed manually. Optional document extraction uses your server-side key only when you explicitly choose it.</p><div class="config-code"><code>OPENAI_API_KEY=your_key</code><code>OPENAI_MODEL=${esc(state.status.model || "gpt-4.1-mini")}</code></div><p class="help-text">Configure the private .env file and restart the server. Local photo classification needs no provider key. Provider document extraction may incur charges.</p></div></section></div><section class="panel"><div class="panel-header"><div><h2>Public directory snapshot</h2><p>${state.facilities.length} facility records · ${state.sources.length} sources</p></div>${importButton()}</div><div class="panel-body"><p>Import the reviewed bundle explicitly. Re-imports update existing source IDs without duplicating records. Published listings do not confirm current authorisation or available stock.</p></div></section><div class="source-list">${state.sources.map((s) => `<article class="panel source-card"><div class="source-heading"><div><h3>${esc(s.title)}</h3><p>${esc(s.publisher)}</p></div><a class="text-link" href="${esc(safeURL(s.url))}" target="_blank" rel="noopener noreferrer">Read source ↗</a></div><div class="source-details"><div><span>Published</span><strong>${date(s.publicationDate)}</strong></div><div><span>Retrieved</span><strong>${date(s.retrievedAt)}</strong></div><div><span>Coverage</span><strong>${esc(s.coverage)}</strong></div></div><p>${esc(s.notes)}</p><details><summary>Reuse terms</summary><p>${esc(s.terms)}</p>${s.termsUrl ? `<a class="text-link" href="${esc(safeURL(s.termsUrl))}" target="_blank" rel="noopener noreferrer">Publisher policy ↗</a>` : ""}</details></article>`).join("") || '<p class="muted">Source references appear after importing public records.</p>'}</div>`;
+    .join("")}</div></section>
+  <div class="desk-bottom-grid"><section class="desk-ledger"><div class="section-heading"><div><div class="eyebrow">YOUR MATERIAL LEDGER</div><h2>Recently reviewed</h2></div><a class="text-link" href="#analysis">All records ↗</a></div>${recent.length ? `<div class="recent-records">${recent.map((r, i) => `<a href="#analysis" class="recent-record" data-action="open-material" data-query="${esc(r.title)}"><span class="ledger-number">${String(i + 1).padStart(2, "0")}</span><div><strong>${esc(r.title)}</strong><span>${esc(r.company || "Company unknown")} · ${esc(r.material || "Material unknown")}</span></div><span>${r.quantityKg == null ? "Quantity unknown" : number(r.quantityKg) + " kg"}</span><span aria-hidden="true">↗</span></a>`).join("")}</div>` : '<div class="ledger-empty"><span class="ledger-empty-mark">+</span><h3>A place for what you know.</h3><p>Your reviewed materials will appear here. Start with a photo or enter a record yourself.</p><a class="btn btn-secondary" href="#analysis">Add a material ↗</a></div>'}</section><aside class="source-snapshot"><div class="eyebrow">BEHIND THE DIRECTORY</div><h2>Real sources.<br>Visible limits.</h2><p>${state.sources.length} attributed sources covering ${states.size} states. Facility listings are research leads, not confirmed available stock.</p><div class="coverage-bars">${
+    [...states]
+      .sort()
+      .map((st) => {
+        const count = state.facilities.filter((f) => f.state === st).length;
+        return `<div><span>${esc(st)}</span><strong>${count}</strong><meter min="0" max="${state.facilities.length || 1}" value="${count}" aria-label="${esc(st)} facility count">${count}</meter></div>`;
+      })
+      .join("") ||
+    '<p class="help-text">Coverage appears after you import the public records.</p>'
+  }</div><a class="text-link" href="#sources">Inspect the sources ↗</a></aside></div>`;
 }
 
-function hasCoordinates(f) {
-  return (
-    typeof f.latitude === "number" &&
-    Number.isFinite(f.latitude) &&
-    typeof f.longitude === "number" &&
-    Number.isFinite(f.longitude) &&
-    f.latitude >= 6 &&
-    f.latitude <= 38 &&
-    f.longitude >= 67 &&
-    f.longitude <= 99
-  );
+function sourcesPage() {
+  return `${heading("06 / SOURCES & SETUP", "Follow the evidence.", "Check source provenance, local model installation and optional document analysis.")}<div class="setup-grid"><section class="panel"><div class="panel-header"><h2>Local image classification</h2>${badge(state.status.vision?.available ? "Installed" : "Not installed")}</div><div class="panel-body"><p>The specialist model runs on this computer. It suggests broad categories; grade, quantity, condition and price still need review.</p><p class="help-text">${state.status.vision?.available ? esc(state.status.vision.metadata?.modelVersion || "Local checkpoint available") : "Follow the README to install the Python environment and train the checkpoint."}</p><div class="setup-actions"><a class="btn btn-primary" href="#analysis">Material analysis</a><a class="text-link" href="#results">Measured results</a></div></div></section><section class="panel"><div class="panel-header"><h2>Optional document provider</h2>${badge(state.status.aiConfigured ? "Configured" : "Not configured")}</div><div class="panel-body"><p>PDF evidence can be reviewed manually. Optional document extraction uses your server-side key only when you explicitly choose it.</p><div class="config-code"><code>OPENAI_API_KEY=your_key</code><code>OPENAI_MODEL=${esc(state.status.model || "gpt-4.1-mini")}</code></div><p class="help-text">Configure the private .env file and restart the server. Local photo classification needs no provider key. Provider document extraction may incur charges.</p></div></section></div><section class="panel"><div class="panel-header"><div><h2>Public directory snapshot</h2><p>${state.facilities.length} facility records · ${state.sources.length} sources</p></div>${importButton()}</div><div class="panel-body"><p>Import the reviewed bundle explicitly. Re-imports update existing source IDs without duplicating records. Published listings do not confirm current authorisation or available stock.</p></div></section><div class="source-list">${state.sources.map((s) => `<article class="panel source-card"><div class="source-heading"><div><h3>${esc(s.title)}</h3><p>${esc(s.publisher)}</p></div><a class="text-link" href="${esc(safeURL(s.url))}" target="_blank" rel="noopener noreferrer">Read source ↗</a></div><div class="source-details"><div><span>Published</span><strong>${date(s.publicationDate)}</strong></div><div><span>Retrieved</span><strong>${date(s.retrievedAt)}</strong></div><div><span>Coverage</span><strong>${esc(s.coverage)}</strong></div></div><p>${esc(s.notes)}</p><details><summary>Reuse terms</summary><p>${esc(s.terms)}</p>${s.termsUrl ? `<a class="text-link" href="${esc(safeURL(s.termsUrl))}" target="_blank" rel="noopener noreferrer">Publisher policy ↗</a>` : ""}</details></article>`).join("") || '<p class="muted">Source references appear after importing public records.</p>'}</div>`;
 }
-function indiaMap(facilities) {
-  const points = facilities.filter(hasCoordinates),
-    coverage = new Set(facilities.map((f) => f.state).filter(Boolean));
-  return `<div class="india-map"><svg viewBox="0 0 440 410" role="img" aria-label="Approximate India overview showing only facility coordinates supplied by verified sources"><defs><pattern id="geogrid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M28 0H0V28" fill="none" stroke="#d9e0d7" stroke-width=".7"/></pattern></defs><rect width="440" height="410" fill="#f0f4ed"/><rect width="440" height="410" fill="url(#geogrid)"/><path d="m130 38 31-8 16 19 19 4 9 22 26 4 13 20-15 21 18 23 45 3 19-18 28 3 21-12 27 6-7 18-25 11-11 22-20-7-27 9-22-7-17 21-16 15-8 28-19 22-13 37-22 42-16 40-15-7-8-28-13-25-8-34-16-14-10-30-17-11-12-34-17-14-24 1-13-20 12-20 22 2 14-19 4-21 19-9 5-21-10-16 8-20Z" fill="#dce7d2" stroke="#a8bba0" stroke-width="1.5"/><path d="m132 123 37 26 24-6 37 27M138 182l36 28 44-4M173 211l-9 45 28 21M203 79l-30 24-5 46M248 156l-41 26 11 24M184 277l-5 41" fill="none" stroke="#c0d0b8" stroke-width="1"/><text x="25" y="32" font-size="11" font-family="monospace" fill="#778471">INDIA · APPROXIMATE PROJECTION</text><text x="330" y="376" font-size="11" font-family="monospace" fill="#778471">N ↑</text>${points.map((f) => `<circle cx="${((f.longitude - 67) / 32) * 380 + 30}" cy="${((38 - f.latitude) / 32) * 350 + 28}" r="5" fill="#335e40" stroke="#fff" stroke-width="2"><title>${esc(f.name)}</title></circle>`).join("")}</svg><div class="map-caption">${points.length ? `${points.length} source-supplied coordinate${points.length === 1 ? "" : "s"} plotted` : "No reliable facility coordinates in the current records"}<span>${coverage.size} states represented · Addresses remain searchable</span></div></div>`;
-}
+
 async function importRecords() {
   if (importing) return;
   importing = true;
@@ -275,6 +381,12 @@ async function importRecords() {
   }
 }
 document.addEventListener("click", (event) => {
+  if (event.target.closest(".skip-link")) {
+    event.preventDefault();
+    main().focus();
+    main().scrollIntoView({ block: "start" });
+    return;
+  }
   if (
     event.target.closest("[data-feature]") &&
     !event.target.closest("[data-shell-action]")
@@ -282,6 +394,21 @@ document.addEventListener("click", (event) => {
     return;
   const target = event.target.closest("[data-action]");
   if (!target) return;
+  if (target.dataset.action === "open-material") {
+    event.preventDefault();
+    pendingSearch = { route: "analysis", query: target.dataset.query };
+    navigate("analysis");
+  }
+  if (target.dataset.action === "finder") openFinder();
+  if (target.dataset.action === "close-finder") closeFinder();
+  if (target.dataset.action === "finder-go") {
+    pendingSearch = {
+      route: target.dataset.route,
+      query: target.dataset.query,
+    };
+    closeFinder();
+    navigate(target.dataset.route);
+  }
   if (target.dataset.action === "menu") {
     const open = document.getElementById("sidebar").classList.toggle("open");
     document
@@ -294,7 +421,23 @@ document.addEventListener("click", (event) => {
   if (target.dataset.action === "refresh") refreshData();
   if (target.dataset.action === "import") importRecords();
 });
+document.addEventListener("input", (event) => {
+  if (event.target.id === "finder-input") renderFinder();
+});
 document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+    event.preventDefault();
+    openFinder();
+    return;
+  }
+  if (
+    event.key === "Escape" &&
+    document.getElementById("workspace-finder").open
+  ) {
+    event.preventDefault();
+    closeFinder();
+    return;
+  }
   if (event.key === "Escape")
     closeMenu(document.getElementById("sidebar").classList.contains("open"));
 });
