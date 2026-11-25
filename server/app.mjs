@@ -171,7 +171,7 @@ export function createApp(options = {}) {
   const count = table => db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;
   async function handle(req, res) {
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'same-origin');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'");
     try {
       guard(req);
       const parsed = new URL(req.url, 'http://localhost'); const pathname = parsed.pathname;
@@ -277,7 +277,7 @@ export function createApp(options = {}) {
       let decoded; try { decoded = decodeURIComponent(pathname); } catch { fail(400, 'invalid_path', 'Invalid file path.'); }
       const filePath = resolve(staticDir, decoded === '/' ? 'index.html' : `.${decoded}`);
       if (!filePath.startsWith(`${staticDir}${sep}`) || decoded.split('/').some(part => part.startsWith('.')) || !existsSync(filePath) || !statSync(filePath).isFile()) fail(404, 'not_found', 'This page could not be found.');
-      const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp' };
+      const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.glb': 'model/gltf-binary' };
       res.writeHead(200, { 'Content-Type': types[extname(filePath)] || 'application/octet-stream' }); res.end(req.method === 'HEAD' ? undefined : readFileSync(filePath));
     } catch (error) { if (!res.headersSent) send(res, error.status || 500, { error: error.code || 'server_error', message: error instanceof AppError ? error.message : 'The workspace could not complete this request.' }); else res.end(); }
   }
