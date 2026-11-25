@@ -167,7 +167,9 @@ td {
 .evidence-case p {
   margin: 0;
 }
-.evidence-case > a {
+.case-sources {
+  display: grid;
+  gap: 12px;
   margin-top: auto;
   padding-top: 16px;
 }
@@ -195,21 +197,6 @@ td {
   height: 18px;
   margin-top: 12px;
   display: block;
-}
-.evidence-waterfall {
-  margin-block: 24px;
-}
-.evidence-waterfall > div {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--line);
-}
-.evidence-waterfall dd {
-  margin: 0;
-  font-weight: 600;
 }
 .metric-strip {
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
@@ -282,8 +269,7 @@ td {
   #toast,
   .evidence-toolbar,
   #emissions-form,
-  #business-form,
-  #evidence-booking {
+  #business-form {
     display: none !important;
   }
   body,

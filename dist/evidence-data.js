@@ -83,6 +83,56 @@ export const PROFILES = [
 }));
 export const CASES = [
   {
+    id: "vapi-ambuja",
+    region: "INDIA · GUJARAT",
+    period:
+      "2012 stock and dispatch records · CPCB corroboration published May 2017",
+    title: "Stockpiled plastic meets an industrial fuel demand.",
+    from: "Vapi paper mills · stock recorded at Vapi Paper Mills Ltd premises",
+    material: "Non-recyclable plastic → alternative kiln fuel",
+    to: "Ambuja Cements · Kodinar unit",
+    figures: [
+      "15,341.09 tonnes stockpiled at Vapi Paper Mills Ltd premises by November 2012",
+      "30,873 tonnes dispatched from Vapi paper mills collectively by November 2012",
+      "154,018 tonnes co-processed during 2012–2016 (CPCB)",
+    ],
+    story:
+      "A 6 April 2011 agreement between Ambuja and the Gujarat Paper Mills Association established an outlet for paper-mill plastic. The 2012 records show stockpiles alongside regional industrial utilisation.",
+    limit:
+      "The dispatch total covers multiple paper mills, not Vapi Paper Mills Ltd alone. Stockpiling is not proof of illegal dumping or that every tonne met kiln specifications. Payment terms and buyer purchase savings are unpublished. This was alternative fuel, not plastic recycled into new plastic, and does not prove a specific missed same-year purchase.",
+    source: "https://gcpcenvis.nic.in/Monographs/cpwastepapersector.pdf",
+    publisher: "Gujarat Cleaner Production Centre · Paper-sector report",
+    references: [
+      {
+        url: "https://cpcb.nic.in/uploads/plasticwaste/co-processing_guidelines_final_23.05.17.pdf",
+        label: "CPCB · May 2017 guidelines, Case Study 2, printed page 18",
+      },
+    ],
+  },
+  {
+    id: "hi-tech-carbon",
+    region: "INDIA · TAMIL NADU",
+    period:
+      "First sale 25 February 2014 · results to 7 November 2014 · published February 2015",
+    title: "From paying for landfill to selling a useful input.",
+    from: "Hi-Tech Carbon · Gummidipoondi",
+    material: "Lime sludge · industrial residue",
+    to: "Nearby fly-ash brick manufacturers · unnamed",
+    figures: [
+      "₹1,250 / tonne former landfill disposal cost",
+      "₹167 / tonne agreed selling price",
+      "425.330 tonnes sold by 7 November 2014",
+      "₹9.58 lakh reported annual tangible benefit",
+    ],
+    story:
+      "The plant generated 40–50 tonnes of lime sludge monthly. Nearby fly-ash brick manufacturers 10–20 km away provided a commercially feasible outlet; the first sale took place on 25 February 2014.",
+    limit:
+      "Lime sludge is outside the metal, glass, plastic and e-waste categories. Successful brick buyers are not named. ₹9.58 lakh is the reported annual seller benefit, not sales revenue for the February–November period or buyer procurement savings. More distant cement options were explored but were not commercially feasible; no fully named same-year missed purchase is established.",
+    source:
+      "https://www.cms.adityabirla.com/uploads/Abg_hi_tech_carbon_Machinist_c0ffdb5e50.pdf",
+    publisher: "Aditya Birla Group · The Machinist, February 2015, pages 24–25",
+  },
+  {
     id: "ntpc",
     region: "INDIA",
     period: "FY 2024–25 · report as at 31 Oct 2025",

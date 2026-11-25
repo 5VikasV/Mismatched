@@ -238,7 +238,7 @@ test('legacy records without field metadata remain editable with unknowns preser
 
 test('evidence API is read-only and emissions API uses curated factors with validation', async t=>{
  const {app}=setup(t);
- const evidence=await call(app,'/api/evidence');assert.equal(evidence.status,200);assert.equal(evidence.json.cases.length,4);assert.equal(evidence.json.profiles.length,6);
+ const evidence=await call(app,'/api/evidence');assert.equal(evidence.status,200);assert.equal(evidence.json.cases.length,6);assert.equal(evidence.json.profiles.length,6);
  const data={category:'plastic',profileId:'pp',condition:'clean',baseline:'combustion',alternative:'recycling',mode:'direct-burning',massTonnes:100,adoptionPercent:30,recoveryPercent:90};
  const result=await call(app,'/api/emissions-assessment',{method:'POST',data});assert.equal(result.status,200);assert.equal(result.json.reductionPercent,27);
  assert.equal((await call(app,'/api/emissions-assessment',{method:'POST',data:{...data,adoptionPercent:999}})).status,400);

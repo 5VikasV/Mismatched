@@ -69,7 +69,7 @@ test('first launch is empty and offers evidence with legacy source route alias',
   assert.equal(ui.document.querySelector('[data-action="reset"]'),null);
   assert.match(ui.$('#main').textContent,/Build your local loop/);
   await ui.route('sources');assert.equal(ui.window.location.hash,'#evidence');
-  assert.equal(ui.document.querySelectorAll('.evidence-case').length,4);
+  assert.equal(ui.document.querySelectorAll('.evidence-case').length,6);
   assert.doesNotMatch(ui.$('#main').textContent,/OPENAI_API_KEY/);
 });
 
@@ -86,7 +86,7 @@ test('explicit public import loads attributable real records and supports state 
   ui.click('[data-action="deselect-facility"]');
   ui.click('[data-action="view"][data-view="map"]');
   assert.match(ui.$('.directory-map-container').textContent,/coordinates/);
-  await ui.route('sources');assert.equal(ui.document.querySelectorAll('.evidence-case').length,4);
+  await ui.route('sources');assert.equal(ui.document.querySelectorAll('.evidence-case').length,6);
   assert.equal((await ui.api('/api/sources')).sources.length,3);
 });
 

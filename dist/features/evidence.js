@@ -1,9 +1,6 @@
 import { esc, money } from "./shared.js";
 import { PROFILES, CATEGORIES } from "../evidence-data.js";
-import {
-  assessEmissions,
-  businessProjection,
-} from "../evidence-calculator.js";
+import { assessEmissions, businessProjection } from "../evidence-calculator.js";
 const n = (v) =>
   Number(v).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 const link = (url, label) =>
@@ -45,7 +42,7 @@ export async function mountFeature(root, context) {
   if (!alive) return;
   root.innerHTML = `<header class="carbon-headline"><div class="eyebrow">09 / EVIDENCE & NUMBERS · ILLUSTRATIVE ESTIMATE</div><output id="carbon-headline-percent" aria-live="polite">${n(assessEmissions(headlinePreset).reductionPercent)}%</output><h1 id="carbon-headline-label">Estimated reduction in burning-point CO₂</h1><p id="carbon-headline-assumptions" class="help-text">Clean PP example: 30% adoption × 90% successful recovery. Direct CO₂ at the original burning point only; excludes recycling and transport. Not a measured project outcome.</p><button class="text-link" id="adjust-carbon-assumptions">Adjust assumptions ↓</button></header>
  <section aria-labelledby="cases-title"><div class="section-heading"><div><div class="eyebrow">01 / PUBLISHED PRECEDENTS</div><h2 id="cases-title">Someone’s surplus. Someone else’s input.</h2></div></div><p>These sources show real reuse and demand. They do not establish that an identified company bought excess stock, burned that same stock, and had a ready buyer at the same time. We do not invent that link.</p>
- <div class="evidence-cases">${registry.cases.map((c) => `<article class="panel panel-body evidence-case"><div class="eyebrow">${esc(c.region)} · PUBLISHED CASE</div><h3>${esc(c.title)}</h3><p class="help-text">${esc(c.period)}</p><div class="evidence-flow"><strong>${esc(c.from)}</strong><span>↓ ${esc(c.material)} ↓</span><strong>${esc(c.to)}</strong></div><ul class="case-figures">${c.figures.map((f) => `<li>${esc(f)}</li>`).join("")}</ul><p>${esc(c.story)}</p><details><summary>Scope & limits</summary><p>${esc(c.limit)}</p></details>${link(c.source, c.publisher)}</article>`).join("")}</div></section>
+ <div class="evidence-cases">${registry.cases.map((c) => `<article class="panel panel-body evidence-case" data-case="${esc(c.id)}"><div class="eyebrow">${esc(c.region)} · PUBLISHED CASE</div><h3>${esc(c.title)}</h3><p class="help-text">${esc(c.period)}</p><div class="evidence-flow"><strong>${esc(c.from)}</strong><span>↓ ${esc(c.material)} ↓</span><strong>${esc(c.to)}</strong></div><ul class="case-figures">${c.figures.map((f) => `<li>${esc(f)}</li>`).join("")}</ul><p>${esc(c.story)}</p><details><summary>Scope & limits</summary><p>${esc(c.limit)}</p></details><div class="case-sources">${link(c.source, c.publisher)}${(c.references || []).map((r) => link(r.url, r.label)).join("")}</div></article>`).join("")}</div></section>
  <section class="panel panel-body evidence-section"><div class="eyebrow">02 / PROJECT MEASUREMENT</div><h2>What our classifier has actually proved.</h2>${report ? `<div class="metric-strip"><div class="metric"><strong>${n(report.trained.test.accuracy * 100)}%</strong><span>Held-out TrashNet accuracy</span></div><div class="metric"><strong>${n(report.trained.test.macroF1 * 100)}%</strong><span>Macro-F1</span></div><div class="metric"><strong>${n(report.counts.test)}</strong><span>Test images</span></div></div><p>MobileNetV3 Small, fine-tuned on TrashNet. ${n(report.counts.train)} training / ${n(report.counts.validation)} validation images. Six broad categories, mostly isolated household objects.</p>` : "<p>No evaluation report available. Accuracy is unknown.</p>"}<p>Industrial-pile performance, purity, alloy, hazardous status, mass and price are not validated by this test. Classification accuracy is never an emissions multiplier.</p><a class="text-link" href="#results">Inspect measured results ↗</a></section>
  <section class="evidence-section" aria-labelledby="carbon-title"><div class="eyebrow">03 / CONDITIONAL PROJECTION</div><h2 id="carbon-title">What could be avoided?</h2><p>Select a documented material and compare pathways. All categories can be assessed for evidence availability; only matching published profiles produce a number. Hazardous classification needs separate evidence.</p>
  <form id="emissions-form" class="panel panel-body"><div class="form-grid"><label class="field"><span class="field-label">Material category</span><select class="input" name="category">${options(CATEGORIES.map((c) => [c, c]))}</select></label><label class="field"><span class="field-label">Verified subtype / published profile</span><select class="input" name="profileId"></select></label>
@@ -73,20 +70,7 @@ export async function mountFeature(root, context) {
  )}</select></label>
  ${input("massTonnes", "Baseline waste (metric tonnes)", "", 'min="0.000001" max="1000000" required')}${input("adoptionPercent", "Share routed via platform (%)", "", 'min="0" max="100" required')}${input("recoveryPercent", "Successfully recovered share of routed waste (%)", "", 'min="0" max="100" required')}</div><p class="help-text">Remaining waste stays on the baseline pathway. Adoption and recovery are explicit assumptions, unrelated to classifier accuracy. Factor overrides are not accepted.</p><div class="evidence-toolbar"><button class="btn btn-primary" type="submit">Calculate projection</button><button class="btn btn-secondary" type="button" id="load-benchmark">Load illustrative 100 t PP example</button></div></form><div id="emissions-result" aria-live="polite"><p>Enter assumptions to calculate. No emission test has been performed.</p></div>
  <div class="panel panel-body"><h3>Carbon is only one part of pollution.</h3><p>PM2.5, NOx, SO₂, dioxins and heavy-metal releases: insufficient published evidence for the selected waste and process. A CO₂ factor cannot quantify their reduction. Rubber, mixed e-waste, contaminated materials and hazardous mixtures have no configured assessment profiles.</p><details><summary>Published factors, units & boundaries</summary><p>EPA WARM v16, December 2023. US average scenarios, not local Indian measurements. Recycling values include negative avoided-production credits. Glass profiles cover bottles and jars, not flat or electronic glass. Can profiles are not generic industrial metal scrap.</p><div class="table-scroll"><table><thead><tr><th>Profile</th><th>Landfill</th><th>Controlled combustion</th><th>Recycling</th><th>Direct CO₂</th><th>Source</th></tr></thead><tbody>${PROFILES.map((p) => `<tr><th>${esc(p.label)}</th><td>${p.landfill}</td><td>${p.combustion}</td><td>${p.recycling}</td><td>${p.directBurn ?? "Not applicable"}</td><td>${link(p.source, p.exhibit)}</td></tr>`).join("")}</tbody></table></div><p>All factors: metric tonnes CO₂(e) per US short ton; 1 US short ton = 907.18474 kg. Direct burning figures represent CO₂ only. Negative values represent net credits, not negative stack emissions.</p></details></div></section>
- <section class="evidence-section"><div class="eyebrow">04 / BUSINESS PROJECTION</div><h2>Make the unit economics visible.</h2><p>Material subtotal below ₹1 lakh: 5%; ₹1–10 lakh inclusive: 4%; above ₹10 lakh: 3%. Commission is split 70% buyer / 30% seller, and excludes transport. Applied per order.</p><form id="business-form" class="panel panel-body"><div class="form-grid">${input("orders", "Hypothetical monthly orders", "", 'min="0" max="1000000" required')}${input("materialValue", "Material value per hypothetical order (₹)", "", 'min="0.01" max="10000000000" required')}${input("fixedCosts", "Monthly fixed operating costs (₹, optional)", "", 'min="0" max="10000000000"')}${input("variableCosts", "Variable operating cost per order (₹, optional)", "", 'min="0" max="10000000000"')}</div><button class="btn btn-primary" type="submit">Calculate business scenario</button></form><div id="business-result" aria-live="polite"><p>No revenue projection until you enter assumptions. Taxes, refunds and unentered costs are not included.</p></div></section>
- <section class="panel panel-body evidence-section"><h2>Saved requests: a cost waterfall.</h2><p>These are pending proposals, not paid orders or realised savings.</p><label class="field"><span class="field-label">Saved booking request</span><select class="input" id="evidence-booking"><option value="">Choose a saved request</option>${context
-   .getData()
-   .bookingRequests.filter(
-     (r) => r.status === "pending_agreement" && r.plan?.transportComplete,
-   )
-   .map(
-     (r) =>
-       `<option value="${esc(r.id)}">${esc(r.id)} · ${esc(r.requirements.material)}</option>`,
-   )
-   .join(
-     "",
-   )}</select></label><div id="booking-waterfall"><p>No request selected.</p></div></section>
- <section class="panel panel-body evidence-section"><div class="eyebrow">05 / PROOF FOR A PILOT</div><h2>Turn projections into evidence.</h2><div class="table-scroll"><table><thead><tr><th>Who needs the number?</th><th>What to show</th><th>What proves it</th></tr></thead><tbody><tr><th>Buyer / procurement</th><td>Delivered cost, accepted grade, repeat purchase</td><td>Virgin-material quote, purchase invoice, quality acceptance, freight bill</td></tr><tr><th>Seller / factory</th><td>Net proceeds and disposal cost avoided</td><td>Original disposal quote, weighbridge record, paid invoice</td></tr><tr><th>Platform / investor</th><td>GMV, commission, repeat rate, contribution</td><td>Completed-order ledger, collected fees, acquisition and operating costs</td></tr><tr><th>Environment team</th><td>Mass diverted and comparable emissions</td><td>Baseline disposal records, accepted deliveries, recovery yields, route data and applicable published factors</td></tr></tbody></table></div><p>Show the material-flow diagram, cost waterfall, before/after emissions bars and adoption sensitivity alongside assumptions. Measure completed deliveries before claiming savings. Repeat customers and collected fees demonstrate business demand.</p><p>Setup instructions remain in the project README. Public-record imports and individual source links remain in the Facility directory.</p><a href="#directory" class="text-link">Open facility directory ↗</a></section>`;
+ <section class="evidence-section"><div class="eyebrow">04 / BUSINESS PROJECTION</div><h2>Make the unit economics visible.</h2><p>Material subtotal below ₹1 lakh: 5%; ₹1–10 lakh inclusive: 4%; above ₹10 lakh: 3%. Commission is split 70% buyer / 30% seller, and excludes transport. Applied per order.</p><form id="business-form" class="panel panel-body"><div class="form-grid">${input("orders", "Hypothetical monthly orders", "", 'min="0" max="1000000" required')}${input("materialValue", "Material value per hypothetical order (₹)", "", 'min="0.01" max="10000000000" required')}${input("fixedCosts", "Monthly fixed operating costs (₹, optional)", "", 'min="0" max="10000000000"')}${input("variableCosts", "Variable operating cost per order (₹, optional)", "", 'min="0" max="10000000000"')}</div><button class="btn btn-primary" type="submit">Calculate business scenario</button></form><div id="business-result" aria-live="polite"><p>No revenue projection until you enter assumptions. Taxes, refunds and unentered costs are not included.</p></div></section>`;
   const form = root.querySelector("#emissions-form"),
     bf = root.querySelector("#business-form");
   const values = (f) => Object.fromEntries(new FormData(f));
@@ -229,34 +213,6 @@ export async function mountFeature(root, context) {
       root.querySelector("#business-result").innerHTML =
         `<p role="alert">${esc(err.message)}</p>`;
     }
-  };
-  let selectedBooking = null;
-  root.querySelector("#evidence-booking").onchange = (e) => {
-    selectedBooking =
-      context.getData().bookingRequests.find((r) => r.id === e.target.value) ||
-      null;
-    const r = selectedBooking,
-      p = r?.plan;
-    root.querySelector("#booking-waterfall").innerHTML = p
-      ? `<h3>${esc(r.id)}</h3><dl class="evidence-waterfall">${[
-          ["Material subtotal", p.materialCost],
-          ["Buyer commission", p.buyerFee],
-          ["Buyer transport", p.buyerTransport],
-          ["Buyer total", p.totalCost],
-          ["Seller commission", p.sellerFee],
-          ["Seller transport", p.sellerTransport],
-          ["Seller net proceeds", p.sellerNet],
-          ["Estimated buyer savings", p.savings],
-          ["Platform commission", p.fee],
-        ]
-          .map(
-            ([k, v]) =>
-              `<div><dt>${k}</dt><dd>${v == null ? "Unknown" : money(v)}</dd></div>`,
-          )
-          .join(
-            "",
-          )}</dl><p>Immutable saved financial snapshot. Pending agreement; no payment or delivery confirmed.</p>`
-      : "<p>No request selected.</p>";
   };
   const printDetails = () => {
     root.querySelectorAll("details").forEach((d) => {

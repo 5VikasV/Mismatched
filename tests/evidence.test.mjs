@@ -23,13 +23,38 @@ const preset = {
 };
 test("curated evidence includes dated primary cases and traceable signed factors", () => {
   const r = evidenceRegistry();
-  assert.equal(r.cases.length, 4);
-  assert.ok(r.cases[0].figures.includes("703,466.12 metric tonnes consumed"));
+  assert.equal(r.cases.length, 6);
+  assert.deepEqual(
+    r.cases.slice(0, 2).map((c) => c.id),
+    ["vapi-ambuja", "hi-tech-carbon"],
+  );
+  assert.ok(
+    r.cases
+      .find((c) => c.id === "ntpc")
+      .figures.includes("703,466.12 metric tonnes consumed"),
+  );
   for (const c of r.cases) {
     assert.ok(c.limit && c.period && c.publisher);
     assert.equal(new URL(c.source).protocol, "https:");
   }
   assert.match(r.cases.find((c) => c.id === "kalundborg").period, /ceased/);
+  const vapi = r.cases.find((c) => c.id === "vapi-ambuja");
+  assert.ok(vapi.figures.some((f) => f.includes("15,341.09")));
+  assert.ok(
+    vapi.figures.some(
+      (f) => f.includes("30,873") && f.includes("collectively"),
+    ),
+  );
+  assert.ok(
+    vapi.figures.some((f) => f.includes("154,018") && f.includes("2012–2016")),
+  );
+  assert.match(vapi.limit, /Payment terms.*unpublished/);
+  assert.equal(vapi.references[0].url.startsWith("https://cpcb.nic.in/"), true);
+  const sludge = r.cases.find((c) => c.id === "hi-tech-carbon");
+  assert.ok(sludge.figures.includes("₹167 / tonne agreed selling price"));
+  assert.match(sludge.period, /25 February 2014/);
+  assert.match(sludge.limit, /not named/);
+  assert.match(sludge.limit, /not sales revenue/);
   for (const p of PROFILES) {
     assert.ok(p.recycling < 0);
     assert.ok(p.source && p.exhibit && p.version && p.geography);

@@ -6,7 +6,33 @@ test("evidence replaces setup, calculates bounded scenarios without export contr
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/workspace#sources");
   await expect(page).toHaveURL(/#evidence$/);
-  await expect(page.locator(".evidence-case")).toHaveCount(4);
+  await expect(page.locator(".evidence-case")).toHaveCount(6);
+  const vapi = page.locator('[data-case="vapi-ambuja"]');
+  const sludge = page.locator('[data-case="hi-tech-carbon"]');
+  await expect(page.locator(".evidence-case").first()).toHaveAttribute(
+    "data-case",
+    "vapi-ambuja",
+  );
+  await expect(vapi).toContainText("15,341.09");
+  await expect(vapi).toContainText(
+    "30,873 tonnes dispatched from Vapi paper mills collectively",
+  );
+  await expect(vapi).toContainText("154,018");
+  await expect(vapi.locator("a")).toHaveCount(2);
+  await vapi.locator("summary").click();
+  await expect(vapi.locator("details")).toContainText(
+    "Payment terms and buyer purchase savings are unpublished",
+  );
+  await expect(sludge).toContainText("₹1,250 / tonne");
+  await expect(sludge).toContainText("₹167 / tonne");
+  await expect(sludge).toContainText("425.330");
+  await expect(sludge).toContainText("₹9.58 lakh reported annual");
+  await expect(
+    page.locator("#evidence-booking, #booking-waterfall"),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Turn projections into evidence." }),
+  ).toHaveCount(0);
   await expect(page.locator("#carbon-headline-percent")).toHaveText("27%");
   await expect(page.locator("#carbon-headline-assumptions")).toContainText(
     "Illustrative, not measured",
