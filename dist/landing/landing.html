@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F4F3EF">
+  <meta name="description" content="Explore industrial materials and find their next use with ScrapLoop.">
+  <title>ScrapLoop — Material exchange</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./landing.css">
+  <script src="./landing.js" defer></script>
+</head>
+<body>
+  <div class="landing-shell">
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="ScrapLoop workspace">
+        <svg class="wordmark-mark" aria-hidden="true" viewBox="0 0 28 28">
+          <path d="M5 8h13l-3-3m8 15H10l3 3"></path>
+          <path d="M18 8a8 8 0 0 1 4 12M10 20a8 8 0 0 1-4-12"></path>
+        </svg>
+        <span>SCRAPLOOP</span>
+      </a>
+      <div class="drawing-tags" aria-label="Drawing identification">
+        <span>REV A</span>
+        <span>DWG 014</span>
+      </div>
+    </header>
+
+    <section class="page-intro" aria-labelledby="page-title">
+      <h1 class="hero-headline" id="page-title">
+        <span class="headline-materials">MATERIALS</span>
+        <em class="headline-find">find their</em>
+        <span class="headline-next">next shift.</span>
+      </h1>
+      <p class="rotating-material"><span class="rotating-label">MATERIAL STREAM /</span> <span class="rotating-word-window"><span id="rotating-word">Steel</span></span></p>
+    </section>
+
+    <main class="material-explorer" aria-label="ScrapLoop material carousel">
+      <div class="carousel-viewport" tabindex="0" role="region" aria-label="Material carousel. Use left and right arrow keys to rotate. Drag or swipe to pause and move the ring.">
+        <div class="carousel-scene">
+          <div class="carousel-ring" id="carousel-ring">
+            <article class="ring-card" style="--card-angle: 0deg">
+              <button class="card-button" type="button" aria-label="Steel, Metal scrap">
+                <span class="card-image"><img src="./images/steel.jpg.jpg" alt="Steelworks and metal processing equipment at dusk" width="220" height="220"></span>
+                <span class="card-caption"><span class="card-title">Steel</span><span class="card-subtitle">Metal scrap</span></span>
+              </button>
+            </article>
+            <article class="ring-card" style="--card-angle: 45deg">
+              <button class="card-button" type="button" aria-label="Aluminium, Machining scrap">
+                <span class="card-image"><img src="./images/aluminium.jpg.jpg" alt="Stacked metal profiles at an industrial yard" width="220" height="220"></span>
+                <span class="card-caption"><span class="card-title">Aluminium</span><span class="card-subtitle">Machining scrap</span></span>
+              </button>
+            </article>
+            <article class="ring-card" style="--card-angle: 90deg">
+              <button class="card-button" type="button" aria-label="Plastic, Recycled polymer">
+                <span class="card-image"><img src="./images/plastic.jpg.jpg" alt="A conveyor sorting mixed recyclable materials" width="220" height="220"></span>
+                <span class="card-caption"><span class="card-title">Plastic</span><span class="card-subtitle">Recycled polymer</span></span>
+              </button>
+            </article>
+            <article class="ring-card" style="--card-angle: 135deg">
+              <button class="card-button" type="button" aria-label="E-waste, Electronics">
+                <span class="card-image"><img src="./images/ewaste.jpg.jpg" alt="Workers sorting discarded electronics at a recovery facility" width="220" height="220"></span>
+                <span class="card-caption"><span class="card-title">E-waste</span><span class="card-subtitle">Electronics</span></span>
+              </button>
+            </article>
+            <article class="ring-card" style="--card-angle: 180deg">
+              <button class="card-button" type="button" aria-label="Cardboard, Paper bales">
+                <span class="card-image"><img src="./images/cardboard.jpg.jpg" alt="Rows of cardboard boxes in a distribution warehouse" width="220" height="220"></span>
+                <span class="card-caption"><span class="card-title">Cardboard</span><span class="card-subtitle">Paper bales</span></span>
+              </button>
+            </article>
+            <article class="ring-card" style="--card-angle: 225deg">
+              <button class="card-button" type="button" aria-label="Glass, Cullet">
+                <span class="card-image"><img src="./images/glass.jpg.jpg" alt="Workers handling large glass sheets in a factory" width="220" height="220"></span>
+                <span class="card-caption"><span class="card-title">Glass</span><span class="card-subtitle">Cullet</span></span>
+              </button>
+            </article>
+            <article class="ring-card" style="--card-angle: 270deg">
+              <button class="card-button" type="button" aria-label="Textile, Offcuts">
+                <span class="card-image"><img src="./images/textile.jpg.jpg" alt="Fabric moving through textile production machinery" width="220" height="220"></span>
+                <span class="card-caption"><span class="card-title">Textile</span><span class="card-subtitle">Offcuts</span></span>
+              </button>
+            </article>
+            <article class="ring-card" style="--card-angle: 315deg">
+              <button class="card-button" type="button" aria-label="Rubber, Tyres">
+                <span class="card-image"><img src="./images/rubber.jpg.jpg" alt="Material recovery workers handling processed paper pulp; illustrative for rubber" width="220" height="220"></span>
+                <span class="card-caption"><span class="card-title">Rubber</span><span class="card-subtitle">Tyres</span></span>
+              </button>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <p class="now-showing" id="now-showing" aria-live="off">Now showing: Steel / Metal scrap</p>
+      <nav class="account-actions" aria-label="Account options">
+        <a class="action-button action-button--primary" href="/landing/signin.html">Sign In</a>
+        <a class="action-button action-button--outline" href="/landing/signup.html">Create Account</a>
+        <button class="action-button play-button" id="play-carousel" type="button" aria-label="Play carousel rotation" hidden>Play</button>
+      </nav>
+      <p class="asset-note"><span>Illustrative images</span><span aria-hidden="true"> / </span><span>Photo credits: local project assets; photographer details unavailable.</span></p>
+    </main>
+    <footer class="fact-ticker" aria-label="Material recycling facts">
+      <div class="fact-track">
+        <!-- TODO: add a source link for each fact before the demo -->
+        <ul class="fact-list">
+          <li>Aluminium can be recycled again and again without losing quality</li>
+          <li>Recycling aluminium uses far less energy than making it from ore</li>
+          <li>Steel is one of the most recycled materials in the world</li>
+          <li>One factory's scrap can be another's raw material</li>
+          <li>Small lots become viable when pooled</li>
+        </ul>
+        <ul class="fact-list" aria-hidden="true">
+          <li>Aluminium can be recycled again and again without losing quality</li>
+          <li>Recycling aluminium uses far less energy than making it from ore</li>
+          <li>Steel is one of the most recycled materials in the world</li>
+          <li>One factory's scrap can be another's raw material</li>
+          <li>Small lots become viable when pooled</li>
+        </ul>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

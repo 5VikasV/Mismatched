@@ -171,7 +171,9 @@ export function createApp(options = {}) {
   const count = table => db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;
   async function handle(req, res) {
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'same-origin');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'");
+    const landingPaths = ['/landing', '/landing/', '/landing/landing.html'];
+    const landingPage = landingPaths.some(path => req.url === path || req.url.startsWith(`${path}?`));
+    res.setHeader('Content-Security-Policy', `default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'${landingPage ? ' https://fonts.googleapis.com' : ''}; font-src 'self'${landingPage ? ' https://fonts.gstatic.com' : ''}; script-src 'self' 'wasm-unsafe-eval'; connect-src 'self'; base-uri 'none'; frame-ancestors 'none'`);
     try {
       guard(req);
       const parsed = new URL(req.url, 'http://localhost'); const pathname = parsed.pathname;
@@ -274,8 +276,10 @@ export function createApp(options = {}) {
       }
       if (pathname.startsWith('/api/')) fail(404, 'not_found', 'This API endpoint could not be found.');
       if (!['GET', 'HEAD'].includes(req.method)) fail(405, 'method_not_allowed', 'This method is not available.');
+      if (pathname === '/landing') { res.writeHead(308, { Location: '/landing/' }); return res.end(); }
       let decoded; try { decoded = decodeURIComponent(pathname); } catch { fail(400, 'invalid_path', 'Invalid file path.'); }
-      const filePath = resolve(staticDir, decoded === '/' ? 'index.html' : `.${decoded}`);
+      const staticPath = decoded === '/' ? 'index.html' : decoded === '/landing/' ? './landing/landing.html' : `.${decoded}`;
+      const filePath = resolve(staticDir, staticPath);
       if (!filePath.startsWith(`${staticDir}${sep}`) || decoded.split('/').some(part => part.startsWith('.')) || !existsSync(filePath) || !statSync(filePath).isFile()) fail(404, 'not_found', 'This page could not be found.');
       const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.glb': 'model/gltf-binary' };
       res.writeHead(200, { 'Content-Type': types[extname(filePath)] || 'application/octet-stream' }); res.end(req.method === 'HEAD' ? undefined : readFileSync(filePath));
