@@ -1,6 +1,6 @@
 # ScrapLoop: pitch evidence and numbers
 
-Reviewed 25 November 2026. Open `/workspace#evidence` for case studies, calculator, business scenario, financial snapshots, CSV export and print. `/workspace#sources` redirects there. Setup remains in README; directory import and provenance stay in Facility directory.
+Reviewed 25 November 2026. Open `/workspace#evidence` for case studies, calculator, business scenario, financial snapshots and browser printing. `/workspace#sources` redirects there. Setup remains in README; directory import and provenance stay in Facility directory.
 
 ## Three types of evidence
 
@@ -43,7 +43,7 @@ Rubber, e-waste, mixed/unknown, industrial metal grades, paper, cardboard, texti
 - **Platform scenario:** per-order material value and order count → projected GMV and commission. Below ₹1 lakh/order: 5%; ₹1–10 lakh inclusive: 4%; above ₹10 lakh: 3%. Fee split 70% buyer/30% seller. Transport excluded. Compute the rate per order, never on monthly GMV.
 - **Operating economics:** contribution/order = commission/order − variable operating cost/order. Operating result = monthly contribution − fixed costs. Break-even only when costs are supplied and contribution is positive. Refunds, taxes and omitted costs are excluded; commission is not profit.
 - **Environment:** baseline/alternative bars with signed credits, explicit boundary and factor citation; adoption sensitivity at fixed recovery, never an unqualified “pollution prevented” percentage.
-- **Evidence table:** user problem, published case, project measurement, scenario assumptions and pilot proof. Export the current scenarios with citations and dates using Export pitch CSV. Use Print pitch for PDF. Missing figures stay unknown.
+- **Evidence table:** user problem, published case, project measurement, scenario assumptions and pilot proof. Use the browser’s print command to save a PDF with citations and dates. Missing figures stay unknown.
 
 ## Pilot proof checklist
 

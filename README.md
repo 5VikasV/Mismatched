@@ -97,4 +97,4 @@ The GLB and locally hosted viewer work without Blender installed. The editable s
 
 ### Evidence for pitches
 
-Open `/workspace#evidence` for published precedents, project measurements, emissions scenarios, commission projections, CSV export and printing. See [Pitch evidence and methodology](docs/PITCH_EVIDENCE.md) for source links, calculation boundaries and pilot proof requirements. Legacy `#sources` links redirect to the evidence page.
+Open `/workspace#evidence` for published precedents, project measurements, emissions scenarios, commission projections and browser printing. See [Pitch evidence and methodology](docs/PITCH_EVIDENCE.md) for source links, calculation boundaries and pilot proof requirements. Legacy `#sources` links redirect to the evidence page.

@@ -1,6 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { readFileSync } from "node:fs";
-test("evidence replaces setup, calculates bounded scenarios, exports sources and enlarges workspace", async ({
+test("evidence replaces setup, calculates bounded scenarios without export controls and enlarges workspace", async ({
   page,
 }, info) => {
   const errors = [];
@@ -57,13 +56,8 @@ test("evidence replaces setup, calculates bounded scenarios, exports sources and
     .click();
   await expect(page.locator("#business-result")).toContainText("₹50,000.00");
   await expect(page.locator("#business-result")).toContainText("₹30,000.00");
-  const dl = page.waitForEvent("download");
-  await page.locator("#evidence-export").click();
-  const csv = readFileSync(await (await dl).path(), "utf8");
-  expect(csv).toContain("https://www.greencape.co.za/");
-  expect(csv).toContain("83.037");
-  expect(csv).toContain("Hypothetical business");
-  expect(csv).toContain("Projection assumption");
+  await expect(page.locator("#evidence-export")).toHaveCount(0);
+  await expect(page.locator("#evidence-print")).toHaveCount(0);
   await expect
     .poll(() =>
       page.evaluate(
@@ -74,7 +68,7 @@ test("evidence replaces setup, calculates bounded scenarios, exports sources and
   const fonts = await page.evaluate(() => ({
     body: parseFloat(getComputedStyle(document.body).fontSize),
     btn: parseFloat(
-      getComputedStyle(document.querySelector("#evidence-export")).fontSize,
+      getComputedStyle(document.querySelector("#load-benchmark")).fontSize,
     ),
   }));
   expect(fonts.body).toBeGreaterThanOrEqual(20);

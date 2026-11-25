@@ -3,7 +3,6 @@ import { PROFILES, CATEGORIES } from "../evidence-data.js";
 import {
   assessEmissions,
   businessProjection,
-  evidenceCSV,
 } from "../evidence-calculator.js";
 const n = (v) =>
   Number(v).toLocaleString("en-IN", { maximumFractionDigits: 2 });
@@ -27,9 +26,8 @@ const options = (rows) =>
     .map(([id, label]) => `<option value="${id}">${esc(label)}</option>`)
     .join("");
 export async function mountFeature(root, context) {
-  const window = root.ownerDocument.defaultView,
-    document = root.ownerDocument;
-  const { FormData, URL, Blob } = window;
+  const window = root.ownerDocument.defaultView;
+  const { FormData } = window;
   let alive = true,
     requestVersion = 0,
     assessment = null,
@@ -46,7 +44,6 @@ export async function mountFeature(root, context) {
   }
   if (!alive) return;
   root.innerHTML = `<header class="carbon-headline"><div class="eyebrow">09 / EVIDENCE & NUMBERS · ILLUSTRATIVE ESTIMATE</div><output id="carbon-headline-percent" aria-live="polite">${n(assessEmissions(headlinePreset).reductionPercent)}%</output><h1 id="carbon-headline-label">Estimated reduction in burning-point CO₂</h1><p id="carbon-headline-assumptions" class="help-text">Clean PP example: 30% adoption × 90% successful recovery. Direct CO₂ at the original burning point only; excludes recycling and transport. Not a measured project outcome.</p><button class="text-link" id="adjust-carbon-assumptions">Adjust assumptions ↓</button></header>
- <div class="evidence-toolbar"><button class="btn btn-secondary" id="evidence-export">Export pitch CSV</button><button class="btn btn-secondary" id="evidence-print">Print pitch</button></div>
  <section aria-labelledby="cases-title"><div class="section-heading"><div><div class="eyebrow">01 / PUBLISHED PRECEDENTS</div><h2 id="cases-title">Someone’s surplus. Someone else’s input.</h2></div></div><p>These sources show real reuse and demand. They do not establish that an identified company bought excess stock, burned that same stock, and had a ready buyer at the same time. We do not invent that link.</p>
  <div class="evidence-cases">${registry.cases.map((c) => `<article class="panel panel-body evidence-case"><div class="eyebrow">${esc(c.region)} · PUBLISHED CASE</div><h3>${esc(c.title)}</h3><p class="help-text">${esc(c.period)}</p><div class="evidence-flow"><strong>${esc(c.from)}</strong><span>↓ ${esc(c.material)} ↓</span><strong>${esc(c.to)}</strong></div><ul class="case-figures">${c.figures.map((f) => `<li>${esc(f)}</li>`).join("")}</ul><p>${esc(c.story)}</p><details><summary>Scope & limits</summary><p>${esc(c.limit)}</p></details>${link(c.source, c.publisher)}</article>`).join("")}</div></section>
  <section class="panel panel-body evidence-section"><div class="eyebrow">02 / PROJECT MEASUREMENT</div><h2>What our classifier has actually proved.</h2>${report ? `<div class="metric-strip"><div class="metric"><strong>${n(report.trained.test.accuracy * 100)}%</strong><span>Held-out TrashNet accuracy</span></div><div class="metric"><strong>${n(report.trained.test.macroF1 * 100)}%</strong><span>Macro-F1</span></div><div class="metric"><strong>${n(report.counts.test)}</strong><span>Test images</span></div></div><p>MobileNetV3 Small, fine-tuned on TrashNet. ${n(report.counts.train)} training / ${n(report.counts.validation)} validation images. Six broad categories, mostly isolated household objects.</p>` : "<p>No evaluation report available. Accuracy is unknown.</p>"}<p>Industrial-pile performance, purity, alloy, hazardous status, mass and price are not validated by this test. Classification accuracy is never an emissions multiplier.</p><a class="text-link" href="#results">Inspect measured results ↗</a></section>
@@ -275,188 +272,6 @@ export async function mountFeature(root, context) {
   };
   window.addEventListener("beforeprint", printDetails);
   window.addEventListener("afterprint", restoreDetails);
-  root.querySelector("#evidence-print").onclick = () => window.print();
-  root.querySelector("#evidence-export").onclick = () => {
-    const rows = [
-      [
-        "Evidence type",
-        "Metric",
-        "Value",
-        "Unit / boundary",
-        "Source",
-        "Reviewed / exported",
-      ],
-      [
-        "Metadata",
-        "Exported at",
-        new Date().toISOString(),
-        "UTC",
-        "",
-        registry.reviewedAt,
-      ],
-    ];
-    for (const c of registry.cases) {
-      for (const f of c.figures)
-        rows.push([
-          "Published precedent",
-          c.title,
-          f,
-          c.period,
-          c.source,
-          registry.reviewedAt,
-        ]);
-      rows.push([
-        "Published precedent limits",
-        c.title,
-        c.limit,
-        "Not a ScrapLoop result",
-        c.source,
-        registry.reviewedAt,
-      ]);
-    }
-    if (report) {
-      rows.push(
-        [
-          "Measured classifier",
-          "Accuracy",
-          report.trained.test.accuracy * 100,
-          "% held-out TrashNet",
-          "/api/model-report",
-          report.createdAt,
-        ],
-        [
-          "Measured classifier",
-          "Macro-F1",
-          report.trained.test.macroF1 * 100,
-          "% held-out TrashNet",
-          "/api/model-report",
-          report.createdAt,
-        ],
-        [
-          "Measured classifier",
-          "Test images",
-          report.counts.test,
-          "Dataset labels; industrial generalisation unvalidated",
-          "/api/model-report",
-          report.createdAt,
-        ],
-      );
-    }
-    if (assessment) {
-      for (const [k, v] of Object.entries(assessment.inputs))
-        rows.push([
-          "Projection assumption",
-          k,
-          v,
-          "User-entered scenario",
-          "",
-          registry.reviewedAt,
-        ]);
-      if (assessment.status === "estimated") {
-        for (const k of [
-          "divertedTonnes",
-          "beforeTonnes",
-          "afterTonnes",
-          "avoidedTonnes",
-          "reductionPercent",
-        ])
-          rows.push([
-            "Emissions projection",
-            k,
-            assessment[k],
-            k === "reductionPercent"
-              ? "% (null = withheld)"
-              : k === "divertedTonnes"
-                ? "metric tonnes material"
-                : assessment.units,
-            assessment.profile.source,
-            registry.reviewedAt,
-          ]);
-        rows.push([
-          "Projection boundary",
-          "Scope",
-          assessment.boundary,
-          assessment.percentageNote ?? "",
-          assessment.profile.source,
-          registry.reviewedAt,
-        ]);
-        for (const k of ["landfill", "combustion", "recycling", "directBurn"])
-          rows.push([
-            "Published factor",
-            k,
-            assessment.profile[k],
-            k === "directBurn"
-              ? "MT CO₂ / US short ton (direct)"
-              : assessment.profile.units,
-            assessment.profile.source,
-            assessment.profile.exhibit,
-          ]);
-      } else
-        rows.push([
-          "Insufficient evidence",
-          "Reason",
-          assessment.reason,
-          "No savings asserted",
-          "",
-          registry.reviewedAt,
-        ]);
-    }
-    if (business)
-      for (const [k, v] of Object.entries(business))
-        rows.push([
-          "Hypothetical business",
-          k,
-          v,
-          (k === "feePercent"
-            ? "% per order"
-            : k === "orders"
-              ? "orders / month"
-              : k === "breakEvenOrders"
-                ? "orders / month"
-                : k === "policyVersion"
-                  ? "policy version"
-                  : [
-                        "materialValue",
-                        "fee",
-                        "buyerFee",
-                        "sellerFee",
-                        "variableCosts",
-                        "contributionPerOrder",
-                      ].includes(k)
-                    ? "INR / order"
-                    : "INR / month") + "; hypothetical, not paid revenue",
-          "/trade-policy.js",
-          registry.reviewedAt,
-        ]);
-    if (selectedBooking)
-      for (const k of [
-        "materialCost",
-        "buyerFee",
-        "buyerTransport",
-        "totalCost",
-        "sellerFee",
-        "sellerTransport",
-        "sellerNet",
-        "savings",
-        "fee",
-      ])
-        rows.push([
-          "Pending booking snapshot",
-          k,
-          selectedBooking.plan[k],
-          "INR; not paid or delivered",
-          selectedBooking.id,
-          registry.reviewedAt,
-        ]);
-    const url = URL.createObjectURL(
-      new Blob([evidenceCSV(rows)], { type: "text/csv;charset=utf-8" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "scraploop-pitch-evidence.csv";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  };
   Object.entries(headlinePreset).forEach(([k, v]) => {
     if (k !== "profileId") form.elements[k].value = v;
   });
