@@ -1,3 +1,4 @@
+import { createVision } from './vision.mjs';
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, existsSync, mkdirSync, statSync } from 'node:fs';
@@ -140,6 +141,8 @@ export function createApp(options = {}) {
   const fetchImpl = options.fetchImpl || globalThis.fetch;
   const publicDataPath = options.publicDataPath || resolve(projectDir, 'data/public-facilities.json');
   const staticDir = resolve(options.staticDir || resolve(projectDir, 'dist'));
+  const vision = options.vision || createVision();
+  const reportPath = options.reportPath || resolve(projectDir, 'reports/model/latest.json');
   let analyzing = false;
   const all = table => db.prepare(`SELECT json FROM ${table}`).all().map(r => JSON.parse(r.json));
   const get = (table, id) => { const row = db.prepare(`SELECT json FROM ${table} WHERE id = ?`).get(id); return row ? JSON.parse(row.json) : null; };
@@ -150,7 +153,27 @@ export function createApp(options = {}) {
     try {
       guard(req);
       const parsed = new URL(req.url, 'http://localhost'); const pathname = parsed.pathname;
-      if (req.method === 'GET' && pathname === '/api/status') return send(res, 200, { aiConfigured: !!apiKey.trim(), model, facilityCount: count('facilities'), sourceCount: count('sources'), recordCount: count('records') });
+      if (req.method === 'GET' && pathname === '/api/status') return send(res, 200, { aiConfigured: !!apiKey.trim(), model, vision: vision.status(), facilityCount: count('facilities'), sourceCount: count('sources'), recordCount: count('records') });
+      if (req.method === 'GET' && pathname === '/api/model-report') {
+        return send(res, 200, { report: existsSync(reportPath) ? JSON.parse(readFileSync(reportPath, 'utf8')) : null, status: vision.status() });
+      }
+      if (req.method === 'POST' && pathname === '/api/classify') {
+        const value = await body(req);
+        const name = string(value.name, 'File name', { required: true, max: 200 });
+        if (!['image/jpeg','image/png','image/webp'].includes(value.mimeType)) fail(415, 'unsupported_file', 'Local classification accepts JPG, PNG, and WebP images. Review PDFs manually or explicitly choose document analysis.');
+        if (typeof value.dataBase64 !== 'string' || value.dataBase64.length > Math.ceil(MAX_FILE_BYTES/3)*4) fail(413, 'file_too_large', 'Upload an image up to 10 MB.');
+        const file=Buffer.from(value.dataBase64,'base64');
+        if (!file.length || file.toString('base64')!==value.dataBase64) fail(400,'invalid_file','Invalid image data.');
+        if (file.length>MAX_FILE_BYTES) fail(413,'file_too_large','Upload an image up to 10 MB.');
+        const magic=value.mimeType==='image/jpeg' ? file[0]===255&&file[1]===216&&file[2]===255 : value.mimeType==='image/png' ? file.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])) : file.subarray(0,4).toString()==='RIFF'&&file.subarray(8,12).toString()==='WEBP';
+        if(!magic) fail(400,'invalid_file','Image content does not match its file type.');
+        let result;
+        try { result=await vision.classify(value.dataBase64); } catch(error) { fail(error.status||502,'classifier_unavailable',error.message); }
+        const suggestions={material:result.category,grade:null,quantityKg:null,pricePerKg:null,company:null,location:null,condition:null,evidence:[{field:'material',quote:`Local model suggestion: ${result.category}. Not a verified specification.`,page:null}],warnings:['Review the category. Exact grade, quantity, condition, and price are unknown from this classifier.']};
+        const analysis={id:randomUUID(),filename:name,createdAt:new Date().toISOString(),model:result.modelVersion,classification:result,suggestions};
+        db.prepare('INSERT INTO analyses (id,json) VALUES (?,?)').run(analysis.id,JSON.stringify(analysis));
+        return send(res,200,analysis);
+      }
       if (req.method === 'GET' && pathname === '/api/sources') return send(res, 200, { sources: all('sources') });
       if (req.method === 'GET' && pathname === '/api/facilities') {
         const every = all('facilities'); const q = (parsed.searchParams.get('q') || '').toLowerCase().trim();
@@ -225,5 +248,5 @@ export function createApp(options = {}) {
     } catch (error) { if (!res.headersSent) send(res, error.status || 500, { error: error.code || 'server_error', message: error instanceof AppError ? error.message : 'The workspace could not complete this request.' }); else res.end(); }
   }
   const server = http.createServer(handle);
-  return { server, db, handle, close: () => { server.close(); db.close(); } };
+  return { server, db, handle, close: () => { vision.close?.(); server.close(); db.close(); } };
 }

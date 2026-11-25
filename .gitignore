@@ -13,3 +13,9 @@ test-results/
 *.db
 *.db-*
 data/uploads/
+.venv/
+ml/data/
+ml/artifacts/
+ml/cache/
+__pycache__/
+*.pyc

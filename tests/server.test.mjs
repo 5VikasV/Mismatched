@@ -37,7 +37,8 @@ const suggestions = () => ({ material: 'PP', grade: null, quantityKg: 120, price
 test('new database is empty, persists research across reopen, and never exposes an API key', async t => {
   const { app, dir } = setup(t, { apiKey: 'super-secret-test-key' });
   const status = await call(app, '/api/status');
-  assert.deepEqual(status.json, { aiConfigured: true, model: 'gpt-4.1-mini', facilityCount: 0, sourceCount: 0, recordCount: 0 });
+  const {vision,...existing}=status.json; assert.equal(typeof vision.available,'boolean');
+  assert.deepEqual(existing, { aiConfigured: true, model: 'gpt-4.1-mini', facilityCount: 0, sourceCount: 0, recordCount: 0 });
   assert.equal(status.text.includes('super-secret'), false);
   const saved = await call(app, '/api/records', { method: 'POST', data: record() });
   assert.equal(saved.status, 201); assert.equal(saved.json.record.quantityKg, null);
@@ -193,4 +194,20 @@ test('static server serves application assets but never local settings or path e
   const { app } = setup(t);
   const home = await call(app, '/'); assert.equal(home.status, 200); assert.match(home.headers['content-type'], /text\/html/);
   for (const path of ['/server/app.mjs', '/.env', '/%2e%2e/%2e%2e/etc/passwd', '/api/unknown']) assert.equal((await call(app, path)).status, 404);
+});
+
+test('local classifier validates images, saves versioned suggestions and never calls a paid provider',async t=>{
+ let calls=0;
+ const {app}=setup(t,{fetchImpl:()=>{throw new Error('Paid provider must not run');},vision:{status:()=>({available:true}),close(){},async classify(){calls++;return{category:'metal',confidence:.91,scores:[{category:'metal',score:.91}],reviewRequired:true,needsReview:false,experimental:false,modelVersion:'fixture-v1'};}}});
+ const image={name:'metal.png',mimeType:'image/png',dataBase64:Buffer.from([137,80,78,71,13,10,26,10,1]).toString('base64')};
+ const result=await call(app,'/api/classify',{method:'POST',data:image});assert.equal(result.status,200);assert.equal(calls,1);assert.equal(result.json.suggestions.grade,null);assert.equal(result.json.classification.reviewRequired,true);
+ const evidence=await call(app,`/api/analyses/${result.json.id}`);assert.equal(evidence.json.model,'fixture-v1');
+ assert.equal((await call(app,'/api/classify',{method:'POST',data:{...image,mimeType:'application/pdf'}})).status,415);
+ assert.equal((await call(app,'/api/classify',{method:'POST',data:{...image,dataBase64:'AAAA'}})).status,400);assert.equal(calls,1);
+});
+test('model report starts honestly empty and local worker failures are actionable',async t=>{
+ const {app,dir}=setup(t,{reportPath:'/tmp/nonexistent-scraploop-report.json',vision:{status:()=>({available:false}),close(){},classify(){throw Object.assign(new Error('Install the local ML environment'),{status:503});}}});
+ assert.equal((await call(app,'/api/model-report')).json.report,null);
+ const result=await call(app,'/api/classify',{method:'POST',data:{name:'image.jpg',mimeType:'image/jpeg',dataBase64:Buffer.from([255,216,255,1]).toString('base64')}});
+ assert.equal(result.status,503);assert.match(result.json.message,/Install/);
 });

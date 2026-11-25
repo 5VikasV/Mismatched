@@ -1,0 +1,8 @@
+{
+  "classes": ["cardboard", "glass", "metal", "paper", "plastic", "other"],
+  "sources": [
+    {"id":"trashnet","url":"https://huggingface.co/datasets/garythung/trashnet","download":"https://huggingface.co/datasets/garythung/trashnet/resolve/main/dataset-resized.zip","sha256":"c060e8abfe5d6de0578ca15be1ed8ad0794a865d333c3473d53d1d9ad6e38b8c","license":"MIT (author dataset card)","attribution":"Gary Thung and Mindy Yang, TrashNet","role":"training-validation-test","labelProvenance":"dataset_provided","limitations":"Mostly isolated household objects against white backgrounds; not industrial grades or condition labels."},
+    {"id":"taco","url":"https://github.com/pedropro/TACO","role":"external-evaluation-candidate","enabled":false,"reason":"Verify individual image licenses and unambiguous category mapping before downloading. Mixed scenes require object crops grouped by original image."},
+    {"id":"zerowaste","url":"https://github.com/dbash/zerowaste","license":"CC BY-NC 4.0","role":"research-only-candidate","enabled":false,"reason":"Noncommercial restrictions; excluded from default downloads, training and distributed model."}
+  ]
+}
