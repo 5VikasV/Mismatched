@@ -86,6 +86,12 @@ test("tonne pool, fixed commission, per-pickup transport, saved request and canc
     expect(csv).toContain("112024");
     expect(csv).toContain("seller_owned");
     expect(csv).toContain("pending_agreement");
+    await page.goto("/workspace#evidence");
+    await page.locator("#evidence-booking").selectOption(all[0].id);
+    await expect(page.locator("#booking-waterfall")).toContainText("₹1,12,024.00");
+    await expect(page.locator("#booking-waterfall")).toContainText("Pending agreement");
+    await page.goto("/workspace#bookings");
+    await expect(page.locator(".booking-list-item").first()).toBeVisible();
     await page
       .getByRole("button", { name: "Cancel request", exact: true })
       .click();

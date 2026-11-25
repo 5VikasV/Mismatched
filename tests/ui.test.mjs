@@ -10,6 +10,7 @@ import { planPool } from '../dist/planner.js';
 import { mountFeature as mountAnalysis } from '../dist/features/analysis.js';
 import { mountFeature as mountDirectory } from '../dist/features/directory.js';
 import { mountFeature as mountPlanner } from '../dist/features/planner.js';
+import { mountFeature as mountEvidence } from '../dist/features/evidence.js';
 import { mountFeature as mountResults } from '../dist/features/results.js';
 
 const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
@@ -37,7 +38,7 @@ async function boot(t, options={}) {
   window.scrollTo=()=>{};window.Element.prototype.scrollIntoView=()=>{};
   window.URL.createObjectURL=()=> 'blob:local-preview';window.URL.revokeObjectURL=()=>{};
   window.fetch=options.apiFailure ? async()=>({ok:false,status:503,json:async()=>({message:'Local database unavailable'})}) : (path,init)=>request(app,path,init);
-  window.__features={directory:async()=>({mountFeature:mountDirectory}),planner:async()=>({mountFeature:mountPlanner}),analysis:async()=>({mountFeature:mountAnalysis}),results:async()=>({mountFeature:mountResults})};
+  window.__features={evidence:async()=>({mountFeature:mountEvidence}),directory:async()=>({mountFeature:mountDirectory}),planner:async()=>({mountFeature:mountPlanner}),analysis:async()=>({mountFeature:mountAnalysis}),results:async()=>({mountFeature:mountResults})};
   window.__renderLoop=renderLoop;
   window.__icon=icon;window.__planPool=planPool;
   window.eval(`const renderLoop=window.__renderLoop;const mountMaterialLoop=()=>()=>{};const icon=window.__icon;const planPool=window.__planPool;\n${source.replace(/^import .*;\s*$/gm,'')}`);
@@ -47,7 +48,7 @@ async function boot(t, options={}) {
   const click=s=>$(s).click();
   const change=(s,value)=>{const e=$(s);if(e.type==='checkbox')e.checked=Boolean(value);else e.value=String(value);e.dispatchEvent(new window.Event('input',{bubbles:true}));e.dispatchEvent(new window.Event('change',{bubbles:true}));};
   const submit=s=>$(s).dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
-  const route=async name=>{window.location.hash=name;await tick();if(name==='directory')await until(()=>document.querySelector('[data-feature="directory"] .directory-view'),'Directory feature');if(name==='analysis')await until(()=>document.querySelector('#record-form'),'Analysis feature');if(name==='planner')await until(()=>document.querySelector('#planner-form'),'Planner feature');};
+  const route=async name=>{window.location.hash=name;await tick();if(name==='sources'||name==='evidence')await until(()=>document.querySelector('#emissions-form'),'Evidence feature');if(name==='directory')await until(()=>document.querySelector('[data-feature="directory"] .directory-view'),'Directory feature');if(name==='analysis')await until(()=>document.querySelector('#record-form'),'Analysis feature');if(name==='planner')await until(()=>document.querySelector('#planner-form'),'Planner feature');};
   const api=async(path,method='GET',data)=>{const response=await request(app,path,{method,headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});return response.json();};
   const importData=async()=>{click('[data-action="import"]');await until(()=>document.querySelector('.metric strong')?.textContent==='40' || document.querySelector('.section-heading h2')?.textContent.includes('40') || document.querySelector('.data-totals strong')?.textContent==='40','Public import');};
   return{app,window,document,$,click,change,submit,route,api,importData};
@@ -61,14 +62,15 @@ async function saveManual(ui, values={}) {
   await until(()=>ui.document.querySelectorAll('.record-card').length>0,'Saved material record');
 }
 
-test('first launch is empty and offers explicit public-data and OpenAI setup without old demo state',async t=>{
+test('first launch is empty and offers evidence with legacy source route alias',async t=>{
   const ui=await boot(t);assert.equal((await ui.api('/api/status')).facilityCount,0);
   assert.match(ui.$('.metric-strip').textContent,/0Public facility records/);
   assert.equal(ui.document.querySelector('[data-action="guided"]'),null);
   assert.equal(ui.document.querySelector('[data-action="reset"]'),null);
   assert.match(ui.$('#main').textContent,/Build your local loop/);
-  await ui.route('sources');assert.match(ui.$('#main').textContent,/OPENAI_API_KEY/);
-  assert.match(ui.$('#main').textContent,/Not configured/);
+  await ui.route('sources');assert.equal(ui.window.location.hash,'#evidence');
+  assert.equal(ui.document.querySelectorAll('.evidence-case').length,4);
+  assert.doesNotMatch(ui.$('#main').textContent,/OPENAI_API_KEY/);
 });
 
 test('explicit public import loads attributable real records and supports state and text filters',async t=>{
@@ -84,7 +86,8 @@ test('explicit public import loads attributable real records and supports state 
   ui.click('[data-action="deselect-facility"]');
   ui.click('[data-action="view"][data-view="map"]');
   assert.match(ui.$('.directory-map-container').textContent,/coordinates/);
-  await ui.route('sources');assert.equal(ui.document.querySelectorAll('.source-card').length,3);
+  await ui.route('sources');assert.equal(ui.document.querySelectorAll('.evidence-case').length,4);
+  assert.equal((await ui.api('/api/sources')).sources.length,3);
 });
 
 test('manual records save, reopen, edit and retain their original ID',async t=>{

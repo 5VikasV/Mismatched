@@ -31,7 +31,7 @@ body {
 .brand {
   margin-bottom: 0;
   gap: 12px;
-  font-size: 21px;
+  font-size: 26px;
   letter-spacing: -0.045em;
   line-height: 1.1;
 }
@@ -44,7 +44,7 @@ body {
 .brand-caption {
   display: block;
   margin-top: 7px;
-  font: 9px var(--mono);
+  font: 14px var(--mono);
   color: var(--muted);
   letter-spacing: 0.15em;
 }
@@ -52,7 +52,7 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 12px;
+  font-size: 18px;
   color: var(--muted);
 }
 .masthead-divider {
@@ -82,11 +82,11 @@ body {
   padding: 10px 12px;
   min-height: 42px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 18px;
   border-radius: 2px;
 }
 kbd {
-  font: 10px var(--mono);
+  font: 16px var(--mono);
   border: 1px solid var(--line);
   padding: 3px 5px;
   background: var(--surface);
@@ -119,7 +119,7 @@ kbd {
   border: 0;
   border-radius: 0;
   background: transparent;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 500;
   color: var(--muted);
   white-space: nowrap;
@@ -129,7 +129,7 @@ kbd {
 }
 .nav-link .nav-number {
   color: #a5aa9f;
-  font: 10px var(--mono);
+  font: 16px var(--mono);
 }
 .nav-link.active {
   color: var(--ink);
@@ -154,7 +154,7 @@ kbd {
 }
 .desk-home {
   align-self: center;
-  font-size: 11px;
+  font-size: 16px;
   text-decoration: none;
   color: var(--muted);
 }
@@ -173,7 +173,7 @@ kbd {
   padding: 24px 3.5vw 0;
 }
 .breadcrumbs {
-  font: 10px var(--mono);
+  font: 16px var(--mono);
   letter-spacing: 0.025em;
   gap: 10px;
 }
@@ -182,7 +182,7 @@ kbd {
   color: var(--ink);
 }
 .workspace-label {
-  font: 9px var(--mono);
+  font: 14px var(--mono);
   letter-spacing: 0.1em;
   color: var(--muted);
 }
@@ -206,7 +206,7 @@ kbd {
   justify-content: space-between;
   gap: 18px;
   border-top: 1px solid var(--line);
-  font: 10px var(--mono);
+  font: 16px var(--mono);
   color: var(--muted);
 }
 .workspace-footer a {
@@ -220,7 +220,7 @@ kbd {
   display: none;
 }
 .eyebrow {
-  font: 10px/1.5 var(--mono);
+  font: 16px/1.5 var(--mono);
   color: var(--muted);
   letter-spacing: 0.11em;
   margin-bottom: 15px;
@@ -259,7 +259,7 @@ kbd {
   color: #646f54;
 }
 .hero-copy > p {
-  font-size: 15px;
+  font-size: 20px;
   line-height: 1.8;
   max-width: 365px;
   color: var(--muted);
@@ -275,7 +275,7 @@ kbd {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11px;
+  font-size: 16px;
   color: var(--muted);
   margin-top: 24px;
 }
@@ -286,7 +286,7 @@ kbd {
   min-height: 44px;
   padding: 11px 17px;
   border-radius: 2px;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 500;
   gap: 9px;
 }
@@ -311,7 +311,7 @@ kbd {
   border-color: var(--ink);
 }
 .text-link {
-  font-size: 12px;
+  font-size: 18px;
   text-underline-offset: 4px;
   color: var(--ink);
 }
@@ -343,14 +343,14 @@ kbd {
   margin-bottom: 8px;
 }
 .metric > span:last-child {
-  font-size: 11px;
+  font-size: 16px;
   color: var(--muted);
 }
 .metric-index {
   position: absolute;
   right: 18px;
   top: 18px;
-  font: 9px var(--mono);
+  font: 14px var(--mono);
   color: #9aa190;
 }
 .section-heading {
@@ -371,7 +371,7 @@ kbd {
 }
 .section-note {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 16px;
   padding-bottom: 4px;
 }
 .workflow-links {
@@ -397,7 +397,7 @@ kbd {
   background: #f2f3eb;
 }
 .workflow-number {
-  font: 11px var(--mono);
+  font: 16px var(--mono);
   color: var(--muted);
 }
 .workflow-symbol {
@@ -412,12 +412,12 @@ kbd {
 }
 .workflow-link h3 {
   margin: 27px 0 11px;
-  font-size: 22px;
+  font-size: 26px;
   font-weight: 500;
   letter-spacing: -0.04em;
 }
 .workflow-link > p {
-  font-size: 13px;
+  font-size: 18px;
   color: var(--muted);
   max-width: 300px;
   margin-bottom: 24px;
@@ -428,7 +428,7 @@ kbd {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  font-size: 10px;
+  font-size: 16px;
   color: var(--muted);
 }
 .round-arrow {
@@ -438,7 +438,7 @@ kbd {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 18px;
+  font-size: 22px;
   color: var(--ink);
   flex-shrink: 0;
 }
@@ -466,12 +466,12 @@ kbd {
   margin-bottom: 15px;
 }
 .ledger-empty h3 {
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 500;
 }
 .ledger-empty p {
   max-width: 370px;
-  font-size: 13px;
+  font-size: 18px;
   color: var(--muted);
 }
 .recent-record {
@@ -482,23 +482,23 @@ kbd {
   border-top: 1px solid var(--line);
   padding: 21px 0;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 18px;
 }
 .recent-record:hover strong {
   color: var(--accent-hover);
 }
 .recent-record strong {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 500;
 }
 .recent-record div span {
   display: block;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 16px;
   margin-top: 5px;
 }
 .ledger-number {
-  font: 10px var(--mono);
+  font: 16px var(--mono);
   color: var(--muted);
 }
 .source-snapshot {
@@ -513,7 +513,7 @@ kbd {
 }
 .source-snapshot p {
   color: #5d6554;
-  font-size: 12px;
+  font-size: 18px;
 }
 .coverage-bars {
   margin-block: 24px;
@@ -523,7 +523,7 @@ kbd {
   grid-template-columns: 1fr auto;
   gap: 8px;
   margin-top: 14px;
-  font-size: 11px;
+  font-size: 16px;
 }
 meter {
   appearance: none;
@@ -570,7 +570,7 @@ meter::-moz-meter-bar {
 .page-subtitle,
 .feature-intro p {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 20px;
   margin: 0;
   max-width: 650px;
 }
@@ -578,7 +578,7 @@ meter::-moz-meter-bar {
   border: 1px solid var(--line);
   padding: 8px 11px;
   white-space: nowrap;
-  font: 9px var(--mono);
+  font: 14px var(--mono);
   color: var(--muted);
 }
 .panel {
@@ -595,18 +595,18 @@ meter::-moz-meter-bar {
 }
 .panel-header h2,
 .panel-body h2 {
-  font-size: 21px;
+  font-size: 26px;
   font-weight: 500;
   letter-spacing: -0.035em;
 }
 .panel-header p,
 .panel-body > p {
-  font-size: 13px;
+  font-size: 18px;
   color: var(--muted);
 }
 .card-kicker {
   color: var(--muted);
-  font: 9px var(--mono);
+  font: 14px var(--mono);
   letter-spacing: 0.12em;
   margin-bottom: 12px;
 }
@@ -631,11 +631,11 @@ meter::-moz-meter-bar {
   flex: 1;
   padding: 16px 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 18px;
 }
 .process-strip b {
   color: var(--accent-hover);
-  font: 10px var(--mono);
+  font: 16px var(--mono);
   padding-right: 10px;
 }
 .upload-zone {
@@ -658,13 +658,13 @@ meter::-moz-meter-bar {
   background: var(--accent-soft);
 }
 .upload-zone > strong {
-  font-size: 14px;
+  font-size: 20px;
   font-weight: 500;
   overflow-wrap: anywhere;
 }
 .upload-zone > span {
   color: var(--muted);
-  font-size: 10px;
+  font-size: 16px;
 }
 .upload-zone > .upload-symbol {
   color: #626e52;
@@ -672,7 +672,7 @@ meter::-moz-meter-bar {
   margin-bottom: 12px;
 }
 .upload-zone > .upload-instruction {
-  font-size: 12px;
+  font-size: 18px;
   color: var(--ink);
 }
 .upload-zone .upload-input {
@@ -707,13 +707,13 @@ meter::-moz-meter-bar {
   margin-top: 14px;
   border-left: 2px solid var(--accent);
   padding-left: 12px;
-  font-size: 12px;
+  font-size: 18px;
 }
 .evidence-item blockquote {
   margin: 8px 0;
 }
 .analysis-status {
-  font: 11px/1.6 var(--mono);
+  font: 16px/1.6 var(--mono);
   overflow-wrap: anywhere;
 }
 .form-grid {
@@ -722,7 +722,7 @@ meter::-moz-meter-bar {
 }
 .form-section-title {
   grid-column: 1 / -1;
-  font: 10px var(--mono);
+  font: 16px var(--mono);
   letter-spacing: 0.045em;
   color: var(--muted);
   text-transform: uppercase;
@@ -737,7 +737,7 @@ meter::-moz-meter-bar {
   grid-column: 1 / -1;
 }
 .field-label {
-  font-size: 11px;
+  font-size: 16px;
   color: #4c5346;
   font-weight: 500;
   margin-bottom: 7px;
@@ -750,7 +750,7 @@ select {
   background: #fff;
   color: var(--ink);
   min-height: 43px;
-  font-size: 13px;
+  font-size: 18px;
   padding: 10px 12px;
   box-shadow: none;
   width: 100%;
@@ -763,7 +763,7 @@ select:focus {
   outline-color: #5c684e;
 }
 [data-feature] .field-state {
-  font: 9px var(--mono);
+  font: 14px var(--mono);
   color: #7d8573;
   text-transform: none;
   margin-top: 6px;
@@ -771,7 +771,7 @@ select:focus {
 [data-feature] .confirmation-label {
   background: var(--surface-muted);
   padding: 16px;
-  font-size: 11px;
+  font-size: 16px;
   gap: 10px;
 }
 [data-feature] input[type="checkbox"] {
@@ -793,7 +793,7 @@ select:focus {
   margin-bottom: 8px;
 }
 .feature-toolbar > label:last-child {
-  font-size: 11px;
+  font-size: 16px;
   color: var(--muted);
 }
 .record-list {
@@ -816,7 +816,7 @@ select:focus {
 }
 .record-card span,
 .record-card small {
-  font-size: 11px;
+  font-size: 16px;
   color: var(--muted);
 }
 .record-actions {
@@ -833,7 +833,7 @@ select:focus {
   border-left: 2px solid #828f6f;
   padding: 13px 16px;
   border-radius: 0;
-  font-size: 12px;
+  font-size: 18px;
   color: #59614e;
   margin-bottom: 26px;
 }
@@ -857,7 +857,7 @@ select:focus {
   margin: 0;
 }
 .estimate-state {
-  font: 9px var(--mono);
+  font: 14px var(--mono);
   color: #5b654e;
 }
 .planner-result h2 {
@@ -889,7 +889,7 @@ select:focus {
 .cost-row {
   padding: 13px 0;
   border-bottom: 1px solid #d3dac7;
-  font-size: 12px;
+  font-size: 18px;
   gap: 18px;
 }
 .cost-row strong {
@@ -900,13 +900,13 @@ select:focus {
   background: transparent;
   padding: 18px 0;
   margin-top: 10px;
-  font-size: 15px;
+  font-size: 20px;
 }
 .cost-row.saving {
   color: #465b2e;
 }
 .allocation-row {
-  font-size: 12px;
+  font-size: 18px;
   border-bottom: 1px dashed #c7d0bb;
   padding-block: 16px;
 }
@@ -914,7 +914,7 @@ select:focus {
   font-weight: 500;
 }
 .allocation-row span span {
-  font-size: 11px;
+  font-size: 16px;
 }
 .planner-result [data-plan-action="export"] {
   width: 100%;
@@ -925,14 +925,14 @@ select:focus {
 }
 [data-feature] .lot-choice {
   padding: 18px 10px;
-  font-size: 12px;
+  font-size: 18px;
   gap: 10px;
 }
 [data-feature] .lot-choice strong {
   font-weight: 500;
 }
 [data-feature] .lot-choice small {
-  font-size: 11px;
+  font-size: 16px;
   line-height: 1.6;
 }
 /* Directory is an index: filters above a continuous master/detail ledger. */
@@ -946,7 +946,7 @@ select:focus {
   border-radius: 2px;
 }
 [data-feature="directory"] .search-field input {
-  font-size: 13px;
+  font-size: 18px;
 }
 [data-feature="directory"] .filter-grid {
   gap: 18px;
@@ -970,7 +970,7 @@ select:focus {
 }
 [data-feature="directory"] .facility-name {
   font-weight: 500;
-  font-size: 15px;
+  font-size: 20px;
 }
 [data-feature="directory"] .facility-list,
 [data-feature="directory"] .facility-detail-card,
@@ -1018,13 +1018,13 @@ select:focus {
   gap: 18px;
 }
 .source-heading h3 {
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 500;
 }
 .source-heading p,
 .source-card > p,
 .source-card details {
-  font-size: 12px;
+  font-size: 18px;
   color: var(--muted);
 }
 .source-details {
@@ -1059,7 +1059,7 @@ select:focus {
   grid-template-columns: 1fr auto auto;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: 18px;
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
 }
@@ -1072,15 +1072,15 @@ select:focus {
   font-variant-numeric: tabular-nums;
 }
 .class-performance small {
-  font: 9px var(--mono);
+  font: 14px var(--mono);
   color: var(--muted);
 }
 [data-feature] table {
-  font-size: 12px;
+  font-size: 18px;
 }
 [data-feature] thead {
   background: #f0f3e9;
-  font: 10px var(--mono);
+  font: 16px var(--mono);
   color: #667456;
 }
 [data-feature] th,
@@ -1094,7 +1094,7 @@ select:focus {
   background: #f8f9f3;
 }
 [data-feature="results"] details {
-  font-size: 12px;
+  font-size: 18px;
 }
 /* Search is a real workspace-wide finder, including imported facilities and saved records. */
 .finder-dialog {
@@ -1117,12 +1117,12 @@ select:focus {
   align-items: center;
   gap: 20px;
   padding: 16px 22px;
-  font-size: 13px;
+  font-size: 18px;
 }
 .finder-dialog > .input {
   width: calc(100% - 44px);
   margin: 0 22px 12px;
-  font-size: 14px;
+  font-size: 20px;
 }
 .finder-results {
   max-height: 380px;
@@ -1150,17 +1150,17 @@ select:focus {
 }
 .finder-result strong {
   display: block;
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 500;
   overflow-wrap: anywhere;
 }
 .finder-result small {
-  font-size: 11px;
+  font-size: 16px;
   color: var(--muted);
 }
 .finder-empty {
   padding: 22px;
-  font-size: 13px;
+  font-size: 18px;
   color: var(--muted);
 }
 .finder-hint {
@@ -1168,7 +1168,7 @@ select:focus {
   background: var(--paper);
   border-top: 1px solid var(--line);
   margin: 0;
-  font: 10px/1.5 var(--mono);
+  font: 16px/1.5 var(--mono);
   color: var(--muted);
 }
 @media (min-width: 1600px) {
@@ -1188,7 +1188,7 @@ select:focus {
     display: none;
   }
   .nav-link {
-    font-size: 11px;
+    font-size: 16px;
   }
   .desk-bottom-grid {
     gap: 28px;
@@ -1239,7 +1239,7 @@ select:focus {
     padding: 22px;
   }
   .workflow-link h3 {
-    font-size: 20px;
+    font-size: 26px;
   }
   .section-note {
     display: none;
@@ -1283,7 +1283,7 @@ select:focus {
     padding: 16px 18px;
   }
   .brand {
-    font-size: 18px;
+    font-size: 22px;
     gap: 8px;
   }
   .brand-mark {
@@ -1291,7 +1291,7 @@ select:focus {
     height: 30px;
   }
   .brand-caption {
-    font-size: 7px;
+    font-size: 14px;
     letter-spacing: 0.1em;
   }
   .masthead-actions {
@@ -1339,7 +1339,7 @@ select:focus {
   }
   .nav-link {
     min-height: 52px;
-    font-size: 12px;
+    font-size: 18px;
     white-space: normal;
   }
   .desk-home {
@@ -1372,19 +1372,19 @@ select:focus {
     padding: 0;
   }
   .hero-copy .eyebrow {
-    font-size: 9px;
+    font-size: 14px;
   }
   .hero-copy h1 {
     font-size: clamp(42px, 10.5vw, 62px);
     margin-block: 22px 20px;
   }
   .hero-copy > p {
-    font-size: 13px;
+    font-size: 18px;
     max-width: 330px;
   }
   .hero-footnote {
     margin-top: 18px;
-    font-size: 10px;
+    font-size: 16px;
   }
   .hero-actions {
     margin-top: 20px;
@@ -1412,16 +1412,16 @@ select:focus {
   .metric-index {
     right: 12px;
     top: 12px;
-    font-size: 8px;
+    font-size: 14px;
   }
   .metric > span:last-child {
-    font-size: 10px;
+    font-size: 16px;
   }
   .section-heading {
     margin-bottom: 20px;
   }
   .section-heading h2 {
-    font-size: 24px;
+    font-size: 26px;
   }
   .workflow-links {
     grid-template-columns: 1fr;
@@ -1433,7 +1433,7 @@ select:focus {
   }
   .workflow-link h3 {
     margin-top: 15px;
-    font-size: 22px;
+    font-size: 26px;
   }
   .workflow-link > p {
     max-width: 100%;
@@ -1452,12 +1452,12 @@ select:focus {
     display: none;
   }
   .recent-record > span:nth-last-child(2) {
-    font-size: 10px;
+    font-size: 16px;
   }
   .workspace-footer {
     padding: 22px 18px;
     flex-wrap: wrap;
-    font-size: 9px;
+    font-size: 14px;
   }
   .workspace-footer > span {
     display: none;
@@ -1479,18 +1479,18 @@ select:focus {
   }
   .page-subtitle,
   .feature-intro p {
-    font-size: 13px;
+    font-size: 18px;
   }
   .desk-tag {
     max-width: none;
     align-self: start;
-    font-size: 8px;
+    font-size: 14px;
   }
   .heading-actions {
     justify-content: start;
   }
   .process-strip li {
-    font-size: 10px;
+    font-size: 16px;
     display: flex;
     flex-direction: column;
     gap: 5px;
@@ -1519,12 +1519,12 @@ select:focus {
     grid-column: 1 / -1;
   }
   .field-label {
-    font-size: 10px;
+    font-size: 16px;
   }
   .input,
   .select,
   select {
-    font-size: 16px;
+    font-size: 22px;
     min-height: 44px;
   }
   [data-feature] .confirmation-label {
@@ -1540,7 +1540,7 @@ select:focus {
     grid-template-columns: 20px minmax(0, 1fr);
   }
   .cost-row.total {
-    font-size: 14px;
+    font-size: 20px;
   }
   [data-feature="directory"] .directory-toolbar {
     padding: 16px;
@@ -1549,7 +1549,7 @@ select:focus {
     gap: 12px;
   }
   [data-feature="directory"] .search-field input {
-    font-size: 16px;
+    font-size: 22px;
   }
   [data-feature="directory"] .facility-row {
     padding: 16px;
@@ -1604,7 +1604,7 @@ select:focus {
   margin: 18px 0;
 }
 .band-filter .btn {
-  font-size: 11px;
+  font-size: 16px;
   min-height: 36px;
   padding: 8px 12px;
 }
@@ -1620,13 +1620,13 @@ select:focus {
   min-width: 0;
 }
 .pickup-card legend {
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 500;
   padding: 0 8px;
   overflow-wrap: anywhere;
 }
 .pickup-card > p {
-  font-size: 12px;
+  font-size: 18px;
   color: var(--muted);
 }
 .pickup-card .confirmation-label {
@@ -1639,7 +1639,7 @@ select:focus {
   margin-top: 24px;
 }
 .booking-review > p {
-  font-size: 12px;
+  font-size: 18px;
 }
 .planner-result [data-plan-action="review"] {
   width: 100%;
@@ -1671,14 +1671,14 @@ select:focus {
   font-weight: 500;
 }
 .booking-list-item span {
-  font-size: 12px;
+  font-size: 18px;
 }
 .booking-list-item small {
-  font-size: 10px;
+  font-size: 16px;
   color: var(--muted);
 }
 .booking-layout .allocation-row p {
-  font-size: 12px;
+  font-size: 18px;
   margin-block: 8px;
 }
 .booking-layout > .panel {
@@ -1695,10 +1695,10 @@ select:focus {
   gap: 20px;
 }
 .nav-link {
-  font-size: 11px;
+  font-size: 16px;
 }
 .desk-home {
-  font-size: 10px;
+  font-size: 16px;
 }
 @media (max-width: 1180px) {
   .desk-navigation nav {
@@ -1740,7 +1740,7 @@ select:focus {
 /* Integrated matching, planned impact and material-flow tools. */
 .match-explanation {
   padding: 10px 0;
-  font-size: 12px;
+  font-size: 18px;
 }
 .match-explanation summary {
   color: #556743;
@@ -1771,7 +1771,7 @@ select:focus {
   justify-content: space-between;
 }
 .candidate-row p {
-  font-size: 12px;
+  font-size: 18px;
   margin: 6px 0;
 }
 .flow-layout {
@@ -1793,7 +1793,7 @@ select:focus {
   cursor: pointer;
 }
 .flow-node text {
-  font: 14px var(--font);
+  font: 20px var(--font);
   fill: var(--ink);
 }
 .flow-node:focus-visible rect {
@@ -1801,14 +1801,14 @@ select:focus {
   stroke-width: 3;
 }
 .confidence-note {
-  font-size: 11px;
+  font-size: 16px;
   color: var(--muted);
   margin-top: 8px;
 }
 .lab-evidence-note {
   border-left: 2px solid #a57621;
   padding-left: 12px;
-  font-size: 12px;
+  font-size: 18px;
 }
 .desk-navigation nav {
   flex-wrap: wrap;
@@ -1844,7 +1844,7 @@ select:focus {
   gap: 8px;
   margin-top: 8px;
   flex-wrap: wrap;
-  font-size: 11px;
+  font-size: 16px;
 }
 .confidence-bar {
   display: inline-block;
@@ -1861,7 +1861,7 @@ select:focus {
   background: #b88b31;
 }
 .needs-verification {
-  font-size: 9px;
+  font-size: 14px;
   color: #88651b;
   background: #fff4d8;
   padding: 3px 6px;
@@ -1872,7 +1872,7 @@ select:focus {
 }
 .shared-transport summary {
   cursor: pointer;
-  font-size: 13px;
+  font-size: 18px;
 }
 .shared-transport .form-grid {
   margin-block: 18px;
