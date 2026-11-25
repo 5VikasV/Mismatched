@@ -68,6 +68,10 @@ The result starts as a planning estimate. Complete pools can be saved as local *
 
 See [commission, quantity and transport rules](docs/ORDER_COMMISSION_QUANTITY_TRANSPORT.md) for the exact tiers, examples, categories, request workflow and APIs. Restart the server after this update to load the new endpoints and additive SQLite table.
 
+## Integrated matching and planned impact
+
+The final website integrates `srushtisp09`’s matching explanations, pool suggestions, shared transport split, confidence indicators, Planned impact and Loop graph. Optional buyer coordinates enable a 50 km straight-line matching limit; unknown coordinates remain unknown. Impact derives from pending booking snapshots, not completed deliveries. See [the feature integration notes](docs/SRUSHTI_FEATURE_INTEGRATION.md) for source commits, adaptations, carbon methodology and exclusions.
+
 ## Verification
 
 ```sh

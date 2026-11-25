@@ -1,3 +1,4 @@
+import {renderLoop} from "../dist/shared/loop.js";
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -37,8 +38,9 @@ async function boot(t, options={}) {
   window.URL.createObjectURL=()=> 'blob:local-preview';window.URL.revokeObjectURL=()=>{};
   window.fetch=options.apiFailure ? async()=>({ok:false,status:503,json:async()=>({message:'Local database unavailable'})}) : (path,init)=>request(app,path,init);
   window.__features={directory:async()=>({mountFeature:mountDirectory}),planner:async()=>({mountFeature:mountPlanner}),analysis:async()=>({mountFeature:mountAnalysis}),results:async()=>({mountFeature:mountResults})};
+  window.__renderLoop=renderLoop;
   window.__icon=icon;window.__planPool=planPool;
-  window.eval(`const mountMaterialLoop=()=>()=>{};const icon=window.__icon;const planPool=window.__planPool;\n${source.replace(/^import .*;\s*$/gm,'')}`);
+  window.eval(`const renderLoop=window.__renderLoop;const mountMaterialLoop=()=>()=>{};const icon=window.__icon;const planPool=window.__planPool;\n${source.replace(/^import .*;\s*$/gm,'')}`);
   t.after(()=>{window.close();assert.deepEqual(errors,[],'No application runtime errors');});
   await until(()=>document.body.dataset.ready==='true','Initial API loading');
   const $=s=>{const e=document.querySelector(s);assert.ok(e,`Missing element: ${s}`);return e;};

@@ -1,3 +1,4 @@
+import {calculateImpact} from "../dist/impact.js";
 import {createBookings} from "./bookings.mjs";
 import { createVision } from './vision.mjs';
 import http from 'node:http';
@@ -276,6 +277,8 @@ export function createApp(options = {}) {
         } catch (error) { if (error instanceof AppError) throw error; fail(502, 'ai_service_error', 'The AI service could not be reached or timed out. Your file has not been saved.'); }
         finally { analyzing = false; }
       }
+      if(req.method==='GET'&&pathname==='/api/impact')return send(res,200,calculateImpact(all('booking_requests'),parsed.searchParams.get('scenario')==='warm-closed-loop'));
+      if(req.method==='GET'&&pathname==='/api/compatibility-rules')return send(res,200,JSON.parse(readFileSync(resolve(projectDir,'data/compatibility-rules.json'),'utf8')));
       if (await bookings(req,res,pathname)) return;
       if (pathname.startsWith('/api/')) fail(404, 'not_found', 'This API endpoint could not be found.');
       if (!['GET', 'HEAD'].includes(req.method)) fail(405, 'method_not_allowed', 'This method is not available.');

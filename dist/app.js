@@ -1,3 +1,4 @@
+import { renderLoop } from "./shared/loop.js";
 import { icon } from "./icons.js";
 import { mountMaterialLoop } from "./material-loop.js";
 
@@ -40,6 +41,8 @@ const nav = [
   ["planner", "box", "Pool planner"],
   ["bookings", "truck", "Booking requests"],
   ["results", "shield", "Model results"],
+  ["impact", "leaf", "Planned impact"],
+  ["loop", "loop", "Loop graph"],
   ["sources", "list", "Sources & setup"],
 ];
 const loaders = {
@@ -48,6 +51,8 @@ const loaders = {
   planner: () => import("./features/planner.js"),
   bookings: () => import("./features/bookings.js"),
   results: () => import("./features/results.js"),
+  impact: () => import("./features/impact.js"),
+  loop: () => import("./features/loop.js"),
 };
 const state = {
   status: { aiConfigured: false, vision: { available: false } },
@@ -244,6 +249,12 @@ function renderFinder() {
     '<p class="finder-empty">No matches in this workspace. Try a page name or a shorter search.</p>';
 }
 
+function loopSpinner() {
+  return "<span data-step-loader></span>";
+}
+function mountLoader(root) {
+  renderLoop(root.querySelector("[data-step-loader]"), { compact: true });
+}
 function render() {
   const current = ++generation;
   cleanup?.();
@@ -263,8 +274,8 @@ function render() {
     else el.removeAttribute("aria-current");
   });
   if (!state.loaded) {
-    main().innerHTML =
-      '<div class="loading-state" role="status"><span class="loading-spinner"></span><p>Opening your workspace…</p></div>';
+    main().innerHTML = `<div class="loading-state" role="status">${loopSpinner()}<p>Opening your workspace…</p></div>`;
+    mountLoader(main());
     return;
   }
   if (state.error) {
@@ -274,9 +285,9 @@ function render() {
   if (loaders[route]) {
     const root = document.createElement("div");
     root.dataset.feature = route;
-    root.innerHTML =
-      '<div class="loading-state" role="status"><span class="loading-spinner"></span><p>Opening this page…</p></div>';
+    root.innerHTML = `<div class="loading-state" role="status">${loopSpinner()}<p>Opening this page…</p></div>`;
     main().append(root);
+    mountLoader(root);
     const loader = window.__features?.[route] || loaders[route];
     Promise.resolve()
       .then(loader)
@@ -380,7 +391,7 @@ function overview() {
 }
 
 function sourcesPage() {
-  return `${heading("07 / SOURCES & SETUP", "Follow the evidence.", "Check source provenance, local model installation and optional document analysis.")}<div class="setup-grid"><section class="panel"><div class="panel-header"><h2>Local image classification</h2>${badge(state.status.vision?.available ? "Installed" : "Not installed")}</div><div class="panel-body"><p>The specialist model runs on this computer. It suggests broad categories; grade, quantity, condition and price still need review.</p><p class="help-text">${state.status.vision?.available ? esc(state.status.vision.metadata?.modelVersion || "Local checkpoint available") : "Follow the README to install the Python environment and train the checkpoint."}</p><div class="setup-actions"><a class="btn btn-primary" href="#analysis">Material analysis</a><a class="text-link" href="#results">Measured results</a></div></div></section><section class="panel"><div class="panel-header"><h2>Optional document provider</h2>${badge(state.status.aiConfigured ? "Configured" : "Not configured")}</div><div class="panel-body"><p>PDF evidence can be reviewed manually. Optional document extraction uses your server-side key only when you explicitly choose it.</p><div class="config-code"><code>OPENAI_API_KEY=your_key</code><code>OPENAI_MODEL=${esc(state.status.model || "gpt-4.1-mini")}</code></div><p class="help-text">Configure the private .env file and restart the server. Local photo classification needs no provider key. Provider document extraction may incur charges.</p></div></section></div><section class="panel"><div class="panel-header"><div><h2>Public directory snapshot</h2><p>${state.facilities.length} facility records · ${state.sources.length} sources</p></div>${importButton()}</div><div class="panel-body"><p>Import the reviewed bundle explicitly. Re-imports update existing source IDs without duplicating records. Published listings do not confirm current authorisation or available stock.</p></div></section><div class="source-list">${state.sources.map((s) => `<article class="panel source-card"><div class="source-heading"><div><h3>${esc(s.title)}</h3><p>${esc(s.publisher)}</p></div><a class="text-link" href="${esc(safeURL(s.url))}" target="_blank" rel="noopener noreferrer">Read source ↗</a></div><div class="source-details"><div><span>Published</span><strong>${date(s.publicationDate)}</strong></div><div><span>Retrieved</span><strong>${date(s.retrievedAt)}</strong></div><div><span>Coverage</span><strong>${esc(s.coverage)}</strong></div></div><p>${esc(s.notes)}</p><details><summary>Reuse terms</summary><p>${esc(s.terms)}</p>${s.termsUrl ? `<a class="text-link" href="${esc(safeURL(s.termsUrl))}" target="_blank" rel="noopener noreferrer">Publisher policy ↗</a>` : ""}</details></article>`).join("") || '<p class="muted">Source references appear after importing public records.</p>'}</div>`;
+  return `${heading("09 / SOURCES & SETUP", "Follow the evidence.", "Check source provenance, local model installation and optional document analysis.")}<div class="setup-grid"><section class="panel"><div class="panel-header"><h2>Local image classification</h2>${badge(state.status.vision?.available ? "Installed" : "Not installed")}</div><div class="panel-body"><p>The specialist model runs on this computer. It suggests broad categories; grade, quantity, condition and price still need review.</p><p class="help-text">${state.status.vision?.available ? esc(state.status.vision.metadata?.modelVersion || "Local checkpoint available") : "Follow the README to install the Python environment and train the checkpoint."}</p><div class="setup-actions"><a class="btn btn-primary" href="#analysis">Material analysis</a><a class="text-link" href="#results">Measured results</a></div></div></section><section class="panel"><div class="panel-header"><h2>Optional document provider</h2>${badge(state.status.aiConfigured ? "Configured" : "Not configured")}</div><div class="panel-body"><p>PDF evidence can be reviewed manually. Optional document extraction uses your server-side key only when you explicitly choose it.</p><div class="config-code"><code>OPENAI_API_KEY=your_key</code><code>OPENAI_MODEL=${esc(state.status.model || "gpt-4.1-mini")}</code></div><p class="help-text">Configure the private .env file and restart the server. Local photo classification needs no provider key. Provider document extraction may incur charges.</p></div></section></div><section class="panel"><div class="panel-header"><div><h2>Public directory snapshot</h2><p>${state.facilities.length} facility records · ${state.sources.length} sources</p></div>${importButton()}</div><div class="panel-body"><p>Import the reviewed bundle explicitly. Re-imports update existing source IDs without duplicating records. Published listings do not confirm current authorisation or available stock.</p></div></section><div class="source-list">${state.sources.map((s) => `<article class="panel source-card"><div class="source-heading"><div><h3>${esc(s.title)}</h3><p>${esc(s.publisher)}</p></div><a class="text-link" href="${esc(safeURL(s.url))}" target="_blank" rel="noopener noreferrer">Read source ↗</a></div><div class="source-details"><div><span>Published</span><strong>${date(s.publicationDate)}</strong></div><div><span>Retrieved</span><strong>${date(s.retrievedAt)}</strong></div><div><span>Coverage</span><strong>${esc(s.coverage)}</strong></div></div><p>${esc(s.notes)}</p><details><summary>Reuse terms</summary><p>${esc(s.terms)}</p>${s.termsUrl ? `<a class="text-link" href="${esc(safeURL(s.termsUrl))}" target="_blank" rel="noopener noreferrer">Publisher policy ↗</a>` : ""}</details></article>`).join("") || '<p class="muted">Source references appear after importing public records.</p>'}</div>`;
 }
 
 async function importRecords() {

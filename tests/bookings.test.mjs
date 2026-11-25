@@ -242,3 +242,17 @@ test("additive booking table persists through reopen and material deletion witho
     reopened.close();
   }
 });
+
+test('planned impact API uses saved quotes and explicit benchmark opt-in; cancelled requests disappear',async t=>{
+ const {app,terms}=await fixture(t);const saved=await call(app,'/api/booking-requests',await payload(app,terms));
+ const impact=await call(app,'/api/impact');assert.equal(impact.requestCount,1);assert.equal(impact.co2CreditKg,null);assert.equal(impact.actualDeliveredKg,null);
+ const scenario=await call(app,'/api/impact?scenario=warm-closed-loop');assert.ok(scenario.co2CreditKg>0);assert.match(scenario.rows[0].factor.source,/epa.gov/);
+ await call(app,`/api/booking-requests/${saved.request.id}/cancel`,{confirmed:true});assert.equal((await call(app,'/api/impact')).requestCount,0);
+ assert.equal((await call(app,'/api/compatibility-rules')).factories.length,0);
+});
+test('quote geography validates coordinate pairs and never invents a buyer location',async t=>{
+ const {app,record,terms}=await fixture(t);await call(app,`/api/records/${record.id}`,{confirmed:true,latitude:18.5204,longitude:73.8567},'PATCH');
+ assert.equal((await call(app,'/api/booking-quotes',{...terms,requirements:{...terms.requirements,buyerLatitude:18}})).status,400);
+ assert.equal((await call(app,'/api/booking-quotes',{...terms,requirements:{...terms.requirements,buyerLatitude:19.076,buyerLongitude:72.8777}})).status,400);
+ assert.equal((await call(app,'/api/booking-quotes',terms)).status,200);
+});

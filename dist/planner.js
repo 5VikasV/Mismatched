@@ -1,3 +1,4 @@
+import { haversineKm } from "./matching.js";
 import { settleAllocations, quantityBand } from "./trade-policy.js";
 const norm = (v) =>
   String(v ?? "")
@@ -44,6 +45,14 @@ export function eligibilityReasons(record, requirements = {}) {
     record.pricePerKg > 1e12
   )
     reasons.push("Positive price required (up to ₹1 trillion/kg)");
+  const distance = haversineKm(
+    record.latitude,
+    record.longitude,
+    requirements.buyerLatitude,
+    requirements.buyerLongitude,
+  );
+  if (distance !== null && distance > 50)
+    reasons.push("Outside the 50 km straight-line matching radius");
   return reasons;
 }
 export function planPool(records, requirements = {}) {

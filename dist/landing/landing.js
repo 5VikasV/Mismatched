@@ -1,5 +1,5 @@
 // Keep links to the former root-hash workspace working after landing-first routing.
-const workspaceRoutes = new Set(['overview', 'directory', 'analysis', 'planner', 'results', 'sources', 'bookings']);
+const workspaceRoutes = new Set(['overview', 'directory', 'analysis', 'planner', 'results', 'sources', 'bookings', 'impact', 'loop']);
 if (workspaceRoutes.has(location.hash.slice(1))) location.replace(`/workspace${location.hash}`);
 
 const viewport = document.querySelector('.carousel-viewport');

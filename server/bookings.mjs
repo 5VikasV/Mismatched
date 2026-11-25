@@ -37,6 +37,8 @@ export function createBookings({ db, body, send, fail, all }) {
             "quantityKg",
             "comparisonPrice",
             "selectedRecordIds",
+            "buyerLatitude",
+            "buyerLongitude",
           ].includes(k),
       )
     )
@@ -60,6 +62,25 @@ export function createBookings({ db, body, send, fail, all }) {
         400,
         "invalid_transport",
         "Provide one pickup decision for every allocated lot.",
+      );
+    const hasLat = r.buyerLatitude !== null && r.buyerLatitude !== undefined,
+      hasLon = r.buyerLongitude !== null && r.buyerLongitude !== undefined;
+    if (
+      hasLat !== hasLon ||
+      (hasLat &&
+        (typeof r.buyerLatitude !== "number" ||
+          !Number.isFinite(r.buyerLatitude) ||
+          r.buyerLatitude < -90 ||
+          r.buyerLatitude > 90 ||
+          typeof r.buyerLongitude !== "number" ||
+          !Number.isFinite(r.buyerLongitude) ||
+          r.buyerLongitude < -180 ||
+          r.buyerLongitude > 180))
+    )
+      fail(
+        400,
+        "invalid_location",
+        "Provide both valid buyer coordinates, or leave both unknown.",
       );
     const records = all("records");
     const plan = planPool(records, { ...r, pickups: value.pickups });
