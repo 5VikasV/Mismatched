@@ -1,8 +1,8 @@
 [data-feature] {
-  --feature-accent: #a43c26;
+  --feature-accent: var(--accent);
 }
 [data-feature] h1 {
-  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-size: clamp(1.8rem, 3.2vw, 2.55rem);
   letter-spacing: -0.045em;
   line-height: 1.08;
   margin: 12px 0 20px;
@@ -24,7 +24,7 @@
 [data-feature] td {
   text-align: left;
   padding: 12px;
-  border-bottom: 1px solid #d8ddd3;
+  border-bottom: 1px solid var(--line);
   white-space: nowrap;
 }
 [data-feature] th {
@@ -35,7 +35,7 @@
   font: 12px monospace;
 }
 [data-feature] details {
-  border-top: 1px solid #d8ddd3;
+  border-top: 1px solid var(--line);
   padding: 12px 0;
 }
 [data-feature] summary {
@@ -51,12 +51,12 @@
   width: 100%;
   max-height: 420px;
   object-fit: contain;
-  background: #e8ebe2;
+  background: var(--surface-muted);
 }
 [data-feature] .field-state {
   font: 11px monospace;
   text-transform: uppercase;
-  color: #756b53;
+  color: var(--muted);
   display: block;
   margin-top: 5px;
 }
@@ -73,18 +73,18 @@
   grid-template-columns: 24px minmax(0, 1fr) auto;
   gap: 12px;
   padding: 18px 0;
-  border-bottom: 1px solid #d8ddd3;
+  border-bottom: 1px solid var(--line);
   align-items: start;
 }
 [data-feature] .lot-choice small {
   display: block;
   margin-top: 7px;
-  color: #687063;
+  color: var(--muted);
 }
 [data-feature] input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #284f3b;
+  accent-color: var(--accent);
 }
 [data-feature] .error-message:empty {
   display: none;
@@ -92,7 +92,7 @@
 [data-feature] .step-line {
   font: 12px monospace;
   letter-spacing: 0.08em;
-  border-block: 1px solid #bfc7b8;
+  border-block: 1px solid var(--line);
   padding: 15px 0;
   margin: 22px 0;
 }
@@ -139,5 +139,5 @@
 }
 [data-feature] .field-state {
   font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
-  color: #69674f;
+  color: var(--muted);
 }

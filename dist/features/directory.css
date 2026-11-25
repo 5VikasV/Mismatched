@@ -8,7 +8,7 @@
 
 [data-feature="directory"] .directory-toolbar {
   padding: 18px 22px;
-  background: #ffffff;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 6px;
   display: flex;
@@ -28,17 +28,19 @@
   gap: 10px;
   flex: 1;
   min-width: 0;
-  border: 1px solid #cbd5c9;
+  border: 1px solid var(--line);
   border-radius: 4px;
-  background: #f9fbf7;
+  background: var(--surface-muted);
   padding: 0 14px;
   color: var(--muted);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 [data-feature="directory"] .search-field:focus-within {
-  border-color: #608932;
-  background: #ffffff;
+  border-color: var(--accent);
+  background: var(--surface);
 }
 
 [data-feature="directory"] .search-field input {
@@ -93,7 +95,7 @@
 /* Master-Detail Layout */
 [data-feature="directory"] .directory-master-detail {
   display: grid;
-  grid-template-columns: minmax(360px, 1.15fr) minmax(380px, 1fr);
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   gap: 24px;
   align-items: start;
 }
@@ -103,7 +105,7 @@
   overflow-y: auto;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 [data-feature="directory"] .facility-list {
@@ -117,8 +119,10 @@
   gap: 14px;
   padding: 18px 20px;
   border-bottom: 1px solid var(--line);
-  background: #ffffff;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  background: var(--surface);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
   position: relative;
 }
 
@@ -127,20 +131,20 @@
 }
 
 [data-feature="directory"] .facility-row:hover {
-  background: #fafcf7;
+  background: var(--surface-muted);
 }
 
 [data-feature="directory"] .facility-row.selected {
-  background: #f4f8ed;
-  border-left: 4px solid #608932;
+  background: var(--accent-soft);
+  border-left: 4px solid var(--accent);
   padding-left: 16px;
 }
 
 [data-feature="directory"] .facility-icon {
   width: 40px;
   height: 44px;
-  background: #edf2e8;
-  border: 1px solid #cfdbc7;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
   color: var(--green);
   display: flex;
   align-items: center;
@@ -219,7 +223,7 @@
   top: 96px;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--surface);
   overflow: hidden;
 }
 
@@ -237,7 +241,7 @@
 [data-feature="directory"] .placeholder-icon {
   width: 52px;
   height: 52px;
-  background: #f0f4eb;
+  background: var(--surface-muted);
   border-radius: 50%;
   color: var(--green);
   display: flex;
@@ -271,7 +275,7 @@
 [data-feature="directory"] .detail-header {
   padding: 22px 24px 18px;
   border-bottom: 1px solid var(--line);
-  background: #fdfefc;
+  background: var(--surface);
 }
 
 [data-feature="directory"] .detail-header-nav {
@@ -364,8 +368,8 @@
 /* Source Provenance Box */
 [data-feature="directory"] .source-provenance-box {
   padding: 18px;
-  background: #f5f8f2;
-  border: 1px solid #d8e2d2;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
   border-radius: 6px;
   display: flex;
   flex-direction: column;
@@ -381,7 +385,7 @@
 [data-feature="directory"] .provenance-header .source-icon {
   width: 36px;
   height: 40px;
-  background: #e4eedc;
+  background: var(--accent-soft);
   color: var(--green);
   border-radius: 4px;
   display: flex;
@@ -422,7 +426,7 @@
   gap: 14px;
   flex-wrap: wrap;
   padding-top: 8px;
-  border-top: 1px solid #e1ebda;
+  border-top: 1px solid var(--line);
 }
 
 /* Map & Coverage Section */
@@ -438,7 +442,7 @@
 }
 
 [data-feature="directory"] .state-coverage-panel {
-  background: #ffffff;
+  background: var(--surface);
 }
 
 [data-feature="directory"] .coverage-metric-cards {
@@ -449,16 +453,19 @@
 
 [data-feature="directory"] .coverage-card {
   padding: 14px 16px;
-  background: #f8faf6;
-  border: 1px solid #dbe4d7;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.1s ease;
 }
 
 [data-feature="directory"] .coverage-card:hover {
-  background: #f0f6eb;
-  border-color: #92b672;
+  background: var(--surface-muted);
+  border-color: var(--accent);
 }
 
 [data-feature="directory"] .coverage-card-header {
@@ -477,15 +484,15 @@
 [data-feature="directory"] .coverage-badge {
   font-family: var(--mono);
   font-size: 0.8125rem;
-  background: #e2ecd9;
-  color: #274722;
+  background: var(--accent-soft);
+  color: var(--ink);
   padding: 3px 8px;
   border-radius: 4px;
 }
 
 [data-feature="directory"] .coverage-bar-track {
   height: 6px;
-  background: #e4ebe0;
+  background: var(--line);
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 6px;
@@ -493,7 +500,7 @@
 
 [data-feature="directory"] .coverage-bar-fill {
   height: 100%;
-  background: #5d8934;
+  background: var(--accent-hover);
   border-radius: 3px;
 }
 
@@ -568,11 +575,15 @@
   }
 
   /* On mobile: if a selection is made, hide the list and show the detail view */
-  [data-feature="directory"] .directory-master-detail.has-selection .directory-list-panel {
+  [data-feature="directory"]
+    .directory-master-detail.has-selection
+    .directory-list-panel {
     display: none;
   }
 
-  [data-feature="directory"] .directory-master-detail:not(.has-selection) .directory-detail-panel {
+  [data-feature="directory"]
+    .directory-master-detail:not(.has-selection)
+    .directory-detail-panel {
     display: none;
   }
 
@@ -621,11 +632,21 @@
     width: 100%;
     margin-top: 10px;
     padding-top: 10px;
-    border-top: 1px dashed #e1e7de;
+    border-top: 1px dashed var(--line);
   }
 
   [data-feature="directory"] .source-pub {
     max-width: none;
     text-align: left;
   }
+}
+
+/* Shared landing-theme alignment. */
+[data-feature="directory"] .badge.green {
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  border-color: var(--line);
+}
+[data-feature="directory"] button {
+  font-family: var(--font);
 }

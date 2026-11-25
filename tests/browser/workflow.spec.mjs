@@ -10,18 +10,18 @@ test("reviewed records, planning, CSV, sources and measured model results", asyn
   const { records } = await (await request.get("/api/records")).json();
   for (const r of records)
     await request.delete(`/api/records/${r.id}`, { data: {} });
-  await page.goto("/#overview");
+  await page.goto("/workspace#overview");
   await expect(page.locator("body")).toHaveAttribute("data-ready", "true");
   if ((await (await request.get("/api/status")).json()).facilityCount === 0) {
     await page.locator('[data-action="import"]').first().click();
     await expect(page.locator(".metric strong").first()).toHaveText("40");
   }
-  await page.goto("/#directory");
+  await page.goto("/workspace#directory");
   await expect(page.locator(".facility-row")).toHaveCount(40);
-  await page.locator('[data-action="facility"]').first().click();
-  await expect(page.locator(".modal")).toContainText("Read original source");
-  await page.getByRole("button", { name: "Close dialog" }).click();
-  await page.goto("/#analysis");
+  await page.locator('[data-action="select-facility"]').first().click();
+  await expect(page.locator(".facility-detail-card")).toContainText("Source");
+  await page.locator('[data-action="deselect-facility"]').click();
+  await page.goto("/workspace#analysis");
   await expect(page.locator("#record-form")).toBeVisible();
   const status = await (await request.get("/api/status")).json();
   if (status.vision.available && existsSync("ml/manifest.json")) {
@@ -67,7 +67,7 @@ test("reviewed records, planning, CSV, sources and measured model results", asyn
     path: info.outputPath("analysis.png"),
     fullPage: true,
   });
-  await page.goto("/#planner");
+  await page.goto("/workspace#planner");
   await expect(page.locator("#planner-form")).toBeVisible();
   for (const [n, v] of Object.entries({
     material: "PP",
@@ -118,7 +118,7 @@ test("reviewed records, planning, CSV, sources and measured model results", asyn
       ),
     )
     .toBe(true);
-  await page.goto("/#results");
+  await page.goto("/workspace#results");
   await expect(
     page.getByRole("heading", { name: "Confusion matrix" }),
   ).toBeVisible();

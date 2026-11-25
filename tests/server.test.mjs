@@ -190,21 +190,18 @@ test('loopback host and same-origin checks protect local endpoints and reject no
   assert.equal((await call(app, '/api/import-public', { method: 'POST', raw: 'bad JSON' })).status, 400);
 });
 
-test('static server serves application assets but never local settings or path escapes', async t => {
-  const { app } = setup(t);
-  const home = await call(app, '/'); assert.equal(home.status, 200); assert.match(home.headers['content-type'], /text\/html/);
-  assert.doesNotMatch(home.headers['content-security-policy'], /fonts\.googleapis\.com|fonts\.gstatic\.com/);
-  const landing = await call(app, '/landing/landing.html'); assert.equal(landing.status, 200); assert.match(landing.headers['content-type'], /text\/html/);
-  assert.match(landing.headers['content-security-policy'], /fonts\.googleapis\.com/);
-  assert.match(landing.headers['content-security-policy'], /fonts\.gstatic\.com/);
-  const landingDirectory = await call(app, '/landing/');
-  assert.equal(landingDirectory.status, 200);
-  assert.match(landingDirectory.text, /Materials find their next shift/);
-  assert.match(landingDirectory.headers['content-security-policy'], /fonts\.googleapis\.com/);
-  const landingRedirect = await call(app, '/landing');
-  assert.equal(landingRedirect.status, 308);
-  assert.equal(landingRedirect.headers.location, '/landing/');
-  for (const path of ['/server/app.mjs', '/.env', '/%2e%2e/%2e%2e/etc/passwd', '/api/unknown']) assert.equal((await call(app, path)).status, 404);
+test('landing-first routing serves workspace, redirects old URLs and keeps private files inaccessible',async t=>{
+ const {app}=setup(t);
+ const home=await call(app,'/');assert.equal(home.status,200);assert.match(home.text,/carousel-ring/);assert.match(home.text,/Open workspace/);assert.doesNotMatch(home.text,/Coming soon/);
+ assert.match(home.headers['content-security-policy'],/fonts\.googleapis\.com/);
+ assert.match(home.headers['content-security-policy'],/wasm-unsafe-eval/);
+ const workspace=await call(app,'/workspace');assert.equal(workspace.status,200);assert.match(workspace.text,/id="app"/);assert.match(workspace.text,/src="\/app.js"/);assert.match(workspace.headers['content-security-policy'],/fonts\.gstatic\.com/);
+ assert.equal((await call(app,'/workspace',{method:'HEAD'})).text,'');
+ for(const [path,target]of Object.entries({'/landing':'/','/landing/':'/','/landing/landing.html':'/','/workspace/':'/workspace','/index.html':'/workspace','/landing/signin.html':'/workspace#overview','/landing/signup.html':'/workspace#overview'})){
+  const result=await call(app,path);assert.equal(result.status,308);assert.equal(result.headers.location,target);
+ }
+ assert.doesNotMatch((await call(app,'/api/status')).headers['content-security-policy'],/fonts\.googleapis\.com/);
+ for(const path of ['/server/app.mjs','/.env','/%2e%2e/%2e%2e/etc/passwd','/api/unknown','/ml/artifacts/model.pt','/SCRAPLOOP_CHANGES.md'])assert.equal((await call(app,path)).status,404);
 });
 
 test('local classifier validates images, saves versioned suggestions and never calls a paid provider',async t=>{

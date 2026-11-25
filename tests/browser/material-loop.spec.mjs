@@ -4,7 +4,7 @@ test("Blender sculpture animates on the page and survives navigation", async ({
 }, info) => {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/#overview");
+  await page.goto("/workspace#overview");
   const host = page.locator("[data-material-loop]");
   await expect(host).toHaveClass(/is-ready/, { timeout: 45000 });
   await host.scrollIntoViewIfNeeded();
@@ -33,9 +33,9 @@ test("Blender sculpture animates on the page and survives navigation", async ({
       () => document.documentElement.scrollWidth <= innerWidth + 1,
     ),
   ).toBe(true);
-  await page.goto("/#analysis");
+  await page.goto("/workspace#analysis");
   await expect(page.locator("#record-form")).toBeVisible();
-  await page.goto("/#overview");
+  await page.goto("/workspace#overview");
   await expect(page.locator("[data-material-loop]")).toHaveClass(/is-ready/, {
     timeout: 45000,
   });
@@ -43,7 +43,7 @@ test("Blender sculpture animates on the page and survives navigation", async ({
 });
 test("reduced motion starts the Blender loop paused", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/#overview");
+  await page.goto("/workspace#overview");
   await expect(page.locator("[data-material-loop]")).toHaveClass(/is-ready/, {
     timeout: 45000,
   });
@@ -56,7 +56,7 @@ test("a failed 3D asset retains the rendered fallback poster", async ({
   page,
 }) => {
   await page.route("**/assets/3d/material-loop.glb", (route) => route.abort());
-  await page.goto("/#overview");
+  await page.goto("/workspace#overview");
   await expect(page.locator("[data-material-loop]")).toHaveClass(
     /is-fallback/,
     { timeout: 45000 },

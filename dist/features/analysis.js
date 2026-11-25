@@ -195,6 +195,9 @@ export async function mountFeature(root, ctx) {
         target ? `/api/records/${encodeURIComponent(target)}` : "/api/records",
         { method: target ? "PATCH" : "POST", body: JSON.stringify(payload) },
       );
+      // The record is committed even if refreshing shared data fails.
+      // Retrying must PATCH that ID rather than create a duplicate.
+      if (alive && token === generation) editing = record.id;
       await ctx.refreshData();
       if (!alive || token !== generation) return;
       editing = record.id;

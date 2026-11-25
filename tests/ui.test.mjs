@@ -7,6 +7,7 @@ import { createApp } from '../server/app.mjs';
 import { icon } from '../dist/icons.js';
 import { planPool } from '../dist/planner.js';
 import { mountFeature as mountAnalysis } from '../dist/features/analysis.js';
+import { mountFeature as mountDirectory } from '../dist/features/directory.js';
 import { mountFeature as mountPlanner } from '../dist/features/planner.js';
 import { mountFeature as mountResults } from '../dist/features/results.js';
 
@@ -30,12 +31,12 @@ async function boot(t, options={}) {
   const app=options.app||createApp({dbPath:':memory:',apiKey:options.apiKey||'',fetchImpl:options.fetchImpl,vision:options.vision});
   if(!options.app)t.after(()=>app.close());
   const errors=[];const vc=new VirtualConsole();vc.on('jsdomError',e=>errors.push(e.message));
-  const dom=new JSDOM(html,{url:'http://127.0.0.1:4173/#overview',runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:vc});
+  const dom=new JSDOM(html,{url:'http://127.0.0.1:4173/workspace#overview',runScripts:'outside-only',pretendToBeVisual:true,virtualConsole:vc});
   const {window}=dom,{document}=window;
   window.scrollTo=()=>{};window.Element.prototype.scrollIntoView=()=>{};
   window.URL.createObjectURL=()=> 'blob:local-preview';window.URL.revokeObjectURL=()=>{};
   window.fetch=options.apiFailure ? async()=>({ok:false,status:503,json:async()=>({message:'Local database unavailable'})}) : (path,init)=>request(app,path,init);
-  window.__features={planner:async()=>({mountFeature:mountPlanner}),analysis:async()=>({mountFeature:mountAnalysis}),results:async()=>({mountFeature:mountResults})};
+  window.__features={directory:async()=>({mountFeature:mountDirectory}),planner:async()=>({mountFeature:mountPlanner}),analysis:async()=>({mountFeature:mountAnalysis}),results:async()=>({mountFeature:mountResults})};
   window.__icon=icon;window.__planPool=planPool;
   window.eval(`const mountMaterialLoop=()=>()=>{};const icon=window.__icon;const planPool=window.__planPool;\n${source.replace(/^import .*;\s*$/gm,'')}`);
   t.after(()=>{window.close();assert.deepEqual(errors,[],'No application runtime errors');});
@@ -44,7 +45,7 @@ async function boot(t, options={}) {
   const click=s=>$(s).click();
   const change=(s,value)=>{const e=$(s);if(e.type==='checkbox')e.checked=Boolean(value);else e.value=String(value);e.dispatchEvent(new window.Event('input',{bubbles:true}));e.dispatchEvent(new window.Event('change',{bubbles:true}));};
   const submit=s=>$(s).dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
-  const route=async name=>{window.location.hash=name;await tick();if(name==='analysis')await until(()=>document.querySelector('#record-form'),'Analysis feature');if(name==='planner')await until(()=>document.querySelector('#planner-form'),'Planner feature');};
+  const route=async name=>{window.location.hash=name;await tick();if(name==='directory')await until(()=>document.querySelector('[data-feature="directory"] .directory-view'),'Directory feature');if(name==='analysis')await until(()=>document.querySelector('#record-form'),'Analysis feature');if(name==='planner')await until(()=>document.querySelector('#planner-form'),'Planner feature');};
   const api=async(path,method='GET',data)=>{const response=await request(app,path,{method,headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});return response.json();};
   const importData=async()=>{click('[data-action="import"]');await until(()=>document.querySelector('.metric strong')?.textContent==='40' || document.querySelector('.section-heading h2')?.textContent.includes('40') || document.querySelector('.data-totals strong')?.textContent==='40','Public import');};
   return{app,window,document,$,click,change,submit,route,api,importData};
@@ -63,7 +64,7 @@ test('first launch is empty and offers explicit public-data and OpenAI setup wit
   assert.match(ui.$('.metric-strip').textContent,/0Public facility records/);
   assert.equal(ui.document.querySelector('[data-action="guided"]'),null);
   assert.equal(ui.document.querySelector('[data-action="reset"]'),null);
-  assert.match(ui.$('#main').textContent,/Start with the source/);
+  assert.match(ui.$('#main').textContent,/Build your local loop/);
   await ui.route('sources');assert.match(ui.$('#main').textContent,/OPENAI_API_KEY/);
   assert.match(ui.$('#main').textContent,/Not configured/);
 });
@@ -72,15 +73,15 @@ test('explicit public import loads attributable real records and supports state 
   const ui=await boot(t);await ui.importData();
   assert.equal((await ui.api('/api/status')).facilityCount,40);
   await ui.route('directory');assert.equal(ui.document.querySelectorAll('.facility-row').length,40);
-  ui.change('#state-filter','Rajasthan');assert.equal(ui.document.querySelectorAll('.facility-row').length,10);
+  ui.change('#directory-state','Rajasthan');assert.equal(ui.document.querySelectorAll('.facility-row').length,10);
   ui.change('#directory-search','unlikely-no-match');assert.equal(ui.document.querySelectorAll('.facility-row').length,0);
   ui.click('[data-action="clear-filters"]');assert.equal(ui.document.querySelectorAll('.facility-row').length,40);
-  ui.click('[data-action="facility"]');assert.ok(ui.document.querySelector('[role="dialog"]'));
-  assert.match(ui.$('.modal').textContent,/Read original source/);assert.match(ui.$('.modal').textContent,/Not supplied by the source/);
-  assert.match(ui.$('.modal a').href,/^https?:\/\//);
-  ui.click('[data-action="close-modal"]');
+  ui.click('[data-action="select-facility"]');assert.ok(ui.document.querySelector('.facility-detail-card'));
+  assert.match(ui.$('.facility-detail-card').textContent,/source/i);
+  assert.match(ui.$('.facility-detail-card a').href,/^https?:\/\//);
+  ui.click('[data-action="deselect-facility"]');
   ui.click('[data-action="view"][data-view="map"]');
-  assert.match(ui.$('.directory-map').textContent,/No reliable facility coordinates/);
+  assert.match(ui.$('.directory-map-container').textContent,/coordinates/);
   await ui.route('sources');assert.equal(ui.document.querySelectorAll('.source-card').length,3);
 });
 
@@ -133,4 +134,20 @@ test('integrated planner uses saved records, selection and full costs',async t=>
 });
 test('model results show real report metrics and explicit limitations',async t=>{
  const ui=await boot(t);await ui.route('results');await until(()=>ui.document.querySelector('table'),'Report');assert.match(ui.$('#main').textContent,/Frozen feature prototypes/);assert.match(ui.$('#main').textContent,/expert-confirmed factory/);assert.match(ui.$('#main').textContent,/Confusion matrix/);
+});
+
+test('retry after a post-save refresh failure edits the committed record instead of duplicating it',async t=>{
+ const ui=await boot(t);await ui.route('analysis');fillRecord(ui,{title:'One committed record'});ui.change('[name="confirmed"]',true);
+ const originalFetch=ui.window.fetch;let failRefresh=false;
+ ui.window.fetch=async(path,init)=>{
+  if(path==='/api/status'&&failRefresh)return{ok:false,status:503,json:async()=>({message:'Temporary refresh failure'})};
+  const response=await originalFetch(path,init);
+  if(path==='/api/records'&&init?.method==='POST'&&response.ok)failRefresh=true;
+  return response;
+ };
+ ui.submit('#record-form');await until(()=>ui.document.querySelector('#record-error')?.textContent.includes('Temporary refresh failure'),'Failed refresh');
+ const created=(await ui.api('/api/records')).records;assert.equal(created.length,1);
+ assert.match(ui.$('#record-form button[type="submit"]').textContent,/Save changes/);
+ failRefresh=false;ui.submit('#record-form');await until(()=>ui.document.querySelector('.record-card'),'Refresh recovery');
+ const after=(await ui.api('/api/records')).records;assert.equal(after.length,1);assert.equal(after[0].id,created[0].id);
 });

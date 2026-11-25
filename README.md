@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:4173. The server binds only to this computer. Restart `npm run dev` after backend changes. SQLite data is saved in ignored `data/research.sqlite`; restarting preserves your records. No old browser demo data is imported.
+Open http://127.0.0.1:4173 for the published landing page, then choose **Open workspace**. The connected application is at http://127.0.0.1:4173/workspace. No account or sign-in is required. The server binds only to this computer. Restart `npm run dev` after backend changes. SQLite data is saved in ignored `data/research.sqlite`; restarting preserves your records. No old browser demo data is imported.
 
 Import the public bundle explicitly using **Import public records**. It currently contains 40 sourced facilities across three states, with dates, source references and coverage gaps. Imports are idempotent. Coordinates are shown only when available from sources. See [public-data documentation](data/README.md).
 
@@ -66,10 +66,10 @@ npm run test:browser
 
 - Node checks cover server validation, SQLite persistence, original evidence, partial edits, uploads, mocked providers, application handlers, selection, precision and CSV.
 - Python checks cover group split isolation, real-manifest duplicate/conflict exclusion, all-class coverage, metrics and confidence selection.
-- Browser walkthroughs use a disposable database and no provider key at 360, 768 and 1366 pixels: import/source inspection, local classification when a checkpoint is installed, manual correction, save/edit/reload, complete/incomplete/uneconomical plans, CSV downloads, report rendering, overflow and keyboard focus.
+- Landing checks cover the original carousel, keyboard access, reduced motion, workspace entry and legacy redirects. Browser walkthroughs use a disposable database and no provider key at 360, 768 and 1366 pixels: import/source inspection, local classification when a checkpoint is installed, manual correction, save/edit/reload, complete/incomplete/uneconomical plans, CSV downloads, report rendering, overflow and keyboard focus.
 - Browser tests never use your production database. Actual checkpoint inference was also exercised directly. Factory-expert validation and TACO/ZeroWaste evaluations remain pending.
 
-The working branches are `feat/specialist-vision-benchmark`, `feat/material-analysis-records`, and `feat/pool-planner-release`. The latter contains the integrated workflow for review; `main` is not automatically merged. Review ML first, analysis second, then planner/release. Teammate frontend and directory branches require a further integration check when merged.
+The combined application is on `feat/fullstack-integration`; `main` is not automatically merged. It combines the published landing frontend, sourced directory, specialist model, material review, pool planner and Blender exhibit. See [the integration notes](docs/FULLSTACK_INTEGRATION.md) for branch provenance, routes and scope.
 
 ## Blender material-loop exhibit
 
