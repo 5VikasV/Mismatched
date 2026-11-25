@@ -70,3 +70,9 @@ npm run test:browser
 - Browser tests never use your production database. Actual checkpoint inference was also exercised directly. Factory-expert validation and TACO/ZeroWaste evaluations remain pending.
 
 The working branches are `feat/specialist-vision-benchmark`, `feat/material-analysis-records`, and `feat/pool-planner-release`. The latter contains the integrated workflow for review; `main` is not automatically merged. Review ML first, analysis second, then planner/release. Teammate frontend and directory branches require a further integration check when merged.
+
+## Blender material-loop exhibit
+
+The Overview includes an original Blender-built factory and circular conveyor carrying recovered copper, polymer offcuts and cardboard. Its authored eight-second animation repeats seamlessly. The model sits directly on the page with a transparent background and no surrounding labels or playback controls. Drag to rotate. Reduced-motion users start paused, and the animation pauses when off-screen or the tab is hidden. A rendered WebP poster is the loading/error fallback. The existing overview map remains visible.
+
+The GLB and locally hosted viewer work without Blender installed. The editable scene is [design/blender/material-loop.blend](design/blender/material-loop.blend); the generator and rebuild instructions are in [design/blender/README.md](design/blender/README.md). This is an illustrative sculpture, not live facility or inventory data.

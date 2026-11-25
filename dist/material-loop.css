@@ -1,0 +1,84 @@
+/* The sculpture sits directly on the page, with no card, backdrop or controls. */
+.loop-exhibit {
+  position: relative;
+  min-width: 0;
+  background: transparent;
+  border: 0;
+}
+.loop-stage {
+  position: relative;
+  height: 430px;
+}
+.loop-stage model-viewer {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  --poster-color: transparent;
+  --progress-bar-color: #73865e;
+  --progress-bar-height: 2px;
+  --progress-mask: transparent;
+  background: transparent;
+  outline-offset: -5px;
+}
+.loop-poster {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  object-fit: contain;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.loop-exhibit.is-ready .loop-poster {
+  opacity: 0;
+}
+.loop-exhibit.is-fallback model-viewer {
+  visibility: hidden;
+}
+body[data-page="overview"] .intro-panel {
+  display: block;
+  min-height: 0;
+  background: transparent;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+}
+body[data-page="overview"] .intro-copy {
+  padding: 12px 0 28px;
+  max-width: none;
+}
+body[data-page="overview"] .intro-title {
+  font-size: clamp(2.6rem, 4.5vw, 4.1rem);
+  line-height: 1.02;
+  letter-spacing: -0.055em;
+}
+body[data-page="overview"] .intro-description {
+  max-width: 520px;
+}
+body[data-page="overview"] .intro-footnote {
+  display: block;
+  margin-top: 18px;
+}
+body[data-page="overview"] .intro-visual {
+  display: none;
+}
+@media (min-width: 1500px) {
+  .loop-stage {
+    height: 480px;
+  }
+}
+@media (max-width: 600px) {
+  .loop-stage {
+    height: 320px;
+  }
+  body[data-page="overview"] .intro-title {
+    font-size: 2.9rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loop-poster {
+    transition: none;
+  }
+}

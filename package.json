@@ -11,7 +11,8 @@
     "ml:prepare": ".venv/bin/python ml/prepare.py",
     "ml:train": ".venv/bin/python ml/train.py",
     "test:ml": ".venv/bin/python -m unittest discover -s ml -p 'test_*.py'",
-    "ml:evaluate": ".venv/bin/python ml/evaluate.py"
+    "ml:evaluate": ".venv/bin/python ml/evaluate.py",
+    "assets:vendor": "node scripts/copy-viewer.mjs"
   },
   "engines": {
     "node": ">=24"
@@ -19,5 +20,8 @@
   "devDependencies": {
     "@playwright/test": "^1.65.1",
     "jsdom": "^26.1.0"
+  },
+  "dependencies": {
+    "@google/model-viewer": "^4.4.0"
   }
 }
