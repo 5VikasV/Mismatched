@@ -72,11 +72,20 @@ kbd {
   flex-wrap: wrap;
 }
 .desk-navigation nav {
-  flex-wrap: wrap;
-  gap: 0 24px;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 14px;
+  min-width: 0;
+  width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: thin;
 }
-.nav-link {
-  white-space: normal;
+.desk-navigation .nav-link {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: clamp(15px, 1.05vw, 18px);
 }
 .main-content,
 .main-content > *,
