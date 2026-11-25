@@ -49,7 +49,7 @@
   width: 100%;
   min-width: 0;
   padding: 12px 0;
-  font-size: 0.9375rem;
+  font-size: 20px;
   color: var(--ink);
   outline: none;
 }
@@ -74,7 +74,7 @@
 }
 
 [data-feature="directory"] .results-count {
-  font-size: 1.0625rem;
+  font-size: 22px;
   color: var(--ink);
   display: flex;
   align-items: baseline;
@@ -83,12 +83,12 @@
 
 [data-feature="directory"] .results-count strong {
   font-family: var(--mono);
-  font-size: 1.35rem;
+  font-size: 30px;
   font-weight: 600;
 }
 
 [data-feature="directory"] .filtered-note {
-  font-size: 0.8125rem;
+  font-size: 16px;
   color: var(--muted);
 }
 
@@ -164,7 +164,7 @@
   border: none;
   background: transparent;
   color: var(--ink);
-  font-size: 0.9375rem;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1.4;
   padding: 0;
@@ -182,7 +182,7 @@
 
 [data-feature="directory"] .facility-location {
   display: block;
-  font-size: 0.8125rem;
+  font-size: 16px;
   color: var(--muted);
   margin-top: 4px;
 }
@@ -203,7 +203,7 @@
 }
 
 [data-feature="directory"] .source-pub {
-  font-size: 0.75rem;
+  font-size: 16px;
   color: var(--muted);
   text-align: right;
   max-width: 140px;
@@ -214,7 +214,7 @@
 
 [data-feature="directory"] .select-action-btn {
   padding: 6px 10px;
-  font-size: 0.8125rem;
+  font-size: 16px;
 }
 
 /* Detail Panel Styling */
@@ -256,13 +256,13 @@
 }
 
 [data-feature="directory"] .placeholder-content h3 {
-  font-size: 1.15rem;
+  font-size: 24px;
   color: var(--ink);
   margin-bottom: 8px;
 }
 
 [data-feature="directory"] .placeholder-content p {
-  font-size: 0.875rem;
+  font-size: 18px;
   line-height: 1.6;
   max-width: 320px;
   margin: 0 auto;
@@ -300,7 +300,7 @@
 }
 
 [data-feature="directory"] .detail-title {
-  font-size: 1.35rem;
+  font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.5px;
   line-height: 1.25;
@@ -333,7 +333,7 @@
 }
 
 [data-feature="directory"] .detail-item dt {
-  font-size: 0.75rem;
+  font-size: 16px;
   font-family: var(--mono);
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -342,7 +342,7 @@
 
 [data-feature="directory"] .detail-item dd {
   margin: 0;
-  font-size: 0.9375rem;
+  font-size: 20px;
   color: var(--ink);
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -350,7 +350,7 @@
 
 [data-feature="directory"] .detail-hint {
   display: block;
-  font-size: 0.75rem;
+  font-size: 16px;
   color: var(--muted);
   line-height: 1.45;
   margin-top: 3px;
@@ -395,20 +395,20 @@
 }
 
 [data-feature="directory"] .provenance-header strong {
-  font-size: 0.9375rem;
+  font-size: 20px;
   color: var(--ink);
   display: block;
 }
 
 [data-feature="directory"] .provenance-header p {
-  font-size: 0.8125rem;
+  font-size: 16px;
   color: var(--muted);
   margin: 2px 0 0;
 }
 
 [data-feature="directory"] .provenance-notes,
 [data-feature="directory"] .provenance-terms {
-  font-size: 0.8125rem;
+  font-size: 16px;
   line-height: 1.6;
   color: var(--muted);
   margin: 0;
@@ -477,13 +477,13 @@
 }
 
 [data-feature="directory"] .coverage-card-header strong {
-  font-size: 0.9375rem;
+  font-size: 20px;
   color: var(--ink);
 }
 
 [data-feature="directory"] .coverage-badge {
   font-family: var(--mono);
-  font-size: 0.8125rem;
+  font-size: 16px;
   background: var(--accent-soft);
   color: var(--ink);
   padding: 3px 8px;
@@ -505,7 +505,7 @@
 }
 
 [data-feature="directory"] .coverage-card-meta {
-  font-size: 0.75rem;
+  font-size: 16px;
   color: var(--muted);
 }
 
@@ -519,7 +519,7 @@
   gap: 12px;
   align-items: flex-start;
   color: #6b5523;
-  font-size: 0.8125rem;
+  font-size: 16px;
   line-height: 1.6;
 }
 

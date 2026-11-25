@@ -14,26 +14,6 @@ const number = (value) =>
   new Intl.NumberFormat("en-IN", { maximumFractionDigits: 6 }).format(
     Number(value) || 0,
   );
-const date = (value) =>
-  value
-    ? new Date(value).toLocaleDateString("en-IN", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "Not published";
-const safeURL = (value) => {
-  try {
-    const url = new URL(value);
-    return ["https:", "http:"].includes(url.protocol) &&
-      !url.username &&
-      !url.password
-      ? url.href
-      : "";
-  } catch {
-    return "";
-  }
-};
 const nav = [
   ["overview", "grid", "Overview"],
   ["directory", "building", "Facility directory"],
@@ -43,9 +23,10 @@ const nav = [
   ["results", "shield", "Model results"],
   ["impact", "leaf", "Planned impact"],
   ["loop", "loop", "Loop graph"],
-  ["sources", "list", "Sources & setup"],
+  ["evidence", "list", "Evidence & numbers"],
 ];
 const loaders = {
+  evidence: () => import("./features/evidence.js"),
   directory: () => import("./features/directory.js"),
   analysis: () => import("./features/analysis.js"),
   planner: () => import("./features/planner.js"),
@@ -151,9 +132,6 @@ function updateShellStatus() {
 function heading(label, title, description, actions = "") {
   return `<div class="page-heading"><div><div class="eyebrow">${label}</div><h1 class="page-title">${title}</h1><p class="page-subtitle">${description}</p></div><div class="heading-actions">${actions}</div></div>`;
 }
-function badge(text, kind = "neutral") {
-  return `<span class="badge ${kind}">${esc(text)}</span>`;
-}
 function importButton() {
   return `<button class="btn btn-primary" data-action="import" ${importing ? "disabled" : ""}>${importing ? "Importing…" : "Import public records"}</button>`;
 }
@@ -161,7 +139,7 @@ function mountShell() {
   document.getElementById("app").innerHTML = `<div class="app-shell">
     <header class="desk-masthead"><a class="brand" href="/" aria-label="ScrapLoop home"><svg viewBox="0 0 28 28" class="brand-mark" aria-hidden="true"><path d="M5 8h13l-3-3m8 15H10l3 3M18 8a8 8 0 0 1 4 12M10 20a8 8 0 0 1-4-12"/></svg><span>SCRAPLOOP<span class="brand-caption">THE MATERIAL DESK</span></span></a><div class="masthead-note"><span class="status-dot"></span><span id="connection-status">Local workspace</span><span class="masthead-divider">/</span><span>Saved on this computer</span></div><div class="masthead-actions"><button class="finder-trigger" data-action="finder" aria-label="Search workspace" title="Find anything (Ctrl+K)" aria-haspopup="dialog">${icon("search")}<span>Find anything</span><kbd>⌘ / Ctrl K</kbd></button><a class="btn btn-primary quick-add" href="#analysis">+ <span>Add material</span></a><button type="button" class="icon-btn mobile-menu-btn" data-action="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">${icon("menu")}</button></div></header>
     <div class="desk-navigation" id="sidebar"><nav aria-label="Main navigation">${nav.map(([id, i, label], index) => `<a class="nav-link" href="#${id}" data-nav="${id}"><span class="nav-number">0${index + 1}</span><span>${label}</span>${icon(i)}</a>`).join("")}</nav><a class="desk-home" href="/">Landing page ↗</a></div><div class="sidebar-overlay" data-action="close-menu"></div>
-    <div class="workspace"><div class="desk-location"><div class="breadcrumbs"><span>WORKSPACE</span><span>/</span><strong id="breadcrumb">Overview</strong></div><span class="workspace-label">INDUSTRIAL MATERIAL REUSE</span></div><main id="main" class="main-content" tabindex="-1"></main><footer class="workspace-footer"><a href="/">SCRAPLOOP<span> / TEAM MISMATCHED</span></a><span>From evidence to a better use.</span><a href="#sources">Sources & setup ↗</a></footer></div></div>
+    <div class="workspace"><div class="desk-location"><div class="breadcrumbs"><span>WORKSPACE</span><span>/</span><strong id="breadcrumb">Overview</strong></div><span class="workspace-label">INDUSTRIAL MATERIAL REUSE</span></div><main id="main" class="main-content" tabindex="-1"></main><footer class="workspace-footer"><a href="/">SCRAPLOOP<span> / TEAM MISMATCHED</span></a><span>From evidence to a better use.</span><a href="#evidence">Evidence & numbers ↗</a></footer></div></div>
     <dialog class="finder-dialog" id="workspace-finder" aria-labelledby="finder-title"><div class="finder-header"><label id="finder-title" for="finder-input">Find a page, facility or material</label><button class="icon-btn" data-action="close-finder" aria-label="Close search">${icon("close")}</button></div><input class="input" id="finder-input" type="search" placeholder="Try ‘analysis’, ‘Pune’ or a saved material…" autocomplete="off"><div id="finder-results" class="finder-results" aria-live="polite"></div><p class="finder-hint">Tab to a result · Enter to open · Esc to close</p></dialog>`;
 }
 let finderFocus = null;
@@ -262,6 +240,10 @@ function render() {
   main().replaceChildren();
   delete main().dataset.feature;
   let route = location.hash.slice(1) || "overview";
+  if (route === "sources") {
+    route = "evidence";
+    history.replaceState(null, "", "#evidence");
+  }
   if (!nav.some((n) => n[0] === route)) route = "overview";
   const label = nav.find((n) => n[0] === route)[2];
   document.body.dataset.page = route;
@@ -314,7 +296,7 @@ function render() {
       });
     return;
   }
-  main().innerHTML = route === "sources" ? sourcesPage() : overview();
+  main().innerHTML = overview();
   if (route === "overview")
     cleanup = mountMaterialLoop(document.querySelector("[data-material-loop]"));
 }
@@ -387,11 +369,7 @@ function overview() {
       })
       .join("") ||
     '<p class="help-text">Coverage appears after you import the public records.</p>'
-  }</div><a class="text-link" href="#sources">Inspect the sources ↗</a></aside></div>`;
-}
-
-function sourcesPage() {
-  return `${heading("09 / SOURCES & SETUP", "Follow the evidence.", "Check source provenance, local model installation and optional document analysis.")}<div class="setup-grid"><section class="panel"><div class="panel-header"><h2>Local image classification</h2>${badge(state.status.vision?.available ? "Installed" : "Not installed")}</div><div class="panel-body"><p>The specialist model runs on this computer. It suggests broad categories; grade, quantity, condition and price still need review.</p><p class="help-text">${state.status.vision?.available ? esc(state.status.vision.metadata?.modelVersion || "Local checkpoint available") : "Follow the README to install the Python environment and train the checkpoint."}</p><div class="setup-actions"><a class="btn btn-primary" href="#analysis">Material analysis</a><a class="text-link" href="#results">Measured results</a></div></div></section><section class="panel"><div class="panel-header"><h2>Optional document provider</h2>${badge(state.status.aiConfigured ? "Configured" : "Not configured")}</div><div class="panel-body"><p>PDF evidence can be reviewed manually. Optional document extraction uses your server-side key only when you explicitly choose it.</p><div class="config-code"><code>OPENAI_API_KEY=your_key</code><code>OPENAI_MODEL=${esc(state.status.model || "gpt-4.1-mini")}</code></div><p class="help-text">Configure the private .env file and restart the server. Local photo classification needs no provider key. Provider document extraction may incur charges.</p></div></section></div><section class="panel"><div class="panel-header"><div><h2>Public directory snapshot</h2><p>${state.facilities.length} facility records · ${state.sources.length} sources</p></div>${importButton()}</div><div class="panel-body"><p>Import the reviewed bundle explicitly. Re-imports update existing source IDs without duplicating records. Published listings do not confirm current authorisation or available stock.</p></div></section><div class="source-list">${state.sources.map((s) => `<article class="panel source-card"><div class="source-heading"><div><h3>${esc(s.title)}</h3><p>${esc(s.publisher)}</p></div><a class="text-link" href="${esc(safeURL(s.url))}" target="_blank" rel="noopener noreferrer">Read source ↗</a></div><div class="source-details"><div><span>Published</span><strong>${date(s.publicationDate)}</strong></div><div><span>Retrieved</span><strong>${date(s.retrievedAt)}</strong></div><div><span>Coverage</span><strong>${esc(s.coverage)}</strong></div></div><p>${esc(s.notes)}</p><details><summary>Reuse terms</summary><p>${esc(s.terms)}</p>${s.termsUrl ? `<a class="text-link" href="${esc(safeURL(s.termsUrl))}" target="_blank" rel="noopener noreferrer">Publisher policy ↗</a>` : ""}</details></article>`).join("") || '<p class="muted">Source references appear after importing public records.</p>'}</div>`;
+  }</div><a class="text-link" href="#evidence">Explore the evidence ↗</a></aside></div>`;
 }
 
 async function importRecords() {

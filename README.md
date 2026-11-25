@@ -23,7 +23,7 @@ The workspace uses a horizontal material desk with numbered navigation, a respon
 - **Overview** shows actual counts, recent reviewed records, source coverage and workflow entry points.
 - **Material analysis** separates capture, evidence and review, groups fields by purpose, and displays the original classification score with its review limitations.
 - **Pool planner** shows quantity fulfilment, eligible/excluded lots and an estimate summary alongside the inputs. Estimates and CSV exports use the same calculations.
-- **Model results** adds per-class F1 bars backed by the evaluation report. **Sources & setup** retains attribution, dates, terms and installation/provider status.
+- **Model results** adds per-class F1 bars backed by the evaluation report. **Evidence & numbers** adds sourced case studies, bounded emissions scenarios and business projections. Directory provenance stays with each facility; installation/provider instructions remain below in this README.
 
 The redesign is on `feat/workspace-redesign`, based on `feat/fullstack-integration`. It changes presentation and adds workspace search; it does not change backend data, API schemas or model weights. No account is required.
 
@@ -94,3 +94,7 @@ The combined application is on `feat/fullstack-integration`; `main` is not autom
 The Overview includes an original Blender-built factory and circular conveyor carrying recovered copper, polymer offcuts and cardboard. Its authored eight-second animation repeats seamlessly. The model sits directly on the page with a transparent background and no surrounding labels or playback controls. Drag to rotate. Reduced-motion users start paused, and the animation pauses when off-screen or the tab is hidden. A rendered WebP poster is the loading/error fallback. The existing overview map remains visible.
 
 The GLB and locally hosted viewer work without Blender installed. The editable scene is [design/blender/material-loop.blend](design/blender/material-loop.blend); the generator and rebuild instructions are in [design/blender/README.md](design/blender/README.md). This is an illustrative sculpture, not live facility or inventory data.
+
+### Evidence for pitches
+
+Open `/workspace#evidence` for published precedents, project measurements, emissions scenarios, commission projections and browser printing. See [Pitch evidence and methodology](docs/PITCH_EVIDENCE.md) for source links, calculation boundaries and pilot proof requirements. Legacy `#sources` links redirect to the evidence page.

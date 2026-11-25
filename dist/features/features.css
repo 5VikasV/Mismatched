@@ -18,7 +18,7 @@
 [data-feature] table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 14px;
+  font-size: 20px;
 }
 [data-feature] th,
 [data-feature] td {
@@ -32,7 +32,7 @@
 }
 [data-feature] .sample-id {
   overflow-wrap: anywhere;
-  font: 12px monospace;
+  font: 18px monospace;
 }
 [data-feature] details {
   border-top: 1px solid var(--line);
@@ -54,7 +54,7 @@
   background: var(--surface-muted);
 }
 [data-feature] .field-state {
-  font: 11px monospace;
+  font: 16px monospace;
   text-transform: uppercase;
   color: var(--muted);
   display: block;
@@ -90,7 +90,7 @@
   display: none;
 }
 [data-feature] .step-line {
-  font: 12px monospace;
+  font: 18px monospace;
   letter-spacing: 0.08em;
   border-block: 1px solid var(--line);
   padding: 15px 0;
@@ -114,7 +114,7 @@
   padding: 4px 0;
   cursor: pointer;
   font: inherit;
-  font-size: 0.85rem;
+  font-size: 16px;
   text-align: left;
 }
 [data-feature] .confirmation-label {
@@ -123,7 +123,7 @@
   gap: 12px;
   margin: 24px 0;
   line-height: 1.6;
-  font-size: 0.88rem;
+  font-size: 16px;
 }
 [data-feature] .confirmation-label input {
   flex: 0 0 18px;

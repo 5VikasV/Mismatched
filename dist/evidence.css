@@ -1,0 +1,379 @@
+/* Shared workspace reading scale. The landing page does not load this file. */
+body {
+  font-size: 22px;
+}
+p,
+li {
+  line-height: 1.65;
+}
+.main-content p {
+  font-size: 22px;
+}
+.main-content h1 {
+  font-size: clamp(46px, 5vw, 72px);
+  line-height: 1.08;
+}
+.main-content h2 {
+  font-size: clamp(30px, 3vw, 42px);
+  line-height: 1.2;
+}
+.main-content h3 {
+  font-size: 26px;
+  line-height: 1.3;
+}
+.btn,
+.nav-link,
+.text-link,
+.finder-trigger,
+table {
+  font-size: 18px;
+}
+.btn,
+.input,
+select,
+.icon-btn,
+.finder-trigger {
+  min-height: 52px;
+}
+.input,
+input,
+select,
+textarea {
+  font-size: 20px;
+  max-width: 100%;
+}
+.field-label,
+.help-text,
+.main-content .help-text,
+.confidence-note,
+.field-confidence,
+summary,
+small {
+  font-size: 16px;
+}
+.eyebrow,
+.brand-caption,
+.workspace-label,
+.metric-index,
+.nav-number,
+.desk-tag,
+.badge,
+kbd {
+  font-size: 14px;
+}
+.nav-link .nav-number {
+  font-size: 14px;
+}
+.metric > span:last-child,
+.section-note {
+  font-size: 18px;
+}
+.desk-masthead {
+  flex-wrap: wrap;
+}
+.desk-navigation nav {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: clamp(8px, 0.75vw, 12px);
+  min-width: 0;
+  width: 100%;
+}
+.desk-navigation .nav-link {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  font-size: clamp(14px, 1.05vw, 16px);
+  gap: 4px;
+}
+.desk-navigation .nav-link .nav-number {
+  font-size: 11px;
+}
+@media (min-width: 1181px) {
+  .desk-navigation {
+    padding-inline: 2.5vw;
+  }
+}
+@media (max-width: 1180px) {
+  .desk-navigation nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 12px;
+  }
+  .desk-navigation .nav-link {
+    font-size: 15px;
+  }
+}
+@media (max-width: 620px) {
+  .desk-navigation nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .desk-navigation .nav-link {
+    white-space: normal;
+  }
+}
+.main-content,
+.main-content > *,
+.panel,
+.panel-body,
+.field,
+.form-grid > *,
+.feature-intro > *,
+.page-heading > * {
+  min-width: 0;
+}
+.main-content,
+.workspace-footer,
+.finder-dialog {
+  overflow-wrap: anywhere;
+}
+.field-label {
+  white-space: normal;
+}
+.form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
+.table-scroll {
+  overflow: auto;
+  max-width: 100%;
+}
+.table-scroll table {
+  width: 100%;
+}
+th,
+td {
+  padding: 16px;
+}
+.evidence-section {
+  margin-top: 48px;
+}
+.evidence-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 24px 0;
+}
+.evidence-cases {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.evidence-case {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+}
+.evidence-case h3,
+.evidence-case p {
+  margin: 0;
+}
+.case-sources {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 16px;
+}
+.evidence-flow {
+  border-block: 1px solid var(--line);
+  padding: 18px 0;
+  display: grid;
+  gap: 12px;
+}
+.evidence-flow span {
+  color: var(--muted);
+  font-size: 18px;
+}
+.case-figures {
+  padding-left: 24px;
+  font-size: 22px;
+  font-weight: 600;
+}
+.emissions-bars {
+  display: grid;
+  gap: 24px;
+  padding: 24px 0;
+}
+.emissions-bars meter {
+  height: 18px;
+  margin-top: 12px;
+  display: block;
+}
+.metric-strip {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+}
+.hero-copy > p {
+  max-width: 520px;
+}
+@media (max-width: 900px) {
+  .evidence-cases {
+    grid-template-columns: 1fr;
+  }
+  .section-heading {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 620px) {
+  body,
+  .main-content p {
+    font-size: 20px;
+  }
+  .main-content h1 {
+    font-size: 46px;
+  }
+  .desk-masthead {
+    gap: 16px;
+  }
+  .masthead-actions {
+    margin-left: auto;
+  }
+  .metric-strip,
+  .desk-metrics {
+    grid-template-columns: 1fr;
+  }
+  .metric {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .workspace-footer {
+    flex-wrap: wrap;
+  }
+  .recent-record {
+    grid-template-columns: 20px minmax(0, 1fr);
+  }
+  .recent-record > span:nth-last-child(2) {
+    grid-column: 2;
+  }
+  .recent-record > span:last-child {
+    display: none;
+  }
+  .panel-body,
+  .workflow-link {
+    padding: 20px;
+  }
+  .feature-intro,
+  .page-heading,
+  .panel-header {
+    flex-wrap: wrap;
+  }
+  .heading-actions,
+  .feature-actions {
+    flex-wrap: wrap;
+  }
+}
+@media print {
+  .desk-masthead,
+  .desk-navigation,
+  .desk-location,
+  .workspace-footer,
+  .skip-link,
+  #toast,
+  .evidence-toolbar,
+  #emissions-form,
+  #business-form {
+    display: none !important;
+  }
+  body,
+  .main-content p,
+  table {
+    font-size: 12pt;
+  }
+  .main-content {
+    max-width: none;
+    padding: 0;
+  }
+  .main-content h1 {
+    font-size: 30pt;
+  }
+  .main-content h2 {
+    font-size: 22pt;
+  }
+  .main-content h3 {
+    font-size: 18pt;
+  }
+  .evidence-cases {
+    display: block;
+  }
+  .evidence-case {
+    break-inside: avoid;
+    margin: 20px 0;
+  }
+  .panel {
+    box-shadow: none;
+  }
+  .table-scroll {
+    overflow: visible;
+  }
+  a[href^="https"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    overflow-wrap: anywhere;
+  }
+}
+@media (max-width: 620px) {
+  .cost-row,
+  .cost-row.total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .cost-row > * {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+#emissions-form .form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+@media (max-width: 900px) {
+  #emissions-form .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  th,
+  td {
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    padding: 6pt;
+  }
+  table {
+    table-layout: fixed;
+  }
+}
+
+.carbon-headline {
+  padding: 12px 0 36px;
+  border-bottom: 1px solid var(--line);
+}
+#carbon-headline-percent {
+  display: block;
+  color: #526548;
+  font: 500 clamp(100px, 12vw, 180px)/1 var(--font);
+  letter-spacing: -0.07em;
+  margin: 20px 0 16px;
+}
+.main-content .carbon-headline h1 {
+  font-size: clamp(26px, 3vw, 40px);
+  margin: 0 0 16px;
+  max-width: 850px;
+}
+.carbon-headline .help-text {
+  max-width: 900px;
+  margin-bottom: 16px;
+}
+.carbon-headline button {
+  border: 0;
+  background: none;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+@media print {
+  .carbon-headline button {
+    display: none;
+  }
+  #carbon-headline-percent {
+    font-size: 90pt;
+  }
+}

@@ -1,3 +1,5 @@
+import {evidenceRegistry} from "../dist/evidence-data.js";
+import {assessEmissions} from "../dist/evidence-calculator.js";
 import {calculateImpact} from "../dist/impact.js";
 import {createBookings} from "./bookings.mjs";
 import { createVision } from './vision.mjs';
@@ -180,6 +182,12 @@ export function createApp(options = {}) {
     try {
       guard(req);
       const parsed = new URL(req.url, 'http://localhost'); const pathname = parsed.pathname;
+      if (req.method === 'GET' && pathname === '/api/evidence') return send(res,200,evidenceRegistry());
+      if (req.method === 'POST' && pathname === '/api/emissions-assessment') {
+        const input=await body(req);
+        try { return send(res,200,assessEmissions(input)); }
+        catch(error) { fail(400,'invalid_assessment',error.message); }
+      }
       if (req.method === 'GET' && pathname === '/api/status') return send(res, 200, { aiConfigured: !!apiKey.trim(), model, vision: vision.status(), facilityCount: count('facilities'), sourceCount: count('sources'), recordCount: count('records'), bookingRequestCount: count('booking_requests') });
       if (req.method === 'GET' && pathname === '/api/model-report') {
         return send(res, 200, { report: existsSync(reportPath) ? JSON.parse(readFileSync(reportPath, 'utf8')) : null, status: vision.status() });
