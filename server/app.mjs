@@ -300,7 +300,7 @@ export function createApp(options = {}) {
       const staticPath = decoded === '/' ? 'landing/landing.html' : decoded === '/workspace' ? 'index.html' : `.${decoded}`;
       const filePath = resolve(staticDir, staticPath);
       if (!filePath.startsWith(`${staticDir}${sep}`) || decoded.split('/').some(part => part.startsWith('.')) || !existsSync(filePath) || !statSync(filePath).isFile()) fail(404, 'not_found', 'This page could not be found.');
-      const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.glb': 'model/gltf-binary' };
+      const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.glb': 'model/gltf-binary', '.pdf': 'application/pdf' };
       res.writeHead(200, { 'Content-Type': types[extname(filePath)] || 'application/octet-stream' }); res.end(req.method === 'HEAD' ? undefined : readFileSync(filePath));
     } catch (error) { if (!res.headersSent) send(res, error.status || 500, { error: error.code || 'server_error', message: error instanceof AppError ? error.message : 'The workspace could not complete this request.' }); else res.end(); }
   }
