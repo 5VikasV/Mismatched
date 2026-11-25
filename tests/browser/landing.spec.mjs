@@ -9,8 +9,9 @@ test("published landing opens the connected account-free workspace", async ({
   const before = await (await request.get("/api/status")).json();
   await page.goto("/");
   await expect(page.locator(".carousel-ring .ring-card")).toHaveCount(8);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "next shift.",
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAttribute(
+    "aria-label",
+    "ScrapLoop",
   );
   await expect(
     page.getByRole("link", { name: "Open workspace", exact: true }),
@@ -19,11 +20,34 @@ test("published landing opens the connected account-free workspace", async ({
     page.getByRole("link", { name: "Explore directory", exact: true }),
   ).toHaveAttribute("href", "/workspace#directory");
   await expect(page.getByText("Coming soon", { exact: true })).toHaveCount(0);
+  const layout = await page.evaluate(() => {
+    const intro = document.querySelector(".page-intro").getBoundingClientRect();
+    const wheel = document
+      .querySelector(".carousel-viewport")
+      .getBoundingClientRect();
+    const buttons = [...document.querySelectorAll(".account-actions a")].map(
+      (el) => el.getBoundingClientRect(),
+    );
+    return {
+      introRight: intro.right,
+      introBottom: intro.bottom,
+      wheelLeft: wheel.left,
+      wheelTop: wheel.top,
+      buttonsFit: buttons.every(
+        (r) => r.left >= 0 && r.right <= innerWidth + 1,
+      ),
+    };
+  });
+  expect(layout.buttonsFit).toBe(true);
+  if (info.project.name === "width-1366")
+    expect(layout.introRight).toBeLessThanOrEqual(layout.wheelLeft + 1);
+  else expect(layout.introBottom).toBeLessThanOrEqual(layout.wheelTop + 1);
   expect(
     await page.evaluate(() =>
       getComputedStyle(document.documentElement)
         .getPropertyValue("--orange")
-        .trim().toLowerCase(),
+        .trim()
+        .toLowerCase(),
     ),
   ).toBe("#ff5a1f");
   expect(
@@ -50,7 +74,8 @@ test("published landing opens the connected account-free workspace", async ({
     await page.evaluate(() =>
       getComputedStyle(document.documentElement)
         .getPropertyValue("--accent")
-        .trim().toLowerCase(),
+        .trim()
+        .toLowerCase(),
     ),
   ).toBe("#ff5a1f");
   await page.goto("/");
