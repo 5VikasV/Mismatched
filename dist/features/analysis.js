@@ -42,7 +42,10 @@ export async function mountFeature(root, ctx) {
   let draft = Object.fromEntries(names.map((n) => [n, ""])),
     review = {},
     confirmed = false,
-    error = "";
+    error = "",
+    replaceExisting = true,
+    sampleLoaded = false;
+  let fieldVersions = Object.fromEntries(names.map((n) => [n, 0]));
   const w = root.ownerDocument.defaultView;
   const clear = () => {
     generation++;
@@ -56,12 +59,18 @@ export async function mountFeature(root, ctx) {
     confirmed = false;
     error = "";
     deleteId = null;
+    replaceExisting = true;
+    sampleLoaded = false;
+    fieldVersions = Object.fromEntries(names.map((n) => [n, 0]));
   };
   function render() {
     if (!alive) return;
     root.dataset.feature = "analysis";
     const state = ctx.getData(),
-      ready = state.status.vision?.available;
+      ready = state.status.vision?.available,
+      pdf = file?.type === "application/pdf",
+      apiReady = Boolean(state.status.aiConfigured),
+      canAnalyse = Boolean(file && (pdf ? apiReady : ready));
     const records = state.records.filter(
       (r) =>
         (!reviewQueue || r.analysisId) &&
@@ -69,7 +78,7 @@ export async function mountFeature(root, ctx) {
           .toLowerCase()
           .includes(search.toLowerCase()),
     );
-    root.innerHTML = `<header class="feature-intro"><div><div class="eyebrow">03 / MATERIAL ANALYSIS</div><h1>Meet your material.</h1><p>Start with a photo. Leave with a record you can stand behind.</p></div><span class="desk-tag">${ready ? "LOCAL MODEL READY" : "MANUAL REVIEW AVAILABLE"}</span></header><ol class="process-strip"><li><b>01</b> Capture evidence</li><li><b>02</b> Review the details</li><li><b>03</b> Save your record</li></ol><div class="review-layout"><section><div class="panel panel-body"><div class="card-kicker">CAPTURE / 01</div><h2>Material evidence</h2><p>${ready ? "Local classifier installed · no API call" : "Local classifier not installed. Manual records remain available."}</p><label class="upload-zone" id="upload-zone"><input id="analysis-file" class="upload-input" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" aria-label="Choose material photo or PDF"><span class="upload-symbol" aria-hidden="true">↥</span><strong>${esc(file?.name || "Drop a photo or PDF here")}</strong><span class="upload-instruction">or click to browse your files</span><span>JPG, PNG, WebP, PDF · up to 10 MB</span></label>${preview ? `<img class="evidence-photo" src="${preview}" alt="Selected material evidence">` : ""}<div class="analysis-actions"><button class="btn btn-primary" type="button" data-feature-action="analyse" ${busy || !file || !ready || file.type === "application/pdf" ? "disabled" : ""}>${busy ? "Analysing…" : "Analyse"}</button><button class="btn btn-secondary" type="button" data-feature-action="new">New record</button></div>${file?.type === "application/pdf" ? `<p>Review the PDF manually. Local classification accepts photos.</p>${state.status.aiConfigured ? '<button class="text-link" data-feature-action="document">Analyse document using paid provider</button>' : ""}` : ""}${!ready ? '<p class="help-text">Install the ML environment and train the model using the README instructions. No OPENAI_API_KEY is needed for local image classification.</p>' : ""}</div><section class="panel panel-body evidence-panel"><div class="card-kicker">THE EVIDENCE TRAIL</div><h2>What supports the fields?</h2>${analysis ? `<p class="analysis-status">${esc(analysis.filename)} · ${esc(analysis.model)}</p>${analysis.classification ? `<p>${analysis.classification.needsReview ? "Needs review" : "Category suggestion"}: <strong>${esc(analysis.classification.category)}</strong> · ${(analysis.classification.confidence * 100).toFixed(1)}% model score ${analysis.classification.experimental ? "· Experimental model" : ""}</p><meter class="confidence-meter" min="0" max="1" value="${analysis.classification.confidence}" aria-label="Model score for the suggested category">${(analysis.classification.confidence * 100).toFixed(1)}%</meter><p>All predictions require review. This score is not a quality guarantee.</p>` : ""}${(analysis.suggestions?.evidence || []).map((e) => `<div class="evidence-item"><strong>${esc(e.field)}</strong><blockquote>${esc(e.quote)}</blockquote>${e.page ? `<small>Page ${esc(e.page)}</small>` : ""}</div>`).join("")}<div class="warning-list">${(analysis.suggestions?.warnings || []).map((v) => `<p>${esc(v)}</p>`).join("")}</div>` : "<p>Model suggestions and original evidence will appear here. Manual records should reference your own supporting evidence.</p>"}<p class="help-text">Exact grades, purity, contamination levels, quantity, and price cannot be established by this image classifier. Grade and purity require supporting specifications or appropriate lab evidence; a model score does not certify quality.</p></section></section><section class="panel panel-body"><div class="card-kicker">REVIEW / 02</div><h2>${editing ? "Edit reviewed record" : "Review material details"}</h2><p class="help-text">Fill what you know. Keep unsupported details blank.</p><form id="record-form" novalidate><div class="form-grid">${[
+    root.innerHTML = `<header class="feature-intro"><div><div class="eyebrow">03 / MATERIAL ANALYSIS</div><h1>Meet your material.</h1><p>Upload a photo or PDF, autofill the supported details, then review and save.</p></div><span class="desk-tag">${pdf ? (apiReady ? "DOCUMENT AI READY" : "PDF AI NOT CONFIGURED") : ready ? "LOCAL MODEL READY" : "MANUAL REVIEW AVAILABLE"}</span></header><ol class="process-strip"><li><b>01</b> Capture evidence</li><li><b>02</b> Review the details</li><li><b>03</b> Save your record</li></ol><div class="review-layout"><section><div class="panel panel-body"><div class="card-kicker">CAPTURE / 01</div><h2>Material evidence</h2><p class="analysis-engine" id="analysis-engine">${pdf ? (apiReady ? "PDF → AI document extraction ready" : "PDF → document AI is not configured") : file ? (ready ? "Photo → local ML classification ready" : "Photo → local classifier not installed") : "Photos → local ML · PDFs → AI document extraction"}</p><label class="upload-zone" id="upload-zone"><input id="analysis-file" class="upload-input" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" aria-label="Choose material photo or PDF"><span class="upload-symbol" aria-hidden="true">↥</span><strong>${esc(file?.name || "Drop a photo or PDF here")}</strong><span class="upload-instruction">or click to browse your files</span><span>JPG, PNG, WebP, PDF · up to 10 MB</span></label>${preview ? `<img class="evidence-photo" src="${preview}" alt="Selected material evidence">` : ""}<div class="analysis-actions"><button class="btn btn-primary" type="button" data-feature-action="analyse" ${busy || saving || !canAnalyse ? "disabled" : ""}>${busy ? "Analysing…" : "Analyse"}</button><button class="btn btn-secondary" type="button" data-feature-action="new">New record</button></div>${pdf ? `<p class="help-text" id="provider-disclosure">${apiReady ? "Click Analyse to send this PDF to your configured AI provider and autofill supported fields. API usage may incur charges. Your key stays on the server." : "PDF autofill requires the server’s API key. Configure the private .env file and restart npm run dev, then reload. Manual entry and sample fill are available."}</p>` : file && apiReady ? '<button class="text-link" data-feature-action="document" ' + (busy ? "disabled" : "") + '>Read photo text with AI</button><p class="help-text">Optional photo-text extraction uses your configured AI provider and may incur charges. Analyse uses the local model for broad material identification.</p>' : '<p class="help-text">The local photo model suggests a broad material category. It does not read invoice quantities, grades or prices.</p>'}</div><section class="panel panel-body evidence-panel"><div class="card-kicker">THE EVIDENCE TRAIL</div><h2>What supports the fields?</h2>${analysis ? `<p>${analysis.classification ? "Source: local ML image classifier (MobileNetV3 Small)" : "Source: AI document extraction using your configured provider"}</p><p class="analysis-status">${esc(analysis.filename)} · ${esc(analysis.model)}</p>${analysis.classification ? `<p>${analysis.classification.needsReview ? "Needs review" : "Category suggestion"}: <strong>${esc(analysis.classification.category)}</strong> · ${(analysis.classification.confidence * 100).toFixed(1)}% model score ${analysis.classification.experimental ? "· Experimental model" : ""}</p><meter class="confidence-meter" min="0" max="1" value="${analysis.classification.confidence}" aria-label="Model score for the suggested category">${(analysis.classification.confidence * 100).toFixed(1)}%</meter><p>All predictions require review. This score is not a quality guarantee.</p>` : ""}${(analysis.suggestions?.evidence || []).map((e) => `<div class="evidence-item"><strong>${esc(e.field)}</strong><blockquote>${esc(e.quote)}</blockquote>${e.page ? `<small>Page ${esc(e.page)}</small>` : ""}</div>`).join("")}<div class="warning-list">${(analysis.suggestions?.warnings || []).map((v) => `<p>${esc(v)}</p>`).join("")}</div>` : "<p>Model suggestions and original evidence will appear here. Manual records should reference your own supporting evidence.</p>"}<p class="help-text">Exact grades, purity, contamination levels, quantity, and price cannot be established by this image classifier. Grade and purity require supporting specifications or appropriate lab evidence; a model score does not certify quality.</p></section></section><section class="panel panel-body"><div class="card-kicker">REVIEW / 02</div><h2>${editing ? "Edit reviewed record" : "Review material details"}</h2><p class="help-text">Autofill from your uploaded file, or use a fictional example to test the form.</p><div class="analysis-quick-fill"><button class="btn btn-secondary" type="button" data-feature-action="autofill" ${busy || saving || !canAnalyse ? "disabled" : ""}>Fill from uploaded file</button><button class="btn btn-secondary" type="button" data-feature-action="sample" ${saving ? "disabled" : ""}>Fill sample data</button></div><label class="confirmation-label"><input type="checkbox" id="replace-existing" ${replaceExisting ? "checked" : ""} ${busy ? "disabled" : ""}> Replace existing values with supported file suggestions</label><p class="help-text">Autofill runs the same analysis as Analyse. Fields you edit while analysis is running are preserved. You must review and confirm before saving.</p>${sampleLoaded ? '<p class="lab-evidence-note" role="status">Fictional sample data loaded for testing. Sample fill uses no ML model or API. These values are not real stock or a live price quote.</p>' : ""}<form id="record-form" novalidate><div class="form-grid">${[
       [
         "Material identity",
         ["title", "company", "material", "grade", "condition"],
@@ -91,11 +100,13 @@ export async function mountFeature(root, ctx) {
   function status(n) {
     return draft[n] === "" || draft[n] == null
       ? "Unknown"
-      : review[n] === "ai_suggestion"
-        ? "AI suggestion"
-        : review[n] === "user_confirmed"
-          ? "User confirmed"
-          : "Awaiting confirmation";
+      : review[n] === "sample_value"
+        ? "Sample value — needs review"
+        : review[n] === "ai_suggestion"
+          ? "AI suggestion"
+          : review[n] === "user_confirmed"
+            ? "User confirmed"
+            : "Awaiting confirmation";
   }
   function updateStatus() {
     for (const n of names) {
@@ -115,6 +126,12 @@ export async function mountFeature(root, ctx) {
       ctx.toast("Choose a non-empty JPG, PNG, WebP, or PDF up to 10 MB.", true);
       return;
     }
+    if (sampleLoaded) {
+      draft = Object.fromEntries(names.map((n) => [n, ""]));
+      review = {};
+      fieldVersions = Object.fromEntries(names.map((n) => [n, 0]));
+      sampleLoaded = false;
+    }
     generation++;
     busy = false;
     if (preview) w.URL.revokeObjectURL(preview);
@@ -123,6 +140,7 @@ export async function mountFeature(root, ctx) {
     analysis = null;
     editing = null;
     confirmed = false;
+    error = "";
     for (const n of names)
       if (review[n] === "ai_suggestion") {
         draft[n] = "";
@@ -130,10 +148,47 @@ export async function mountFeature(root, ctx) {
       }
     render();
   }
-  async function analyse(document = false) {
-    if (!file || busy) return;
+  function fillSample() {
+    if (saving) return;
+    clear();
+    busy = false;
+    sampleLoaded = true;
+    Object.assign(draft, {
+      title: "SAMPLE — PP manufacturing trimmings",
+      company: "ScrapLoop Test Factory (fictional)",
+      material: "PP",
+      grade: "PP-H",
+      condition: "Clean",
+      quantityKg: "1200",
+      pricePerKg: "42",
+      location: "Pune, Maharashtra, India (example location)",
+      notes:
+        "FICTIONAL SAMPLE FOR TESTING ONLY. 12 bags of 100 kg. Supplier-declared grade and condition; no laboratory certification. Not real stock or a live price quote.",
+    });
+    review = Object.fromEntries(
+      names.map((n) => [n, draft[n] === "" ? "unknown" : "sample_value"]),
+    );
+    render();
+    ctx.toast(
+      "Sample fields filled. No model or API call was made; nothing has been saved.",
+    );
+  }
+  async function analyse(document = file?.type === "application/pdf") {
+    if (!file || busy || saving) return;
+    const engineReady = document
+      ? ctx.getData().status.aiConfigured
+      : ctx.getData().status.vision?.available;
+    if (!engineReady) {
+      error = document
+        ? "Configure the server API key and restart the server to analyse PDFs."
+        : "The local image classifier is not installed.";
+      render();
+      return;
+    }
     const token = ++generation,
-      selected = file;
+      selected = file,
+      versions = { ...fieldVersions },
+      overwrite = replaceExisting;
     busy = true;
     error = "";
     render();
@@ -160,7 +215,11 @@ export async function mountFeature(root, ctx) {
       analysis = result;
       for (const n of names) {
         const v = result.suggestions?.[n];
-        if (v != null && (draft[n] === "" || review[n] === "ai_suggestion")) {
+        if (
+          v != null &&
+          fieldVersions[n] === versions[n] &&
+          (overwrite || draft[n] === "" || review[n] === "ai_suggestion")
+        ) {
           draft[n] = v;
           review[n] = "ai_suggestion";
         }
@@ -266,6 +325,7 @@ export async function mountFeature(root, ctx) {
         if (el.name === "confirmed") confirmed = el.checked;
         else if (names.includes(el.name)) {
           draft[el.name] = el.value;
+          fieldVersions[el.name]++;
           review[el.name] = el.value === "" ? "unknown" : "user_confirmed";
           confirmed = false;
           root.querySelector('[name="confirmed"]').checked = false;
@@ -287,6 +347,8 @@ export async function mountFeature(root, ctx) {
     "change",
     (e) => {
       if (e.target.id === "analysis-file") accept(e.target.files[0]);
+      if (e.target.id === "replace-existing")
+        replaceExisting = e.target.checked;
       if (e.target.name === "confirmed") confirmed = e.target.checked;
       if (e.target.id === "review-queue") {
         reviewQueue = e.target.checked;
@@ -333,14 +395,9 @@ export async function mountFeature(root, ctx) {
         busy = false;
         render();
       }
-      if (action === "analyse") analyse();
-      if (
-        action === "document" &&
-        w.confirm(
-          "This document analysis calls your configured paid API provider. Continue?",
-        )
-      )
-        analyse(true);
+      if (action === "analyse" || action === "autofill") analyse();
+      if (action === "document") analyse(true);
+      if (action === "sample") fillSample();
       if (action === "edit") edit(button.dataset.id);
       if (action === "delete") {
         deleteId = button.dataset.id;

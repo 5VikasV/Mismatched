@@ -6,27 +6,16 @@ test("evidence replaces setup, calculates bounded scenarios without export contr
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/workspace#sources");
   await expect(page).toHaveURL(/#evidence$/);
-  await expect(page.locator(".evidence-case")).toHaveCount(6);
-  const vapi = page.locator('[data-case="vapi-ambuja"]');
-  const sludge = page.locator('[data-case="hi-tech-carbon"]');
-  await expect(page.locator(".evidence-case").first()).toHaveAttribute(
-    "data-case",
-    "vapi-ambuja",
-  );
-  await expect(vapi).toContainText("15,341.09");
-  await expect(vapi).toContainText(
-    "30,873 tonnes dispatched from Vapi paper mills collectively",
-  );
-  await expect(vapi).toContainText("154,018");
-  await expect(vapi.locator("a")).toHaveCount(2);
-  await vapi.locator("summary").click();
-  await expect(vapi.locator("details")).toContainText(
-    "Payment terms and buyer purchase savings are unpublished",
-  );
-  await expect(sludge).toContainText("₹1,250 / tonne");
-  await expect(sludge).toContainText("₹167 / tonne");
-  await expect(sludge).toContainText("425.330");
-  await expect(sludge).toContainText("₹9.58 lakh reported annual");
+  await expect(page.locator('.evidence-case')).toHaveCount(6);
+  await expect(page.locator('.evidence-case').nth(2)).toHaveAttribute('data-case','ntpc-fly-ash');
+  await expect(page.locator('[data-case="ntpc-fly-ash"]')).toContainText('3,834');
+  await expect(page.locator('[data-case="kpcl-raichur"]')).toContainText('₹130 crore proposed');
+  await expect(page.locator('[data-case="mrpl-fact"]')).toContainText('₹20,79,55,974');
+  await expect(page.locator('[data-case="mrpl-fact"]')).toContainText('₹42,26,68,695');
+  await expect(page.locator('[data-case="mahindra-mjunction"]')).toContainText('9,000');
+  await expect(page.getByText('How they got connected',{exact:true})).toHaveCount(4);
+  await page.locator('[data-case="mrpl-fact"] summary').click();
+  await expect(page.locator('[data-case="mrpl-fact"] details')).toContainText('not current quotations');
   await expect(
     page.locator("#evidence-booking, #booking-waterfall"),
   ).toHaveCount(0);
@@ -38,8 +27,7 @@ test("evidence replaces setup, calculates bounded scenarios without export contr
     "Illustrative, not measured",
   );
   await expect(page.locator("#main")).not.toContainText("OPENAI_API_KEY");
-  await expect(page.locator("#main")).toContainText("703,466.12");
-  await expect(page.locator("#main")).toContainText("ZAR 270,000");
+  await expect(page.locator("#main")).not.toContainText("ZAR 270,000");
   await page.locator("#load-benchmark").click();
   await expect(page.locator("#emissions-result")).toContainText("83.04");
   await expect(page.locator("#emissions-result")).toContainText("27%");

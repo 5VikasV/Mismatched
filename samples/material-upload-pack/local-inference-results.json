@@ -1,0 +1,59 @@
+{
+  "note": "Upload smoke check only, not an accuracy benchmark. First five are first held-out entries for each class in the existing manifest. The additional bottle was chosen visually before inference. No training or threshold changes. Model scores are not quality measurements or calibrated probabilities. No paid API used; grade, condition, weight and price remain unverified. All predictions require human review, including those above threshold.",
+  "results": [
+    {
+      "photo": "ScrapLoop_Plastic_Sample.jpg",
+      "datasetLabel": "plastic",
+      "predictedCategory": "paper",
+      "matchesDatasetLabel": false,
+      "modelScore": 0.48638,
+      "needsReview": true,
+      "modelVersion": "mobilenet-v3-small-ccfdec34327b"
+    },
+    {
+      "photo": "ScrapLoop_Metal_Sample.jpg",
+      "datasetLabel": "metal",
+      "predictedCategory": "metal",
+      "matchesDatasetLabel": true,
+      "modelScore": 0.99508,
+      "needsReview": false,
+      "modelVersion": "mobilenet-v3-small-ccfdec34327b"
+    },
+    {
+      "photo": "ScrapLoop_Glass_Sample.jpg",
+      "datasetLabel": "glass",
+      "predictedCategory": "glass",
+      "matchesDatasetLabel": true,
+      "modelScore": 0.982404,
+      "needsReview": false,
+      "modelVersion": "mobilenet-v3-small-ccfdec34327b"
+    },
+    {
+      "photo": "ScrapLoop_Cardboard_Sample.jpg",
+      "datasetLabel": "cardboard",
+      "predictedCategory": "cardboard",
+      "matchesDatasetLabel": true,
+      "modelScore": 0.914762,
+      "needsReview": false,
+      "modelVersion": "mobilenet-v3-small-ccfdec34327b"
+    },
+    {
+      "photo": "ScrapLoop_Paper_Sample.jpg",
+      "datasetLabel": "paper",
+      "predictedCategory": "paper",
+      "matchesDatasetLabel": true,
+      "modelScore": 0.858225,
+      "needsReview": false,
+      "modelVersion": "mobilenet-v3-small-ccfdec34327b"
+    },
+    {
+      "photo": "ScrapLoop_Plastic_Bottles_Sample.jpg",
+      "datasetLabel": "plastic",
+      "predictedCategory": "plastic",
+      "matchesDatasetLabel": true,
+      "modelScore": 0.998712,
+      "needsReview": false,
+      "modelVersion": "mobilenet-v3-small-ccfdec34327b"
+    }
+  ]
+}

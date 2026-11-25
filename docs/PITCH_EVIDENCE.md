@@ -5,7 +5,7 @@ Reviewed 25 November 2026. Open `/workspace#evidence` for case studies, calculat
 ## Three types of evidence
 
 1. **Published precedent:** another organisation’s reported outcomes, clearly dated and attributed. Never count them as ScrapLoop results.
-2. **Project measurement:** read `reports/model/latest.json`. MobileNetV3 Small / ImageNet transfer learning, TrashNet fine-tuning; 1,778 train / 367 validation / 376 test images. Rounded held-out accuracy 89.1%, macro-F1 86.6%. Six household-object categories; industrial quality, purity, hazardous status, weight and price are not validated. Dataset labels are not factory expert labels.
+2. **Project measurement:** read `reports/model/latest.json`. MobileNetV3 Small / ImageNet transfer learning, TrashNet fine-tuning; 1,778 train / 367 validation / 376 test images. Rounded held-out accuracy 90.2%, macro-F1 88.5% after validation-selected full-backbone fine-tuning; prior model 89.1% / 86.6%. Same previously reported test split reused, not a fresh external benchmark. Six household-object categories; industrial quality, purity, hazardous status, weight and price are not validated. Dataset labels are not factory expert labels.
 3. **Conditional projection:** user-supplied waste mass, adoption, successful recovery, orders and costs. No confirmed delivery or collected revenue is implied. Do not multiply classifier accuracy by climate savings.
 
 ## Real industrial precedents
@@ -60,3 +60,9 @@ Rubber, e-waste, mixed/unknown, industrial metal grades, paper, cardboard, texti
 Collect accepted-delivery weighbridge records; buyer quality checks; baseline disposal records and costs; dated virgin-material quotes; invoices and payment receipts; freight bills, route distances, vehicle/fuel/load; actual rejects and recovery yields; platform fee collections, customer acquisition/operating costs, repeat orders and cancellation rate. Do not count overlapping pending requests as delivered volume. Hazardous status and permitted treatment need independent documentation; category recognition is not authorisation.
 
 Show buyers verified delivered-cost savings and dependable specifications; sellers net proceeds and avoided disposal cost; platform backers collected commissions, contribution and repeat demand; environmental teams verified mass and comparable published-factor boundaries. Do not assert blanket “25–40% cheaper”, “80% less transport emissions”, a universal pollution percentage or completed transactions without pilot evidence.
+
+## Overview market-card estimates
+
+The three overview cards reproduce user-supplied reference values: 5.16 MMT monthly industrial waste, ₹14,200 crore delivered-cost opportunity with 34.2% assumed savings, and 1,850+ recovery/compounder plants. These figures have not been verified as industrial-market statistics. Their cards are labelled illustrative; they are not workspace facility counts, completed deals, registered recipient checks or realised savings. The ₹14,200 crore estimate has no established time basis or methodology here.
+
+The historical roughly 62 million tonnes/year figure is **municipal solid waste**, not a verified national industrial-waste stream; it must not support an industrial-waste attribution to CPCB. See [CPCB-hosted NGT order, 28 May 2020](https://www.cpcb.gov.in/NGT/ngt_order_28-05-2020.pdf). Actual facility records and source coverage remain in the directory and overview source panel.

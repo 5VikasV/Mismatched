@@ -132,86 +132,120 @@ export const CASES = [
       "https://www.cms.adityabirla.com/uploads/Abg_hi_tech_carbon_Machinist_c0ffdb5e50.pdf",
     publisher: "Aditya Birla Group · The Machinist, February 2015, pages 24–25",
   },
+
   {
-    id: "ntpc",
-    region: "INDIA",
-    period: "FY 2024–25 · report as at 31 Oct 2025",
-    title: "Crop residue has an industrial buyer.",
-    from: "Agricultural residue",
-    material: "Processed biomass",
-    to: "NTPC power stations",
-    figures: ["703,466.12 metric tonnes consumed", "FY 2024–25"],
-    story:
-      "NTPC links crop-residue burning in Punjab and Haryana with air pollution, while reporting substantial biomass consumption for co-firing.",
-    limit:
-      "Evidence of demand for processed biomass. Raw straw still needs processing and buyer specifications. No actual purchase expenditure is disclosed here; this does not identify a paired supplier that burned a particular purchased surplus lot.",
-    source:
-      "https://ntpc.co.in/sites/default/files/2025-12/ESG%20PPT%20NTPC%2031.10.2025_R1.pdf",
-    publisher: "NTPC · ESG presentation, page 17",
-  },
-  {
-    id: "banners",
-    region: "SOUTH AFRICA",
-    period: "2018 case study · connection established 2015",
-    title: "Discarded banners replace new fabric.",
-    from: "Scan Display",
-    material: "Polytwirl banners",
-    to: "Sealand Gear",
-    figures: [
-      "2 tonnes reused / year",
-      "ZAR 270,000 buyer savings / year",
-      "ZAR 900 disposal savings / year",
+    "id": "ntpc-fly-ash",
+    "region": "INDIA · UTTAR PRADESH → ASSAM / ACC PLANTS",
+    "period": "Historic shipment · FY 2019–20 utilisation · ASH TRACK launch February 2018",
+    "title": "NTPC fly ash becomes a cement input.",
+    "from": "NTPC · Rihand power plant",
+    "material": "Conditioned fly ash",
+    "to": "Dalmia Cement (Bharat), Nagaon · ACC plants",
+    "figures": [
+      "3,834 tonnes sent to Dalmia Cement (Bharat), Nagaon, Assam",
+      "44.33 million tonnes reportedly utilised productively in FY 2019–20 (overall figure, not this shipment)",
+      "ASH TRACK launched February 2018 · 100 km / 300 km search radii",
+      "63% utilisation reported at ASH TRACK launch · 100% target"
     ],
-    story:
-      "Used event banners became bag-making inputs, replacing Sealand Gear’s purchases of new polytwirl.",
-    limit:
-      "Historical estimates reported by GreenCape, in South African rand. Not current prices, guaranteed savings or ScrapLoop transactions.",
-    source:
-      "https://www.greencape.co.za/assets/Uploads/GC3-20181005-WISPCaseStudy-BannerstoBags-Web.pdf",
-    publisher: "GreenCape · Banners to Bags, Case Study 011",
+    "story": "Earlier railway rakes went to ACC plants at Tikaria (Uttar Pradesh), Kymore (Madhya Pradesh) and Ropar (Punjab). Fly ash is a by-product of coal-fired power generation.",
+    "connection": "NTPC arranged cement-maker tie-ups and used Indian Railways. ASH TRACK provides a separate government interface between plants and ash users: users can apply online, with SMS notifications to the applicant and plant. This does not establish that ASH TRACK arranged this particular shipment.",
+    "limit": "Historical figures from the supplied research, not current availability. The 44.33 million-tonne figure is not the Rihand–Dalmia shipment volume. No public fly-ash price is given. ASH TRACK launch figures describe 2018, not present utilisation. These records do not prove a specific dumped batch was later purchased.",
+    "source": "https://www.constructionworld.in/gold/cement-news/ntpc-starts-finding-buyers-for-its-fly-ash-in-cement-firms/24469",
+    "publisher": "Construction World · NTPC fly-ash supply report",
+    "references": [
+      {
+        "url": "https://www.pib.gov.in/PressReleasePage.aspx?PRID=1520080&lang=2&reg=48",
+        "label": "Ministry of Power / PIB · ASH TRACK launch, 9 February 2018"
+      }
+    ]
   },
   {
-    id: "utilities",
-    region: "UNITED KINGDOM",
-    period:
-      "Completed example in a 13-month capital-delivery study · publication date not stated",
-    title: "Unused construction stock finds its next site.",
-    from: "United Utilities project resources",
-    material: "Ducts, fencing, manhole rings",
-    to: "Mere Brow WWTP / Station Road",
-    figures: [
-      "£22,796 avoided purchases",
-      "30 tonnes landfill avoided",
-      "97 tonnes CO₂ avoided (reported)",
+    "id": "kpcl-raichur",
+    "region": "INDIA · RAICHUR, KARNATAKA",
+    "period": "Agreement reported 11 September 2006 · historical lifting and generation figures",
+    "title": "Raichur fly ash connects power generation to cement.",
+    "from": "Karnataka Power Corporation · Raichur Thermal Power Station",
+    "material": "Fly ash",
+    "to": "ACC Shahabad · ARV Cooperative Society (ACC, Rajashree, Vasavadatta)",
+    "figures": [
+      "₹130 crore proposed silo and rail-link project, funded by the cement companies",
+      "93 companies permitted to lift fly ash (historical report)",
+      "100–200 tonnes per company; allocation period unspecified",
+      "About 1.5 million tonnes generated annually (older Wikipedia figure)"
     ],
-    story:
-      "The facilitator reports a completed exchange of unused construction resources between project needs.",
-    limit:
-      "Operator-reported case, not independently audited by ScrapLoop. These completed-example results are separate from the larger programme’s potential savings.",
-    source:
-      "https://international-synergies.com/project/water-sector-innovation/",
-    publisher: "International Synergies · Water-sector innovation",
+    "story": "The cement companies use ash for pozzolana cement. Other users make bricks, tiles and paving slabs. The proposed infrastructure covered vacuum silos and a link to the Chennai–Mumbai railway line.",
+    "connection": "A signed KPCL–cement-company agreement, followed by permissions and an auction reported once every three years for other users. Factory trucks collect the ash from the power station.",
+    "limit": "The agreement is from 2006. ₹130 crore is a proposed project cost, not proven completed expenditure or procurement savings. The annual generation estimate is an older Wikipedia figure in the supplied document; it is not current measured output. Do not annualise the 100–200 tonne allocation without a stated period. The research gives no current fly-ash price; check the latest CEA report before using these figures as current pitch data.",
+    "source": "https://www.cemnet.com/News/story/140796/power-plant-signs-agreement-with-cement-companies.html",
+    "publisher": "CemNet · Power plant agreement, 11 September 2006",
+    "references": [
+      {
+        "url": "https://www.deccanherald.com/india/karnataka/fly-ash-residue-turns-revenue-703686.html",
+        "label": "Deccan Herald · Fly ash residue turns revenue source for RTPS"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/Raichur_Thermal_Power_Station",
+        "label": "Wikipedia · older generation estimate referenced in supplied research"
+      }
+    ]
   },
   {
-    id: "kalundborg",
-    region: "DENMARK",
-    period: "Historical collaboration · now ceased",
-    title: "A refinery’s wasted gas dried plasterboard.",
-    from: "Kalundborg refinery / Asnæs",
-    material: "Surplus gas / industrial gypsum",
-    to: "Saint-Gobain Gyproc",
-    figures: [
-      "Formerly wasted refinery gas reused",
-      "Industrial gypsum replaced natural gypsum",
+    "id": "mrpl-fact",
+    "region": "INDIA · MANGALORE, KARNATAKA → KERALA",
+    "period": "Purchase orders: August 2022 / April 2023 · separate price reference: 16 March 2020",
+    "title": "Refinery sulphur supplies fertiliser manufacturing.",
+    "from": "Mangalore Refinery and Petrochemicals Ltd (MRPL)",
+    "material": "Sulphur recovered from crude-oil refining",
+    "to": "Fertilisers and Chemicals Travancore (FACT)",
+    "figures": [
+      "₹20,79,55,974 sulphur purchase order · August 2022 (about ₹20.8 crore)",
+      "₹42,26,68,695 sulphur purchase order · April 2023 (about ₹42.3 crore)",
+      "₹5,900 / tonne molten or pellet sulphur · 16 March 2020 price reference",
+      "₹5,400 / tonne lump sulphur · 16 March 2020 price reference; prices exclude 5% GST"
     ],
-    story:
-      "Gyproc used refinery gas for drying and power-station gypsum in production.",
-    limit:
-      "The operator says both collaborations ceased after operational changes. No quantified purchase savings are supplied. A historical precedent, not an available listing.",
-    source: "https://www.symbiosis.dk/en/saint-gobain-gyproc/",
-    publisher: "Kalundborg Symbiosis · Gyproc partner history",
+    "story": "FACT’s published nominated-purchase lists identify MRPL as the sulphur supplier. MRPL also describes itself as India’s largest exporter of ATF, fuel oil and sulphur in the supplied research.",
+    "connection": "Direct nominated procurement between two public-sector companies. The April 2023 purchase list explicitly refers to a long-term agreement with MRPL; this was not an online-marketplace match.",
+    "limit": "Order values are published purchase commitments, not evidence of completed deliveries, payment or savings. The 2020 price references are historical figures reproduced from the supplied document, not current quotations or the prices of the 2022/2023 orders. Do not divide these order values by the old rates to infer tonnage. Sulphur is a refinery by-product; the records do not establish dumping of this material.",
+    "source": "https://fact.co.in/images/upload/Nominated-Purchase_August-2022_628.pdf",
+    "publisher": "FACT · Nominated purchase orders, August 2022",
+    "references": [
+      {
+        "url": "https://fact.co.in/images/upload/Nominated-Purchase_April_2023_979.pdf",
+        "label": "FACT · April 2023 purchase order and long-term agreement"
+      },
+      {
+        "url": "https://www.mrpl.co.in/",
+        "label": "MRPL · official website (2020 price reference documented in supplied research)"
+      }
+    ]
   },
+  {
+    "id": "mahindra-mjunction",
+    "region": "INDIA · BUYERS FROM SEVEN STATES",
+    "period": "FY 2019 · historical e-auction case",
+    "title": "Mahindra component makers sell steel scrap online.",
+    "from": "12 Mahindra & Mahindra auto-component manufacturers",
+    "material": "Automotive steel scrap",
+    "to": "Steel scrap buyers across seven states · winning buyers unnamed",
+    "figures": [
+      "Over 9,000 tonnes of scrap sold in FY 2019",
+      "12 M&M component manufacturers",
+      "Buyers participated from 7 states"
+    ],
+    "story": "Participants came from Gujarat, Haryana, Madhya Pradesh, Maharashtra, Punjab, Uttar Pradesh and Uttarakhand. The operator reported market-price discovery and higher realisations than offline selling, without publishing a percentage increase.",
+    "connection": "mjunction moved the sale from offline dealing to B2B e-auctions. It researched buyers, provided pan-India exposure and buyer training, and supports payment and material lifting. The platform is promoted jointly by SAIL and Tata Steel.",
+    "limit": "The winning buyer companies are not named publicly. This demonstrates the connection method and historical auction volume, not that these suppliers dumped this scrap. Platform-wide buyer counts and the separate KPTL case are not M&M auction results; no savings percentage or purchase price is supplied.",
+    "source": "https://www.mjunction.in/mjunction-conducts-e-auction-of-auto-scrap-for-mm%20/",
+    "publisher": "mjunction · operator’s M&M e-auction release, May 2019",
+    "references": [
+      {
+        "url": "https://www.autocarpro.in/news-national/mjunction-sells-9-000-tonnes-of-mahindras-automotive-steel-scrap-42936?amp=1",
+        "label": "Autocar Professional · M&M scrap-auction report, 8 May 2019"
+      }
+    ]
+  }
 ];
+
 export function evidenceRegistry() {
   return {
     reviewedAt: REVIEWED_AT,

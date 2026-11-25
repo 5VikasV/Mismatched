@@ -84,13 +84,18 @@ test("redesigned navigation, feature layouts and real summary work at each width
     await expect(page.locator("#sidebar")).not.toHaveClass(/open/);
   } else {
     await expect(page.locator("[data-nav=directory]")).toBeVisible();
+    await expect(page.locator("#sidebar .nav-link")).toHaveCount(9);
+    expect(await page.locator("#sidebar").evaluate(element => element.scrollWidth <= element.clientWidth + 1)).toBe(true);
   }
   for (const route of [
     "overview",
     "directory",
     "analysis",
     "planner",
+    "bookings",
     "results",
+    "impact",
+    "loop",
     "sources",
   ]) {
     await page.goto("/workspace#" + route);

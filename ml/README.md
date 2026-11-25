@@ -8,6 +8,7 @@ python3 -m venv .venv
 .venv/bin/python ml/prepare.py
 .venv/bin/python -m unittest discover -s ml -p 'test_*.py'
 .venv/bin/python ml/train.py
+.venv/bin/python ml/improve.py
 npm run dev
 ```
 
@@ -26,3 +27,7 @@ A release candidate needs validation macro-F1 >= .80, every class recall >= .70,
 Actual weights and downloads stay in ignored `ml/artifacts/`, `ml/data/`, `ml/cache/`. The committed `ml/manifest.json` and `reports/model/latest.json` reproduce dataset membership and report measured results; a fresh clone must train/download a model locally before classification becomes available. The results page remains accessible without a checkpoint and clearly distinguishes installation status from past reports.
 
 To re-evaluate the installed checkpoint on the locked test split without training, run `.venv/bin/python ml/evaluate.py`. This prints metrics without selecting a new checkpoint, changing thresholds, or overwriting the original report. Do not use repeat test results to tune hyperparameters; use validation for development.
+
+To fine-tune an already installed MobileNetV3 Small checkpoint, run `npm run ml:improve`. This preserves the original manifest and starts from the installed weights. It trains all feature blocks with a smaller backbone learning rate, frozen batch-normalization statistics, label smoothing, modest crop/rotation/flip/colour augmentation, gradient clipping and a cosine learning-rate schedule. Training is CPU-only with four threads, up to 24 epochs and seven-epoch early stopping. Selection uses validation macro-F1; the acceptance threshold also comes from validation. The test loader is opened once after those choices are fixed. A candidate must improve validation macro-F1 and pass the existing class-recall and acceptance gates to replace the installed model; its test result does not determine selection.
+
+Every improvement run backs up the previous weights, metadata and report under ignored `ml/artifacts/runs/`. A promoted model archives the old public report under `reports/model/archive/` and updates `reports/model/latest.json`. The website reads the current report and shows the previous model alongside the new result. Restart an already running server after installing new weights so its persistent Python worker loads the new checkpoint. The same previously reported test split is reused: this comparison is not a fresh independent benchmark and does not validate industrial grades or contamination. Do not tune training to the published sample-photo failures.

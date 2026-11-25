@@ -97,7 +97,6 @@ async function refreshData(renderPage = true) {
     state.loaded = true;
   }
   document.body.dataset.ready = "true";
-  updateShellStatus();
   if (renderPage) render();
   else if (state.error) throw new Error(state.error);
   return state;
@@ -124,11 +123,6 @@ function navigate(route) {
   else location.hash = route;
   closeMenu();
 }
-function updateShellStatus() {
-  const el = document.getElementById("connection-status");
-  if (el)
-    el.textContent = state.error ? "Connection unavailable" : "Local workspace";
-}
 function heading(label, title, description, actions = "") {
   return `<div class="page-heading"><div><div class="eyebrow">${label}</div><h1 class="page-title">${title}</h1><p class="page-subtitle">${description}</p></div><div class="heading-actions">${actions}</div></div>`;
 }
@@ -137,7 +131,7 @@ function importButton() {
 }
 function mountShell() {
   document.getElementById("app").innerHTML = `<div class="app-shell">
-    <header class="desk-masthead"><a class="brand" href="/" aria-label="ScrapLoop home"><svg viewBox="0 0 28 28" class="brand-mark" aria-hidden="true"><path d="M5 8h13l-3-3m8 15H10l3 3M18 8a8 8 0 0 1 4 12M10 20a8 8 0 0 1-4-12"/></svg><span>SCRAPLOOP<span class="brand-caption">THE MATERIAL DESK</span></span></a><div class="masthead-note"><span class="status-dot"></span><span id="connection-status">Local workspace</span><span class="masthead-divider">/</span><span>Saved on this computer</span></div><div class="masthead-actions"><button class="finder-trigger" data-action="finder" aria-label="Search workspace" title="Find anything (Ctrl+K)" aria-haspopup="dialog">${icon("search")}<span>Find anything</span><kbd>⌘ / Ctrl K</kbd></button><a class="btn btn-primary quick-add" href="#analysis">+ <span>Add material</span></a><button type="button" class="icon-btn mobile-menu-btn" data-action="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">${icon("menu")}</button></div></header>
+    <header class="desk-masthead"><a class="brand" href="/" aria-label="ScrapLoop home"><svg viewBox="0 0 28 28" class="brand-mark" aria-hidden="true"><path d="M5 8h13l-3-3m8 15H10l3 3M18 8a8 8 0 0 1 4 12M10 20a8 8 0 0 1-4-12"/></svg><span>SCRAPLOOP<span class="brand-caption">MATERIAL WORKBENCH</span></span></a><span class="masthead-purpose">Industrial materials.<br>Connected possibilities.</span><div class="masthead-actions"><button class="finder-trigger" data-action="finder" aria-label="Search workspace" title="Find anything (Ctrl+K)" aria-haspopup="dialog">${icon("search")}<span>Find anything</span><kbd>⌘ / Ctrl K</kbd></button><a class="btn btn-primary quick-add" href="#analysis">+ <span>Add material</span></a><button type="button" class="icon-btn mobile-menu-btn" data-action="menu" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false">${icon("menu")}</button></div></header>
     <div class="desk-navigation" id="sidebar"><nav aria-label="Main navigation">${nav.map(([id, i, label], index) => `<a class="nav-link" href="#${id}" data-nav="${id}"><span class="nav-number">0${index + 1}</span><span>${label}</span>${icon(i)}</a>`).join("")}</nav><a class="desk-home" href="/">Landing page ↗</a></div><div class="sidebar-overlay" data-action="close-menu"></div>
     <div class="workspace"><div class="desk-location"><div class="breadcrumbs"><span>WORKSPACE</span><span>/</span><strong id="breadcrumb">Overview</strong></div><span class="workspace-label">INDUSTRIAL MATERIAL REUSE</span></div><main id="main" class="main-content" tabindex="-1"></main><footer class="workspace-footer"><a href="/">SCRAPLOOP<span> / TEAM MISMATCHED</span></a><span>From evidence to a better use.</span><a href="#evidence">Evidence & numbers ↗</a></footer></div></div>
     <dialog class="finder-dialog" id="workspace-finder" aria-labelledby="finder-title"><div class="finder-header"><label id="finder-title" for="finder-input">Find a page, facility or material</label><button class="icon-btn" data-action="close-finder" aria-label="Close search">${icon("close")}</button></div><input class="input" id="finder-input" type="search" placeholder="Try ‘analysis’, ‘Pune’ or a saved material…" autocomplete="off"><div id="finder-results" class="finder-results" aria-live="polite"></div><p class="finder-hint">Tab to a result · Enter to open · Esc to close</p></dialog>`;
@@ -315,18 +309,31 @@ function overview() {
       ),
     )
     .slice(0, 4);
-  return `<section class="desk-hero"><div class="hero-copy"><div class="eyebrow"><span class="orange-rule"></span>THE NEXT LIFE STARTS HERE</div><h1>Less waste.<br><em>More possibility.</em></h1><p>Your desk for finding facilities, understanding materials and making the numbers work.</p><div class="hero-actions">${next}<a class="text-link" href="#directory">Explore the directory ↗</a></div><div class="hero-footnote"><span class="status-dot"></span>${ready ? "Local image classifier ready" : "Manual review available · classifier not installed"}</div></div><section class="loop-exhibit" data-material-loop aria-label="Interactive 3D material reuse loop"><div class="loop-stage"><img class="loop-poster" src="/assets/3d/material-loop-poster.webp" alt="Miniature factory encircled by a conveyor carrying copper coils, polymer offcuts and cardboard"><model-viewer src="/assets/3d/material-loop.glb" alt="A 3D factory with material lots circulating on a conveyor. Drag to rotate." camera-controls touch-action="pan-y" disable-zoom disable-pan camera-orbit="35deg 57deg 10.7m" min-camera-orbit="auto 25deg auto" max-camera-orbit="auto 85deg auto" camera-target="0m 1m 0m" field-of-view="33deg" shadow-intensity="1" shadow-softness=".8" exposure="1.15" environment-image="neutral" interaction-prompt="none" loading="eager" reveal="auto"></model-viewer></div><span class="sr-only" data-loop-status role="status">Loading the material loop</span></section></section>
-  <section class="metric-strip desk-metrics" aria-label="Workspace summary">${[
-    [state.facilities.length, "Public facility records"],
-    [states.size, "States represented"],
-    [state.records.length, "Reviewed material records"],
-    [ready ? "Ready" : "Not installed", "Local classification"],
+  return `<section class="desk-hero"><div class="hero-copy"><div class="eyebrow"><span class="orange-rule"></span>THE NEXT LIFE STARTS HERE</div><h1>Less waste.<br><em>More possibility.</em></h1><p>Identify what’s left. Find where it fits. Bring compatible materials together and make the full cost clear.</p><div class="hero-actions">${next}<a class="text-link" href="#directory">Explore the directory ↗</a></div><div class="hero-footnote"><span class="status-dot"></span>${ready ? "Local image classifier ready" : "Manual review available · classifier not installed"}</div></div><section class="loop-exhibit" data-material-loop aria-label="Interactive 3D material reuse loop"><div class="loop-stage"><img class="loop-poster" src="/assets/3d/material-loop-poster.webp" alt="Miniature factory encircled by a conveyor carrying copper coils, polymer offcuts and cardboard"><model-viewer src="/assets/3d/material-loop.glb" alt="A 3D factory with material lots circulating on a conveyor. Drag to rotate." camera-controls touch-action="pan-y" disable-zoom disable-pan camera-orbit="35deg 57deg 10.7m" min-camera-orbit="auto 25deg auto" max-camera-orbit="auto 85deg auto" camera-target="0m 1m 0m" field-of-view="33deg" shadow-intensity="1" shadow-softness=".8" exposure="1.15" environment-image="neutral" interaction-prompt="none" loading="eager" reveal="auto"></model-viewer></div><span class="sr-only" data-loop-status role="status">Loading the material loop</span><div class="sculpture-caption">MATERIALS IN MOTION · DRAG TO EXPLORE</div></section></section>
+  <section class="market-context" aria-labelledby="market-context-title"><div class="eyebrow" id="market-context-title">MARKET OPPORTUNITY · ILLUSTRATIVE ESTIMATES</div><div class="market-cards">${[
+    [
+      "All-India monthly industrial waste",
+      "5.16 MMT",
+      "Monthly estimate · industrial total unverified",
+    ],
+    [
+      "All-India delivered cost arbitrage",
+      "₹14,200 Cr",
+      "34.2% assumed raw-material saving",
+    ],
+    [
+      "Recovery & compounder hubs",
+      "1,850+ Plants",
+      "GIDC, MIDC, SIPCOT, RIICO & NCR belts",
+    ],
   ]
     .map(
-      ([v, l], i) =>
-        `<div class="metric"><span class="metric-index">0${i + 1} /</span><strong>${esc(v)}</strong><span>${l}</span></div>`,
+      ([label, value, note]) =>
+        `<article class="market-stat"><h2>${esc(label)}</h2><strong>${esc(value)}</strong><p>${esc(note)}</p></article>`,
     )
-    .join("")}</section>
+    .join(
+      "",
+    )}</div><p class="market-context-note">Illustrative market estimates, not verified industry totals, registered-facility counts or realised platform savings.</p></section>
   <section class="desk-workflow"><div class="section-heading"><div><div class="eyebrow">A PRACTICAL WORKFLOW</div><h2>Build your local loop.</h2></div><span class="section-note">Three steps. Your evidence at every stage.</span></div><div class="workflow-links">${[
     [
       "directory",

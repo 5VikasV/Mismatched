@@ -17,7 +17,7 @@ Import the public bundle explicitly using **Import public records**. It currentl
 
 ## Workspace experience
 
-The workspace uses a horizontal material desk with numbered navigation, a responsive mobile menu and a transparent Blender exhibit on Overview. The landing page keeps its existing carousel design.
+The workspace uses an ink-dark masthead, a floating nine-tool navigation dock on laptops, a compact navigation grid on tablets and a mobile menu sheet. Shared forms, material records, directory views, cost summaries and evidence pages use the same workbench styling in `dist/workbench.css`. Long planner summaries scroll above the dock. The transparent Blender exhibit remains on Overview; the landing page keeps its existing design. This workspace preview is local and uncommitted.
 
 - **Find anything** (Ctrl+K / Cmd+K) searches pages, imported facilities, saved material records and booking requests. Opening a result applies its search to the real feature page. Closing the finder preserves the current form draft.
 - **Overview** shows actual counts, recent reviewed records, source coverage and workflow entry points.
@@ -36,6 +36,7 @@ python3 -m venv .venv
 .venv/bin/pip install -r ml/requirements.txt
 npm run ml:prepare
 npm run ml:train
+npm run ml:improve
 npm run dev
 ```
 
@@ -43,7 +44,7 @@ Training/inference do not require an OpenAI key, API payments, or a GPU. Inferen
 
 The specialist is MobileNetV3 Small, initialized from ImageNet weights and trained for six categories: **cardboard, glass, metal, paper, plastic, other**. Preparation verifies the original author's resized TrashNet archive, removes exact duplicates, quarantines 3 conflicting-label pixel groups, and groups near duplicates before splitting. This run used 2,521 retained images: 1,778 training, 367 validation, 376 held-out test. Labels are dataset-provided, not expert-confirmed factory labels.
 
-Measured held-out test accuracy: **89.1%**; macro-F1: **86.6%**. The weakest test class is `other`, with **61.9% recall**. Training took approximately 119 seconds on this computer. See **Model results** in the website or [the actual report](reports/model/latest.json) for the baseline, validation selection, confidence threshold, confusion matrix, class metrics and mistakes. Timing is machine-specific. Repeated training may differ across hardware/library versions.
+Measured held-out test accuracy: **90.2%**, up from **89.1%**; macro-F1: **88.5%**, up from **86.6%**. The lowest test recall is `plastic` at **82.4%**. Full-backbone fine-tuning took approximately 536 seconds on this computer and selected epoch 14 using validation macro-F1. The same previously reported 376-image test split was reused after checkpoint and threshold selection; this is not a new independent benchmark. See **Model results** in the website or [the actual report](reports/model/latest.json) for the prior-model comparison, confidence threshold, confusion matrix, class metrics and mistakes. The previous report is preserved in [the report archive](reports/model/archive/mobilenet-v3-small-ccfdec34327b.json). Timing is machine-specific. Repeated training may differ across hardware/library versions.
 
 These results describe TrashNet's mostly isolated household objects. They do not establish performance on factory scrap piles, mixed loads, unseen categories, or contamination. TACO remains a separate candidate pending per-image permissions and category mapping. ZeroWaste is noncommercial research-only and excluded from this model. Photos, checkpoints and caches stay out of Git; the reproducible manifest and compact report are committed.
 
@@ -56,11 +57,11 @@ These results describe TrashNet's mostly isolated household objects. They do not
 
 A record field can be an AI suggestion, user-confirmed or unknown. User confirmation is not expert certification. The photo/document review queue identifies records awaiting future expert review; no AI prediction is presented as expert ground truth. Original uploads are processed transiently, not retained. Only suggestions, filenames, evidence and reviewed record fields are stored.
 
-PDFs can be selected for manual review. The existing optional paid document extraction remains available only when a server key is configured and the user explicitly chooses it. Configure a private `.env` from `.env.example` using `OPENAI_API_KEY` and optionally `OPENAI_MODEL`, then restart. Never commit `.env`. The key stays server-side. No paid provider calls were made during this implementation; automated provider checks use mocks.
+PDFs use the same **Analyse** button when a server key is configured: it sends the selected PDF to the document API and autofills supported fields with evidence. Uploading alone makes no API call. **Fill from uploaded file** runs the same analysis from the review panel; **Fill sample data** loads a clearly labelled fictional example without saving or calling either engine. Replacement of existing values can be turned off, and edits made during analysis are preserved. For photos, **Analyse** uses local ML; optional **Read photo text with AI** explicitly invokes the provider to extract readable document fields. Review and confirmation are required before saving. Configure a private `.env` from `.env.example` using `OPENAI_API_KEY` and optionally `OPENAI_MODEL`, then restart. Never commit `.env`. The key stays server-side. No paid provider calls were made during this implementation; automated provider checks use mocks.
 
 ## Pool planner
 
-Enter material, confirmed grade, exact required quantity in kg or metric tonnes, and a comparison rate. Commission is fixed at 5%, 4% or 3% by total material value, split 70:30 between buyer and sellers. Set a vehicle provider, payer and proposed cost for every contributing pickup. Choose individual records or **Select eligible**. Only confirmed clean records with matching material/grade and positive known quantities/prices contribute; exclusions are explained. An ML prediction of `plastic` does not establish PP or HDPE compatibility.
+Enter material, exact required quantity in kg or metric tonnes, and a comparison rate. The pool grade is read automatically from reviewed lots; the cheapest eligible grade is used initially, and selecting a different-grade lot starts a separate pool. There is no buyer grade input. Commission is fixed at 5%, 4% or 3% by total material value, split 70:30 between buyer and sellers. Set a vehicle provider, payer and proposed cost for every contributing pickup. Choose individual records or **Select eligible**. Only confirmed clean records with matching material/grade and positive known quantities/prices contribute; exclusions are explained. An ML prediction of `plastic` does not establish PP or HDPE compatibility.
 
 The planner uses cheapest-first allocation, partial final lots, six-decimal kg precision and two-decimal currency rounding. It shows shortages and delivered costs; savings appear only for a complete requirement and complete transport decisions. Currency values outside supported precision are rejected. **Export estimate CSV** downloads the exact displayed selection, allocations, costs, calculation timestamp and assumptions, with proper CSV escaping and spreadsheet-formula protection.
 
@@ -98,3 +99,7 @@ The GLB and locally hosted viewer work without Blender installed. The editable s
 ### Evidence for pitches
 
 Open `/workspace#evidence` for published precedents, project measurements, emissions scenarios, commission projections and browser printing. See [Pitch evidence and methodology](docs/PITCH_EVIDENCE.md) for source links, calculation boundaries and pilot proof requirements. Legacy `#sources` links redirect to the evidence page.
+
+### Pool planner when there is no stock
+
+A buyer requirement does not create supplier stock. The planner uses saved, reviewed material records, not public facility listings. Empty workspaces show **Add and save material** plus an optional **Try a fictional test lot** path. A test lot is created only after explicit review and confirmation, is clearly labelled fictional, and can be deleted in Material analysis. Calculate reports missing inputs, missing supply or quantity shortfalls; transport updates are disabled until lots are allocated and report incomplete pickup choices. Failed sample refreshes can be retried without creating duplicate records.

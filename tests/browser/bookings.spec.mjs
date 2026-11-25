@@ -27,9 +27,9 @@ test("tonne pool, fixed commission, per-pickup transport, saved request and canc
   }
   try {
     await page.goto("/workspace#planner");
+    await expect(page.locator("#planner-form [name=grade]")).toHaveCount(0);
     for (const [n, v] of Object.entries({
       material: `PP-${info.project.name}`,
-      grade: "PP-H",
       quantityKg: 10000,
       comparisonPrice: 20,
     }))
@@ -143,7 +143,6 @@ test("a lost save response retries the same booking without a duplicate", async 
     await page.goto("/workspace#planner");
     for (const [name, value] of Object.entries({
       material: title,
-      grade: "PP-H",
       quantityKg: 100,
       comparisonPrice: 80,
     }))

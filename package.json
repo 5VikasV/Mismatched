@@ -10,6 +10,7 @@
     "test:browser": "playwright test",
     "ml:prepare": ".venv/bin/python ml/prepare.py",
     "ml:train": ".venv/bin/python ml/train.py",
+    "ml:improve": ".venv/bin/python ml/improve.py",
     "test:ml": ".venv/bin/python -m unittest discover -s ml -p 'test_*.py'",
     "ml:evaluate": ".venv/bin/python ml/evaluate.py",
     "assets:vendor": "node scripts/copy-viewer.mjs"

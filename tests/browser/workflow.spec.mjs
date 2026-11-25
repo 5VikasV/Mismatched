@@ -14,7 +14,7 @@ test("reviewed records, planning, CSV, sources and measured model results", asyn
   await expect(page.locator("body")).toHaveAttribute("data-ready", "true");
   if ((await (await request.get("/api/status")).json()).facilityCount === 0) {
     await page.locator('[data-action="import"]').first().click();
-    await expect(page.locator(".metric strong").first()).toHaveText("40");
+    await expect(page.locator(".workflow-links")).toContainText("40 records to explore");
   }
   await page.goto("/workspace#directory");
   await expect(page.locator(".facility-row")).toHaveCount(40);
@@ -71,7 +71,6 @@ test("reviewed records, planning, CSV, sources and measured model results", asyn
   await expect(page.locator("#planner-form")).toBeVisible();
   for (const [n, v] of Object.entries({
     material: "PP",
-    grade: "PP-H",
     quantityKg: 100,
     comparisonPrice: 75,
   }))

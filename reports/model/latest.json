@@ -1,7 +1,7 @@
 {
-  "modelVersion": "mobilenet-v3-small-ccfdec34327b",
-  "architecture": "MobileNetV3 Small / ImageNet transfer learning",
-  "createdAt": "2026-11-25T07:22:31Z",
+  "modelVersion": "mobilenet-v3-small-321fe2e3315f",
+  "architecture": "MobileNetV3 Small / ImageNet transfer learning + full-backbone fine-tuning",
+  "createdAt": "2026-11-25T22:56:58Z",
   "status": "release-candidate",
   "classes": [
     "cardboard",
@@ -24,7 +24,7 @@
   },
   "archiveSha256": "c060e8abfe5d6de0578ca15be1ed8ad0794a865d333c3473d53d1d9ad6e38b8c",
   "manifestSha256": "415813a64be7aa6e1c3d56d3366e0d07776015d5c1831d69019043d6989f9ba3",
-  "seed": 42,
+  "seed": 20261126,
   "counts": {
     "train": 1778,
     "validation": 367,
@@ -230,134 +230,36 @@
   },
   "trained": {
     "validation": {
-      "accuracy": 0.885558583106267,
-      "macroF1": 0.8788260561610834,
-      "confusionMatrix": [
-        [
-          53,
-          1,
-          0,
-          5,
-          0,
-          0
-        ],
-        [
-          0,
-          65,
-          6,
-          0,
-          3,
-          0
-        ],
-        [
-          0,
-          4,
-          54,
-          2,
-          1,
-          0
-        ],
-        [
-          5,
-          0,
-          2,
-          74,
-          1,
-          1
-        ],
-        [
-          1,
-          2,
-          2,
-          1,
-          64,
-          0
-        ],
-        [
-          0,
-          0,
-          2,
-          2,
-          1,
-          15
-        ]
-      ],
-      "classes": [
-        {
-          "label": "cardboard",
-          "precision": 0.8983050847457628,
-          "recall": 0.8983050847457628,
-          "f1": 0.8983050847457628,
-          "count": 59
-        },
-        {
-          "label": "glass",
-          "precision": 0.9027777777777778,
-          "recall": 0.8783783783783784,
-          "f1": 0.8904109589041096,
-          "count": 74
-        },
-        {
-          "label": "metal",
-          "precision": 0.8181818181818182,
-          "recall": 0.8852459016393442,
-          "f1": 0.8503937007874016,
-          "count": 61
-        },
-        {
-          "label": "paper",
-          "precision": 0.8809523809523809,
-          "recall": 0.891566265060241,
-          "f1": 0.8862275449101796,
-          "count": 83
-        },
-        {
-          "label": "plastic",
-          "precision": 0.9142857142857143,
-          "recall": 0.9142857142857143,
-          "f1": 0.9142857142857143,
-          "count": 70
-        },
-        {
-          "label": "other",
-          "precision": 0.9375,
-          "recall": 0.75,
-          "f1": 0.8333333333333334,
-          "count": 20
-        }
-      ]
-    },
-    "test": {
-      "accuracy": 0.8909574468085106,
-      "macroF1": 0.86616996076592,
+      "accuracy": 0.9237057220708447,
+      "macroF1": 0.9130371300646964,
       "confusionMatrix": [
         [
           57,
+          1,
           0,
           1,
-          1,
-          1,
+          0,
           0
         ],
         [
           0,
           68,
-          2,
-          0,
-          5,
-          0
-        ],
-        [
-          0,
-          1,
-          58,
-          0,
-          2,
-          0
-        ],
-        [
           3,
+          0,
+          3,
+          0
+        ],
+        [
+          0,
+          2,
+          55,
           1,
+          1,
+          2
+        ],
+        [
+          2,
+          0,
           1,
           77,
           1,
@@ -365,151 +267,360 @@
         ],
         [
           0,
-          5,
-          2,
-          3,
-          62,
-          2
+          4,
+          1,
+          0,
+          65,
+          0
         ],
         [
+          0,
+          0,
+          0,
           2,
           1,
-          3,
-          1,
-          1,
-          13
+          17
         ]
       ],
       "classes": [
         {
           "label": "cardboard",
-          "precision": 0.9193548387096774,
-          "recall": 0.95,
-          "f1": 0.9344262295081968,
-          "count": 60
+          "precision": 0.9661016949152542,
+          "recall": 0.9661016949152542,
+          "f1": 0.9661016949152542,
+          "count": 59
         },
         {
           "label": "glass",
-          "precision": 0.8947368421052632,
-          "recall": 0.9066666666666666,
-          "f1": 0.9006622516556291,
-          "count": 75
+          "precision": 0.9066666666666666,
+          "recall": 0.918918918918919,
+          "f1": 0.912751677852349,
+          "count": 74
         },
         {
           "label": "metal",
-          "precision": 0.8656716417910447,
-          "recall": 0.9508196721311475,
-          "f1": 0.9062499999999999,
+          "precision": 0.9166666666666666,
+          "recall": 0.9016393442622951,
+          "f1": 0.9090909090909091,
           "count": 61
         },
         {
           "label": "paper",
-          "precision": 0.9390243902439024,
-          "recall": 0.9058823529411765,
-          "f1": 0.9221556886227545,
+          "precision": 0.9506172839506173,
+          "recall": 0.927710843373494,
+          "f1": 0.9390243902439024,
+          "count": 83
+        },
+        {
+          "label": "plastic",
+          "precision": 0.9154929577464789,
+          "recall": 0.9285714285714286,
+          "f1": 0.921985815602837,
+          "count": 70
+        },
+        {
+          "label": "other",
+          "precision": 0.8095238095238095,
+          "recall": 0.85,
+          "f1": 0.8292682926829269,
+          "count": 20
+        }
+      ]
+    },
+    "test": {
+      "accuracy": 0.901595744680851,
+      "macroF1": 0.884545141579831,
+      "confusionMatrix": [
+        [
+          58,
+          0,
+          1,
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          70,
+          1,
+          1,
+          3,
+          0
+        ],
+        [
+          0,
+          3,
+          56,
+          0,
+          1,
+          1
+        ],
+        [
+          2,
+          1,
+          0,
+          76,
+          1,
+          5
+        ],
+        [
+          0,
+          5,
+          3,
+          1,
+          61,
+          4
+        ],
+        [
+          1,
+          1,
+          0,
+          1,
+          0,
+          18
+        ]
+      ],
+      "classes": [
+        {
+          "label": "cardboard",
+          "precision": 0.9508196721311475,
+          "recall": 0.9666666666666667,
+          "f1": 0.9586776859504132,
+          "count": 60
+        },
+        {
+          "label": "glass",
+          "precision": 0.875,
+          "recall": 0.9333333333333333,
+          "f1": 0.9032258064516129,
+          "count": 75
+        },
+        {
+          "label": "metal",
+          "precision": 0.9180327868852459,
+          "recall": 0.9180327868852459,
+          "f1": 0.9180327868852459,
+          "count": 61
+        },
+        {
+          "label": "paper",
+          "precision": 0.95,
+          "recall": 0.8941176470588236,
+          "f1": 0.9212121212121211,
           "count": 85
         },
         {
           "label": "plastic",
-          "precision": 0.8611111111111112,
-          "recall": 0.8378378378378378,
-          "f1": 0.8493150684931507,
+          "precision": 0.9242424242424242,
+          "recall": 0.8243243243243243,
+          "f1": 0.8714285714285714,
           "count": 74
         },
         {
           "label": "other",
-          "precision": 0.7647058823529411,
-          "recall": 0.6190476190476191,
-          "f1": 0.6842105263157895,
+          "precision": 0.6428571428571429,
+          "recall": 0.8571428571428571,
+          "f1": 0.7346938775510204,
           "count": 21
         }
       ]
     }
   },
-  "threshold": 0.49000000000000016,
+  "threshold": 0.32,
   "validationAcceptanceTargetMet": true,
-  "testCoverage": 0.978723406791687,
-  "acceptedTestPrecision": 0.8994565010070801,
-  "trainingSeconds": 118.69,
-  "medianInferenceMs": 3.3,
+  "testCoverage": 0.9973404407501221,
+  "acceptedTestPrecision": 0.9039999842643738,
+  "trainingSeconds": 536.4,
+  "medianInferenceMs": 6.03,
   "epochs": [
     {
-      "stage": "head",
+      "stage": "full-backbone",
       "epoch": 1,
-      "loss": 0.8670630211637044,
-      "validationMacroF1": 0.7951451017693053
+      "loss": 0.5563943014638362,
+      "validationMacroF1": 0.8752616725518108,
+      "validationAccuracy": 0.888283378746594,
+      "validationMinimumRecall": 0.7,
+      "elapsedSeconds": 27.52
     },
     {
-      "stage": "head",
+      "stage": "full-backbone",
       "epoch": 2,
-      "loss": 0.42168096284496237,
-      "validationMacroF1": 0.8104240531730119
+      "loss": 0.47013563541245007,
+      "validationMacroF1": 0.8701955478789296,
+      "validationAccuracy": 0.8828337874659401,
+      "validationMinimumRecall": 0.75,
+      "elapsedSeconds": 52.63
     },
     {
-      "stage": "head",
+      "stage": "full-backbone",
       "epoch": 3,
-      "loss": 0.3070069943859553,
-      "validationMacroF1": 0.8252908998429715
+      "loss": 0.430449976762851,
+      "validationMacroF1": 0.8866944041091412,
+      "validationAccuracy": 0.8910081743869209,
+      "validationMinimumRecall": 0.85,
+      "elapsedSeconds": 77.93
     },
     {
-      "stage": "head",
+      "stage": "full-backbone",
       "epoch": 4,
-      "loss": 0.23945612107540812,
-      "validationMacroF1": 0.8153411883251173
+      "loss": 0.4117447254829385,
+      "validationMacroF1": 0.8723923732809259,
+      "validationAccuracy": 0.8801089918256131,
+      "validationMinimumRecall": 0.75,
+      "elapsedSeconds": 103.49
     },
     {
-      "stage": "head",
+      "stage": "full-backbone",
       "epoch": 5,
-      "loss": 0.17937348151099694,
-      "validationMacroF1": 0.8351091056941677
+      "loss": 0.4015389766682388,
+      "validationMacroF1": 0.8917253792334994,
+      "validationAccuracy": 0.9046321525885559,
+      "validationMinimumRecall": 0.7,
+      "elapsedSeconds": 128.85
     },
     {
-      "stage": "head",
+      "stage": "full-backbone",
       "epoch": 6,
-      "loss": 0.13575883801393757,
-      "validationMacroF1": 0.8579634545428118
+      "loss": 0.38339458374124274,
+      "validationMacroF1": 0.9022663971502439,
+      "validationAccuracy": 0.9073569482288828,
+      "validationMinimumRecall": 0.8554216867469879,
+      "elapsedSeconds": 154.19
     },
     {
-      "stage": "head",
+      "stage": "full-backbone",
       "epoch": 7,
-      "loss": 0.09061084934526005,
-      "validationMacroF1": 0.8115010895581037
+      "loss": 0.37620351150950376,
+      "validationMacroF1": 0.9040044602344145,
+      "validationAccuracy": 0.9128065395095368,
+      "validationMinimumRecall": 0.75,
+      "elapsedSeconds": 179.51
     },
     {
-      "stage": "head",
+      "stage": "full-backbone",
       "epoch": 8,
-      "loss": 0.0760796030289813,
-      "validationMacroF1": 0.8625765822465198
+      "loss": 0.36684185501158706,
+      "validationMacroF1": 0.901454858475793,
+      "validationAccuracy": 0.9128065395095368,
+      "validationMinimumRecall": 0.85,
+      "elapsedSeconds": 204.87
     },
     {
-      "stage": "last-block",
-      "epoch": 1,
-      "loss": 0.06115598366904849,
-      "validationMacroF1": 0.8788260561610834
+      "stage": "full-backbone",
+      "epoch": 9,
+      "loss": 0.3708011933735439,
+      "validationMacroF1": 0.8977851728840828,
+      "validationAccuracy": 0.9073569482288828,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 229.99
     },
     {
-      "stage": "last-block",
-      "epoch": 2,
-      "loss": 0.04453385300217751,
-      "validationMacroF1": 0.8762960250369511
+      "stage": "full-backbone",
+      "epoch": 10,
+      "loss": 0.3566617207733665,
+      "validationMacroF1": 0.8960925853593085,
+      "validationAccuracy": 0.9073569482288828,
+      "validationMinimumRecall": 0.85,
+      "elapsedSeconds": 255.57
     },
     {
-      "stage": "last-block",
-      "epoch": 3,
-      "loss": 0.03635248007342907,
-      "validationMacroF1": 0.8761417812562523
+      "stage": "full-backbone",
+      "epoch": 11,
+      "loss": 0.35600557557911655,
+      "validationMacroF1": 0.9086029246262481,
+      "validationAccuracy": 0.9155313351498637,
+      "validationMinimumRecall": 0.85,
+      "elapsedSeconds": 280.79
     },
     {
-      "stage": "last-block",
-      "epoch": 4,
-      "loss": 0.034801932217299734,
-      "validationMacroF1": 0.8689066922544405
+      "stage": "full-backbone",
+      "epoch": 12,
+      "loss": 0.3554199659784143,
+      "validationMacroF1": 0.9010956437985927,
+      "validationAccuracy": 0.9100817438692098,
+      "validationMinimumRecall": 0.85,
+      "elapsedSeconds": 306.27
     },
     {
-      "stage": "last-block",
-      "epoch": 5,
-      "loss": 0.03363295658350125,
-      "validationMacroF1": 0.8712190597679345
+      "stage": "full-backbone",
+      "epoch": 13,
+      "loss": 0.3495823969588907,
+      "validationMacroF1": 0.9044873136432358,
+      "validationAccuracy": 0.9155313351498637,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 331.79
+    },
+    {
+      "stage": "full-backbone",
+      "epoch": 14,
+      "loss": 0.3455053041568623,
+      "validationMacroF1": 0.9130371300646964,
+      "validationAccuracy": 0.9237057220708447,
+      "validationMinimumRecall": 0.85,
+      "elapsedSeconds": 356.95
+    },
+    {
+      "stage": "full-backbone",
+      "epoch": 15,
+      "loss": 0.339988059180928,
+      "validationMacroF1": 0.9051498119995891,
+      "validationAccuracy": 0.9209809264305178,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 382.05
+    },
+    {
+      "stage": "full-backbone",
+      "epoch": 16,
+      "loss": 0.3429068975963528,
+      "validationMacroF1": 0.9025199517385555,
+      "validationAccuracy": 0.9182561307901907,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 407.26
+    },
+    {
+      "stage": "full-backbone",
+      "epoch": 17,
+      "loss": 0.33737113273988556,
+      "validationMacroF1": 0.9117555278972094,
+      "validationAccuracy": 0.9237057220708447,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 432.14
+    },
+    {
+      "stage": "full-backbone",
+      "epoch": 18,
+      "loss": 0.33607729525212093,
+      "validationMacroF1": 0.9067023210873063,
+      "validationAccuracy": 0.9209809264305178,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 457.04
+    },
+    {
+      "stage": "full-backbone",
+      "epoch": 19,
+      "loss": 0.336923228641731,
+      "validationMacroF1": 0.9091982245208589,
+      "validationAccuracy": 0.9209809264305178,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 482.06
+    },
+    {
+      "stage": "full-backbone",
+      "epoch": 20,
+      "loss": 0.3400472182658982,
+      "validationMacroF1": 0.9116462309445551,
+      "validationAccuracy": 0.9237057220708447,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 507.04
+    },
+    {
+      "stage": "full-backbone",
+      "epoch": 21,
+      "loss": 0.33631920127284004,
+      "validationMacroF1": 0.9114990407078077,
+      "validationAccuracy": 0.9237057220708447,
+      "validationMinimumRecall": 0.8,
+      "elapsedSeconds": 532.1
     }
   ],
   "mistakes": [
@@ -518,280 +629,259 @@
       "source": "trashnet",
       "expected": "other",
       "predicted": "cardboard",
-      "confidence": 0.958
+      "confidence": 0.6067
     },
     {
-      "sampleId": "08e66c79f117e9a3da6009713c87238d7d264e95f99d9469d8c24184fe35b781",
+      "sampleId": "19003b8d934ff8ee45f9dcebb782ad32ef2b7b71a27fa33c4087feb45981eaba",
       "source": "trashnet",
-      "expected": "plastic",
+      "expected": "paper",
+      "predicted": "other",
+      "confidence": 0.6637
+    },
+    {
+      "sampleId": "23131c6eaec6419244afc67f943326dbaf21a0883d88c01b2780d33005ca5782",
+      "source": "trashnet",
+      "expected": "glass",
       "predicted": "paper",
-      "confidence": 0.4864
-    },
-    {
-      "sampleId": "0dcb160fd41cc65e95f7fb3f202b76a9529fcda71a85502f2b5df182afb72a90",
-      "source": "trashnet",
-      "expected": "glass",
-      "predicted": "plastic",
-      "confidence": 0.5998
-    },
-    {
-      "sampleId": "1af6369306f0415dc392535297e682e1abec9ac8d7a9f4c05b91dfe88fa24a97",
-      "source": "trashnet",
-      "expected": "cardboard",
-      "predicted": "plastic",
-      "confidence": 0.499
-    },
-    {
-      "sampleId": "2526c3a7cba33631496b6b981d9f841e0e0aa18921d1e45bd3216b76ac68e833",
-      "source": "trashnet",
-      "expected": "glass",
-      "predicted": "plastic",
-      "confidence": 0.8095
+      "confidence": 0.3118
     },
     {
       "sampleId": "26b727294d1d3a077af92c500be14e683fd78b8d0ceff5ef57fd9375b39050da",
       "source": "trashnet",
       "expected": "plastic",
       "predicted": "glass",
-      "confidence": 0.8063
+      "confidence": 0.3943
     },
     {
-      "sampleId": "2a93651536d1a88f837f10513a070eea1b37a373007b8d1c47004b0a3e5822f3",
+      "sampleId": "28aeba3d7f7fd8a0b49492d66eb4fb07d7cc27fa6d2cd92a216176f9a2ba7c4d",
       "source": "trashnet",
-      "expected": "other",
-      "predicted": "paper",
-      "confidence": 0.7119
+      "expected": "paper",
+      "predicted": "other",
+      "confidence": 0.3833
     },
     {
-      "sampleId": "3c0d0811fdb9c0c0ab00ed380b4b3932c8291447547a853fd5c5a1118f0d95bc",
+      "sampleId": "3020f8164edae00bb0bb47c331580b668a7d90a8d45274ef5dbacb07fbd696c3",
       "source": "trashnet",
-      "expected": "other",
-      "predicted": "cardboard",
-      "confidence": 0.9022
+      "expected": "metal",
+      "predicted": "glass",
+      "confidence": 0.3481
+    },
+    {
+      "sampleId": "3d78aab745a9d377773d9a700bb798f8311da6b92c4263b9293280308359d96c",
+      "source": "trashnet",
+      "expected": "paper",
+      "predicted": "other",
+      "confidence": 0.5836
     },
     {
       "sampleId": "42b0c1bf97a4529d70372f46257b664954674e2d52fcdb5e2583d17f699585ee",
       "source": "trashnet",
       "expected": "plastic",
       "predicted": "glass",
-      "confidence": 0.4934
+      "confidence": 0.373
     },
     {
-      "sampleId": "4b8da856ec4e9e64c1944e6c63617ea700cc7c24e771aa60318ab81400c8a6a7",
+      "sampleId": "45759d8d902bd65138e2e9483a2088105831b55a1a8a21823e223b37965a6e9a",
       "source": "trashnet",
-      "expected": "other",
+      "expected": "plastic",
       "predicted": "metal",
-      "confidence": 0.7507
-    },
-    {
-      "sampleId": "4c0fc9a8d2cff7fadedd74a00ed1c94fd0b593fc139dfc72fcf6063eb1b8cfef",
-      "source": "trashnet",
-      "expected": "glass",
-      "predicted": "metal",
-      "confidence": 0.9159
+      "confidence": 0.3822
     },
     {
       "sampleId": "4cf1340525348bbae39afa617b475ea84be3637abf19c28809cc56a9237cd476",
       "source": "trashnet",
       "expected": "paper",
       "predicted": "other",
-      "confidence": 0.5339
+      "confidence": 0.4631
     },
     {
       "sampleId": "516420c5cb1c8b967ff1cdd4af01361e5b0b049978334bcba8171debaae37794",
       "source": "trashnet",
       "expected": "glass",
       "predicted": "plastic",
-      "confidence": 0.8178
+      "confidence": 0.6179
     },
     {
       "sampleId": "56aeb141787c5c241dd47ada64c6475d8822416ff929ff69afb9280ebef5349d",
       "source": "trashnet",
       "expected": "plastic",
       "predicted": "glass",
-      "confidence": 0.6147
-    },
-    {
-      "sampleId": "587c09cc3a5f2a47949d7b578883edd9bb3a5db72d007ec72ec018d69aac6fb6",
-      "source": "trashnet",
-      "expected": "plastic",
-      "predicted": "glass",
-      "confidence": 0.5841
+      "confidence": 0.635
     },
     {
       "sampleId": "5d125cda4342bd472549c47bd6f5326b7c0db92f6f74525b788ab2ff730936b5",
       "source": "trashnet",
       "expected": "metal",
       "predicted": "plastic",
-      "confidence": 0.9245
-    },
-    {
-      "sampleId": "5dcef4df9cf1e52d2c3be41ea88f4c4e6c9a69f54d98fcec8778284f9953587b",
-      "source": "trashnet",
-      "expected": "glass",
-      "predicted": "plastic",
-      "confidence": 0.7265
+      "confidence": 0.5852
     },
     {
       "sampleId": "6346624230c5f533be973a6bed3dbd04613ea6a430a121adba1e68a43ac9ab58",
       "source": "trashnet",
       "expected": "paper",
       "predicted": "glass",
-      "confidence": 0.9322
+      "confidence": 0.7087
     },
     {
       "sampleId": "6694e9f1e8e352fa7d4e393f7850a01a43b4426258be3d5d35ef7f5ff80d87da",
       "source": "trashnet",
       "expected": "plastic",
       "predicted": "metal",
-      "confidence": 0.9636
+      "confidence": 0.7031
     },
     {
       "sampleId": "67f29c28a1250780a3b43a4c23f7dc44b07abb1b439663fa678dfe938eff5500",
       "source": "trashnet",
       "expected": "plastic",
       "predicted": "paper",
-      "confidence": 0.9327
+      "confidence": 0.5543
     },
     {
       "sampleId": "698c1b9f1c98e10feeb0bb5c0d9169ede6f082cda194ec1994ea61fa67fff246",
       "source": "trashnet",
       "expected": "metal",
       "predicted": "glass",
-      "confidence": 0.8803
+      "confidence": 0.6439
     },
     {
-      "sampleId": "70bd037c4ccea7f216b38692678f6ddf3b26459e3fb7af3485250ebbe0d99333",
+      "sampleId": "7893525c061d5c8ef08b10ca7420594c2d708f7f725d009b61c60f5bbfe71d02",
       "source": "trashnet",
-      "expected": "paper",
-      "predicted": "cardboard",
-      "confidence": 0.9169
+      "expected": "plastic",
+      "predicted": "glass",
+      "confidence": 0.333
     },
     {
       "sampleId": "7df52d909b837fd6805a3b7eb34cb18eb449f68b27aa9264e4d2c051540228d7",
       "source": "trashnet",
       "expected": "cardboard",
       "predicted": "metal",
-      "confidence": 0.9563
-    },
-    {
-      "sampleId": "8670a9bb8077040b10c650d488325251b6636094fe3e36f0d3025885270641a1",
-      "source": "trashnet",
-      "expected": "other",
-      "predicted": "plastic",
-      "confidence": 0.5701
+      "confidence": 0.4668
     },
     {
       "sampleId": "88f7c1677ef22fe698bf4ce1602f7ce9a6433bfebe997113bd6dccaf6bcbf2ff",
       "source": "trashnet",
       "expected": "glass",
       "predicted": "metal",
-      "confidence": 0.8422
+      "confidence": 0.5963
     },
     {
       "sampleId": "8a8064957f400b463dff9ac050d5b48a65b34a5c67d9193d26f7a6ffe611f81b",
       "source": "trashnet",
       "expected": "plastic",
       "predicted": "other",
-      "confidence": 0.8256
+      "confidence": 0.5583
     },
     {
       "sampleId": "8f0cd4e282ef18991f0ffe2642d0f98c0d82457bcfce3bd7eb91919e478cec27",
       "source": "trashnet",
       "expected": "plastic",
-      "predicted": "paper",
-      "confidence": 0.4825
-    },
-    {
-      "sampleId": "8faf9fe8230a20756339b3ea3aee293bd4cd58890cb6a01996179b7b037b03b1",
-      "source": "trashnet",
-      "expected": "paper",
-      "predicted": "cardboard",
-      "confidence": 0.5223
+      "predicted": "other",
+      "confidence": 0.3286
     },
     {
       "sampleId": "93104655783ba679969f1651e28002a2ce5fd03d10241eda52a4eae061f355e3",
       "source": "trashnet",
       "expected": "plastic",
       "predicted": "other",
-      "confidence": 0.8627
+      "confidence": 0.6357
     },
     {
       "sampleId": "b5a36279f95e2de349f25408a407798bd2d18087502bacb076c1c30c06dc63b9",
       "source": "trashnet",
       "expected": "metal",
-      "predicted": "plastic",
-      "confidence": 0.5828
+      "predicted": "other",
+      "confidence": 0.4183
     },
     {
       "sampleId": "bb81adb0f3693e7b85dd002cbfdd854655a12332d7d783a90bf280b302e91d8a",
       "source": "trashnet",
       "expected": "cardboard",
       "predicted": "paper",
-      "confidence": 0.561
+      "confidence": 0.5939
+    },
+    {
+      "sampleId": "bb8fd98998e29dbdd1d69d27dbfa161c951c13c8a28265ebf7afd8f281d6b228",
+      "source": "trashnet",
+      "expected": "glass",
+      "predicted": "plastic",
+      "confidence": 0.3409
     },
     {
       "sampleId": "c6881a5a7e17319f5dd3f43eccb39ba18b54fd5ff05ee30bdc033c19e3372ee5",
       "source": "trashnet",
       "expected": "plastic",
       "predicted": "glass",
-      "confidence": 0.9581
+      "confidence": 0.6832
     },
     {
       "sampleId": "cd4fddd9f267a1ccace7c22ca08005872aca4bdd4da3c204ed636d34fb123c77",
       "source": "trashnet",
       "expected": "glass",
       "predicted": "plastic",
-      "confidence": 0.8602
+      "confidence": 0.5317
     },
     {
-      "sampleId": "cf416faf0b25ad45e5b2ef25bfae13096efc9f5f6296d88af5c1783a9aac7bc9",
-      "source": "trashnet",
-      "expected": "other",
-      "predicted": "metal",
-      "confidence": 0.8453
-    },
-    {
-      "sampleId": "d130caecde80e8351d0dd52f75552cfb63c362adc126097cd5bc18fdf33424bd",
+      "sampleId": "e5bf320fe1c9d9a7e5f99984d05a89a85fd4949354a15b44d043765a48ac1324",
       "source": "trashnet",
       "expected": "paper",
-      "predicted": "metal",
-      "confidence": 0.4585
+      "predicted": "cardboard",
+      "confidence": 0.399
+    },
+    {
+      "sampleId": "e85b2c58533d9bacdf479bc01eb7448e2dc3c58dbfed0bf4855474a835fb44ea",
+      "source": "trashnet",
+      "expected": "plastic",
+      "predicted": "other",
+      "confidence": 0.4295
     },
     {
       "sampleId": "eb223e0425b81bbd8b299eb91a896a4dc1b089a955ac45fbf8a75fb94c27f6fe",
       "source": "trashnet",
       "expected": "paper",
       "predicted": "plastic",
-      "confidence": 0.9098
+      "confidence": 0.869
     },
     {
       "sampleId": "eba45d4bfea050a7229a9a8414c43337fc7d944ff0d5751c80ef1c31e72346d5",
       "source": "trashnet",
       "expected": "other",
       "predicted": "glass",
-      "confidence": 0.493
+      "confidence": 0.4011
     },
     {
       "sampleId": "ec9415cc6b85a39b7f13f54d841c8268db44d299c682ad304483ed8d6157d600",
       "source": "trashnet",
       "expected": "paper",
       "predicted": "other",
-      "confidence": 0.993
+      "confidence": 0.805
     },
     {
       "sampleId": "ed1c2a05c465251128dc6fcbe45bbe441c06729a864ed325b85d88f9cdc115a7",
       "source": "trashnet",
       "expected": "other",
-      "predicted": "metal",
-      "confidence": 0.6982
+      "predicted": "paper",
+      "confidence": 0.4715
     },
     {
       "sampleId": "ed71aac4bc721e1930bf3870961a6e8c7d79f035bffdf2a704cdb919cbc315cb",
       "source": "trashnet",
       "expected": "paper",
       "predicted": "cardboard",
-      "confidence": 0.4447
+      "confidence": 0.5205
+    },
+    {
+      "sampleId": "f54d0dd3cf852f49af9725929dab64a5686a55481b7a2307f619a5e3b86b584e",
+      "source": "trashnet",
+      "expected": "metal",
+      "predicted": "glass",
+      "confidence": 0.6429
+    },
+    {
+      "sampleId": "fc4dc9b63e9fcbd82e41c14d72c178bca117f89f480051db86d2d61846df82a5",
+      "source": "trashnet",
+      "expected": "plastic",
+      "predicted": "metal",
+      "confidence": 0.5761
     }
   ],
   "limitations": [
@@ -799,6 +889,235 @@
     "Single-object household images, not industrial material specifications.",
     "Mixed piles and unfamiliar objects can still receive incorrect confident predictions.",
     "No contamination, purity, exact grade, weight or price prediction.",
-    "Test metrics are TrashNet-only; external benchmarks have not run."
-  ]
+    "Test metrics are TrashNet-only; external benchmarks have not run.",
+    "The existing held-out split has been reported previously and contains published sample fixtures; this is not a new independent external benchmark."
+  ],
+  "bestEpoch": 14,
+  "trainingConfig": {
+    "seed": 20261126,
+    "initialModel": "mobilenet-v3-small-ccfdec34327b",
+    "architecture": "mobilenet_v3_small",
+    "maxEpochs": 24,
+    "patience": 7,
+    "batchSize": 32,
+    "threads": 4,
+    "backboneLearningRate": 5e-05,
+    "classifierLearningRate": 0.00015,
+    "weightDecay": 0.0001,
+    "labelSmoothing": 0.05,
+    "schedule": "cosine decay to 10% of initial learning rate",
+    "augmentation": "random resized crop 0.70-1.0; horizontal/vertical flips; rotation +/-15 degrees; colour jitter 0.15",
+    "batchNorm": "frozen running statistics",
+    "selection": "validation macro-F1; no test-based checkpoint or threshold selection"
+  },
+  "previousModel": {
+    "modelVersion": "mobilenet-v3-small-ccfdec34327b",
+    "trained": {
+      "validation": {
+        "accuracy": 0.885558583106267,
+        "macroF1": 0.8788260561610834,
+        "confusionMatrix": [
+          [
+            53,
+            1,
+            0,
+            5,
+            0,
+            0
+          ],
+          [
+            0,
+            65,
+            6,
+            0,
+            3,
+            0
+          ],
+          [
+            0,
+            4,
+            54,
+            2,
+            1,
+            0
+          ],
+          [
+            5,
+            0,
+            2,
+            74,
+            1,
+            1
+          ],
+          [
+            1,
+            2,
+            2,
+            1,
+            64,
+            0
+          ],
+          [
+            0,
+            0,
+            2,
+            2,
+            1,
+            15
+          ]
+        ],
+        "classes": [
+          {
+            "label": "cardboard",
+            "precision": 0.8983050847457628,
+            "recall": 0.8983050847457628,
+            "f1": 0.8983050847457628,
+            "count": 59
+          },
+          {
+            "label": "glass",
+            "precision": 0.9027777777777778,
+            "recall": 0.8783783783783784,
+            "f1": 0.8904109589041096,
+            "count": 74
+          },
+          {
+            "label": "metal",
+            "precision": 0.8181818181818182,
+            "recall": 0.8852459016393442,
+            "f1": 0.8503937007874016,
+            "count": 61
+          },
+          {
+            "label": "paper",
+            "precision": 0.8809523809523809,
+            "recall": 0.891566265060241,
+            "f1": 0.8862275449101796,
+            "count": 83
+          },
+          {
+            "label": "plastic",
+            "precision": 0.9142857142857143,
+            "recall": 0.9142857142857143,
+            "f1": 0.9142857142857143,
+            "count": 70
+          },
+          {
+            "label": "other",
+            "precision": 0.9375,
+            "recall": 0.75,
+            "f1": 0.8333333333333334,
+            "count": 20
+          }
+        ]
+      },
+      "test": {
+        "accuracy": 0.8909574468085106,
+        "macroF1": 0.86616996076592,
+        "confusionMatrix": [
+          [
+            57,
+            0,
+            1,
+            1,
+            1,
+            0
+          ],
+          [
+            0,
+            68,
+            2,
+            0,
+            5,
+            0
+          ],
+          [
+            0,
+            1,
+            58,
+            0,
+            2,
+            0
+          ],
+          [
+            3,
+            1,
+            1,
+            77,
+            1,
+            2
+          ],
+          [
+            0,
+            5,
+            2,
+            3,
+            62,
+            2
+          ],
+          [
+            2,
+            1,
+            3,
+            1,
+            1,
+            13
+          ]
+        ],
+        "classes": [
+          {
+            "label": "cardboard",
+            "precision": 0.9193548387096774,
+            "recall": 0.95,
+            "f1": 0.9344262295081968,
+            "count": 60
+          },
+          {
+            "label": "glass",
+            "precision": 0.8947368421052632,
+            "recall": 0.9066666666666666,
+            "f1": 0.9006622516556291,
+            "count": 75
+          },
+          {
+            "label": "metal",
+            "precision": 0.8656716417910447,
+            "recall": 0.9508196721311475,
+            "f1": 0.9062499999999999,
+            "count": 61
+          },
+          {
+            "label": "paper",
+            "precision": 0.9390243902439024,
+            "recall": 0.9058823529411765,
+            "f1": 0.9221556886227545,
+            "count": 85
+          },
+          {
+            "label": "plastic",
+            "precision": 0.8611111111111112,
+            "recall": 0.8378378378378378,
+            "f1": 0.8493150684931507,
+            "count": 74
+          },
+          {
+            "label": "other",
+            "precision": 0.7647058823529411,
+            "recall": 0.6190476190476191,
+            "f1": 0.6842105263157895,
+            "count": 21
+          }
+        ]
+      }
+    },
+    "threshold": 0.49000000000000016,
+    "trainingSeconds": 118.69
+  },
+  "comparison": {
+    "testAccuracyPercentagePointChange": 1.0638297872340385,
+    "testMacroF1PercentagePointChange": 1.8375180813910985,
+    "validationMacroF1PercentagePointChange": 3.4211073903613,
+    "selectionSplit": "validation",
+    "testUsedForSelection": false
+  }
 }

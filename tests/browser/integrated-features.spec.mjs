@@ -26,7 +26,6 @@ test("matching explanations, completion suggestions, shared transport, impact an
     await page.goto("/workspace#planner");
     for (const [k, v] of Object.entries({
       material: "PP",
-      grade,
       quantityKg: 500,
       comparisonPrice: 75,
     }))
