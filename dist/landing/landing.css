@@ -172,7 +172,7 @@ img, svg { display: block; }
   width: 100%;
   min-width: 0;
   min-height: 0;
-  grid-template-rows: minmax(0, 1fr) 18px 88px 14px;
+  grid-template-rows: minmax(0, 1fr) 64px 88px 14px;
   padding: 0 clamp(8px, 2vw, 24px);
 }
 
@@ -274,8 +274,10 @@ img, svg { display: block; }
   overflow: hidden;
   min-width: 0;
   margin: 0;
-  color: var(--steel);
-  font: 400 7px/15px var(--mono);
+  font: 500 20px/1.5 var(--mono);
+  color: var(--ink);
+  align-self: start;
+  padding-inline: 8px;
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -480,8 +482,9 @@ body.is-ready .ring-card {
   .headline-find { font-size: clamp(1rem, 5vw, 1.3rem); }
   .headline-next { font-size: clamp(1.2rem, 6vw, 1.5rem); }
   .rotating-material { min-height: 28px; font-size: 18px; }
-  .material-explorer { grid-template-rows: minmax(0, 1fr) 14px auto 12px; padding-inline: 5px; }
+  .material-explorer { grid-template-rows: minmax(0, 1fr) 58px auto 12px; padding-inline: 5px; }
   .carousel-viewport { perspective: 1250px; }
+  .now-showing { font-size: 14px; white-space: normal; text-wrap: balance; }
   .card-caption { min-height: 42px; flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 4px; padding-top: 8px; }
   .card-title { font-size: clamp(10px, 3.2vw, 16px); }
   .card-subtitle { max-width: 100%; font-size: 6px; text-align: left; }
@@ -497,7 +500,7 @@ body.is-ready .ring-card {
   .landing-shell { grid-template-rows: 38px auto minmax(0, 1fr) 18px; }
   .page-intro { gap: 12px; padding-top: 12px; padding-bottom: 8px; }
   .page-intro h1 { row-gap: 14px; }
-  .material-explorer { grid-template-rows: minmax(0, 1fr) 13px auto 12px; }
+  .material-explorer { grid-template-rows: minmax(0, 1fr) 58px auto 12px; }
   .action-button { height: 52px; min-height: 48px; }
   .asset-note { font-size: 5px; }
   .fact-list li { font-size: 6px; }
