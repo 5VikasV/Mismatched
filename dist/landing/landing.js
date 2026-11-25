@@ -31,7 +31,8 @@ function normalizeAngle(angle) {
 function setRingGeometry() {
   const cardWidth = parseFloat(window.getComputedStyle(cards[0]).width);
   const cardHeight = cards[0].querySelector('.card-button').offsetHeight;
-  const radius = ((cardWidth / 2) / Math.tan(Math.PI / cards.length)) * 1.2;
+  const spread = parseFloat(getComputedStyle(viewport).getPropertyValue("--ring-gap-factor")) || 1.2;
+  const radius = ((cardWidth / 2) / Math.tan(Math.PI / cards.length)) * spread;
 
   cards.forEach((card, index) => {
     card.style.setProperty('--card-angle', `${index * cardStep}deg`);

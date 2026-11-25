@@ -1,0 +1,316 @@
+/* Split hero: brand story on the left, moving material loop on the right. */
+:root {
+  --card-size: clamp(120px, min(18vw, 32vh, 260px), 260px);
+}
+html,
+body {
+  min-height: 100dvh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.landing-shell {
+  height: 100dvh;
+  min-height: 640px;
+  grid-template-rows: 54px minmax(0, 1fr) auto 22px;
+  grid-template-columns: minmax(0, 1fr);
+}
+.site-header {
+  padding-inline: 2.6vw;
+}
+.landing-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  min-height: 0;
+  width: 100%;
+  align-items: stretch;
+}
+.page-intro {
+  padding: 26px 0 32px 5.2vw;
+  align-items: flex-start;
+  gap: 0;
+  text-align: left;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+.page-intro h1 {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0;
+  width: max-content;
+  max-width: 100%;
+  font: 750 clamp(64px, 7.5vw, 140px)/1 var(--display);
+  letter-spacing: -0.075em;
+  margin: 0;
+}
+.headline-loop {
+  height: 0.8em;
+  width: 1.26em;
+  margin: 0.08em -0.015em 0 0.045em;
+  overflow: visible;
+  flex-shrink: 0;
+  fill: none;
+  stroke: var(--orange);
+  stroke-width: 12;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.headline-loop .loop-arrow {
+  stroke-width: 8;
+}
+.intro-stroke {
+  display: block;
+  width: clamp(80px, 7.5vw, 120px);
+  height: 3px;
+  background: linear-gradient(90deg, var(--orange) 85%, transparent);
+  margin: 32px 0;
+}
+.hero-quote {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 0;
+  font: italic 400 clamp(22px, 2.9vw, 48px)/1.45 var(--display);
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+.hero-quote strong {
+  font-weight: 650;
+  background: linear-gradient(0deg, #ffd8c6 88%, transparent 88%);
+  padding-inline: 3px;
+}
+.quote-open,
+.quote-close {
+  color: var(--orange);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.quote-open {
+  font-size: 1.15em;
+}
+.rotating-material {
+  margin-top: 26px;
+  font-size: clamp(14px, 1.35vw, 22px);
+  min-height: 30px;
+  gap: 9px;
+  white-space: nowrap;
+}
+.material-explorer {
+  grid-template-rows: minmax(0, 1fr) auto;
+  padding: 12px 1.4vw 16px 0;
+  min-width: 0;
+}
+.carousel-viewport {
+  --ring-gap-factor: 1.05;
+  perspective: 1700px;
+  isolation: isolate;
+}
+.carousel-orbit {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  inset: 0;
+  pointer-events: none;
+  fill: none;
+}
+.carousel-orbit circle {
+  stroke: #cdd0d0;
+  stroke-width: 1.4;
+}
+.carousel-orbit .orbit-trail {
+  stroke: url(#orbit-orange);
+  stroke-width: 5;
+}
+.carousel-orbit .orbit-arrow {
+  fill: var(--orange);
+  stroke: var(--orange);
+  stroke-width: 1;
+}
+.carousel-scene {
+  z-index: 1;
+}
+.card-button {
+  padding: 8px;
+  box-shadow: 0 18px 22px -16px #1e212450;
+}
+.now-showing {
+  font-size: 20px;
+  line-height: 1.5;
+  min-height: 30px;
+  white-space: normal;
+  text-wrap: balance;
+  padding: 8px 14px 0;
+}
+.landing-actions {
+  min-width: 0;
+  padding: 0 24px 10px;
+}
+.account-actions {
+  gap: 12px;
+  padding-block: 6px;
+}
+.action-button {
+  font-size: 26px;
+  height: 60px;
+  padding-inline: 26px;
+}
+.asset-note {
+  margin-top: 4px;
+  font-size: 7px;
+}
+@media (min-width: 1800px) {
+  .page-intro {
+    padding-left: max(5.2vw, calc((100vw - 1700px) / 2));
+  }
+}
+@media (max-width: 1100px) and (min-width: 801px) {
+  .hero-quote {
+    font-size: 2.75vw;
+    gap: 8px;
+  }
+  .page-intro h1 {
+    font-size: 7.7vw;
+  }
+  .rotating-material {
+    font-size: 14px;
+  }
+  .now-showing {
+    font-size: 16px;
+  }
+}
+@media (max-width: 800px) {
+  :root {
+    --card-size: clamp(100px, min(25vw, 25vh, 200px), 200px);
+  }
+  .landing-shell {
+    min-height: 100dvh;
+    height: auto;
+    grid-template-rows: 54px auto auto 22px;
+  }
+  .landing-main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-intro {
+    padding: 30px 24px 18px;
+    align-items: center;
+    text-align: center;
+  }
+  .page-intro h1 {
+    font-size: clamp(55px, 12vw, 96px);
+  }
+  .intro-stroke {
+    margin: 20px 0;
+    width: 80px;
+  }
+  .hero-quote {
+    font-size: clamp(21px, 4.5vw, 34px);
+    gap: 8px;
+  }
+  .rotating-material {
+    margin-top: 18px;
+    font-size: 16px;
+  }
+  .material-explorer {
+    padding: 0 16px 16px;
+    grid-template-rows: minmax(300px, 38vh) auto;
+  }
+  .carousel-viewport {
+    perspective: 1400px;
+  }
+  .now-showing {
+    font-size: 16px;
+    padding-top: 12px;
+  }
+  .landing-actions {
+    padding-bottom: 12px;
+  }
+  .action-button {
+    font-size: 22px;
+    height: 54px;
+  }
+}
+@media (max-width: 520px) {
+  :root {
+    --card-size: clamp(100px, 29vw, 145px);
+  }
+  .site-header {
+    padding-inline: 18px;
+  }
+  .wordmark {
+    font-size: 17px;
+  }
+  .page-intro {
+    padding: 34px 16px 16px;
+  }
+  .page-intro h1 {
+    font-size: 12vw;
+  }
+  .intro-stroke {
+    margin: 20px 0;
+    width: 72px;
+  }
+  .hero-quote {
+    font-size: clamp(18px, 4.8vw, 25px);
+    gap: 6px;
+  }
+  .rotating-material {
+    font-size: 14px;
+    margin-top: 18px;
+    gap: 6px;
+  }
+  .material-explorer {
+    grid-template-rows: 310px auto;
+    padding: 0 10px 14px;
+  }
+  .card-button {
+    padding: 5px;
+  }
+  .card-title {
+    font-size: 14px;
+  }
+  .card-subtitle {
+    font-size: 7px;
+  }
+  .card-caption {
+    min-height: 44px;
+  }
+  .now-showing {
+    font-size: 15px;
+    min-height: 38px;
+  }
+  .account-actions {
+    flex-direction: column;
+    gap: 9px;
+  }
+  .action-button {
+    width: min(100%, 320px);
+    font-size: 22px;
+    min-height: 52px;
+    height: 52px;
+  }
+  .action-button.play-button {
+    font-size: 16px;
+    width: 100px;
+    height: 40px;
+    min-height: 40px;
+  }
+}
+@media (max-height: 700px) and (min-width: 801px) {
+  .landing-shell {
+    min-height: 600px;
+  }
+  .page-intro {
+    padding-block: 18px;
+  }
+  .intro-stroke {
+    margin-block: 24px;
+  }
+  .hero-quote {
+    font-size: clamp(22px, 2.7vw, 38px);
+  }
+  .rotating-material {
+    margin-top: 18px;
+  }
+}
