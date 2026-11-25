@@ -1,0 +1,781 @@
+{
+  "sources": [
+    {
+      "id": "mpcb-ewaste-2024-05",
+      "title": "Maharashtra: E-Waste Recyclers, Refurbishers and Dismantlers — May 2024",
+      "publisher": "Maharashtra Pollution Control Board",
+      "url": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "publicationDate": null,
+      "retrievedAt": "2026-11-24",
+      "coverage": "Selected e-waste recycling facilities in Maharashtra; historical May 2024 register.",
+      "terms": "MPCB website policy permits reuse of its content with prominent source acknowledgement and without misleading alteration. Third-party material is excluded from that permission.",
+      "termsUrl": "https://mpcb.gov.in/sites/default/files/Establishment%20of%20MPCB/Seniority%20list/2014/Privacy_Policy_MPCB_Website.pdf",
+      "notes": "20 selected factual records from pages 1–3. The document is labelled May 2024; an exact publication day is not given. A listed consent or authorization in this historical document is not evidence of current authorization, operation, material availability, or demand. Personal contact details and capacities were omitted. No coordinates were supplied in the reviewed rows."
+    },
+    {
+      "id": "rspcb-ewaste-public-register",
+      "title": "Rajasthan: Public list of E-Waste Dismantlers, Re-furbishers and Recyclers",
+      "publisher": "Rajasthan State Pollution Control Board",
+      "url": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "publicationDate": null,
+      "retrievedAt": "2026-11-24",
+      "coverage": "10 selected Rajasthan facilities from section A of the public e-waste register.",
+      "terms": "Limited factual facility names, addresses and listed activity are transcribed with attribution. An explicit open-data reuse licence was not located; no open-licence claim is made.",
+      "termsUrl": "https://environment.rajasthan.gov.in/content/environment/en/environmental-information-system/websitepolicies.html",
+      "notes": "Primary page read on retrieval date; its footer reports updated 19 November 2026, which is a page update date rather than a per-facility verification date. Section B revoked/cancelled entries and section C closed entries are not imported. Current authorization, operation, material availability and demand remain unverified. No coordinates, contacts, capacities, or expiry assertions are imported."
+    },
+    {
+      "id": "hspcb-ewaste-public-list",
+      "title": "Haryana: Public list of E-Waste Recyclers and Dismantlers",
+      "publisher": "Haryana State Pollution Control Board",
+      "url": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "publicationDate": null,
+      "retrievedAt": "2026-11-24",
+      "coverage": "10 selected Haryana facility records from official list rows 29–40.",
+      "terms": "Limited factual facility names, addresses and listed activity are transcribed with attribution. An explicit open-data reuse licence was not located; no open-licence claim is made.",
+      "notes": "Official PDF text was reviewed through the search service primary-source index on retrieval date. Direct PDF retrieval failed TLS hostname verification; this limitation is retained rather than bypassed. The document publication date is unknown. This historical listing does not verify current authorization, operation, material availability or demand. No coordinates, personal contacts or capacities are imported."
+    }
+  ],
+  "facilities": [
+    {
+      "id": "mpcb-ewaste-2024-05-arihant-dhule",
+      "name": "Arihant E Recycling Pvt Ltd",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Dhule",
+      "address": "Gut No. 307/1, Shahada Road, Dondaicha, Tal. Sindkheda, Dist. Dhule",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 1
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-we-bhiwandi",
+      "name": "WE-The Recycling Company",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Thane",
+      "address": "H. No. 2212, Sr. No. 9-1 N, Behind Essar Petrol Pump, Village Borpada, Tal. Bhiwandi, Dist. Thane",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 2
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-techeco-dhakambe",
+      "name": "Techeco E-Waste Namo LLP",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Nashik",
+      "address": "Gat No. 155 B/2, Village Dhakambe, Tal. Dindori, Dist. Nashik",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 3
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-threco-hedavli",
+      "name": "Threco Recycling LLP",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Raigad",
+      "address": "Survey No. 153-3 & 149-1, Hedavli, Dist. Raigad",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 4
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-hitech-shindewadi",
+      "name": "Hi-Tech Recycling (I) Pvt. Ltd",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Pune",
+      "address": "Property No. 193, Gat No. 89, Pune-Satara Road, Shindewadi, Tal. Bhor, Dist. Pune",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 5
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-justdispose-unit2",
+      "name": "Justdispose Recycling Pvt Ltd. (Unit-II)",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Palghar",
+      "address": "S. No. 42/5, Kaddu Industrial Estate, Sativali Phata, Vasai (E), Tal. Vasai, Dist. Palghar",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 6
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-eincarnation-tarapur",
+      "name": "E-Incarnation Recycling Pvt. Ltd.",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Palghar",
+      "address": "Plot No. J-56, MIDC Area, Tarapur, Boiser, Dist. Palghar, Maharashtra",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 7
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-ecorecycling-gokhiware",
+      "name": "Eco Recycling Limited",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Palghar",
+      "address": "Bldg No. 1, Plot No. 5, S. No. 30B, Village Gokhiware, Vasai (E), Tal. Vasai, Dist. Palghar - 401208",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 8
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-evergreen-pali",
+      "name": "Evergreen Recyclekaro India Pvt. Ltd.",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Palghar",
+      "address": "Gut No. 113/A, Village Pali, Tal. Wada, Dist. Palghar",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 9
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-ecoreset-bhowari",
+      "name": "Eco Reset Private Limited",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Nagpur",
+      "address": "Plot No. 19/1, Mouza Bhowari, Kamptee, Nagpur",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 1,
+      "sourceRow": 10
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-svgreentech-kelthan",
+      "name": "S V Greentech Private Limited",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Palghar",
+      "address": "Gut No. 517/1 & 529, Village Kelthan, Tal. Wada, Dist. Palghar",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 2,
+      "sourceRow": 11
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-global-wakanpada",
+      "name": "Global E-Recycling Pvt Ltd.",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Palghar",
+      "address": "Plot No. 2, 3, 4, Sr. No. 11, H. No. 1/1, Wakanpada Dhaniv, Palghar",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 2,
+      "sourceRow": 12
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-greenit-ranjangaon",
+      "name": "Green IT Recycling Center Pvt Ltd",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Pune",
+      "address": "Plot No. D-222, MIDC Ranjangaon, Dist. Pune - 412209",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 2,
+      "sourceRow": 13
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-greenindia-dahisar",
+      "name": "Green India E-Waste & Recycling OPC Pvt. Ltd.",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Thane",
+      "address": "Survey No. 74, Hissa No. 1/A, House No. 500, Post Dahisar, Dist. Thane",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 2,
+      "sourceRow": 14
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-suritex-butibori",
+      "name": "Suritex Pvt. Ltd.",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Nagpur",
+      "address": "Plot No. B-111, MIDC Industrial Area, Butibori, Dist. Nagpur",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 2,
+      "sourceRow": 15
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-greenvalley-ghonsai",
+      "name": "Green Valley E Waste Management Pvt Ltd",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Palghar",
+      "address": "Gut No. 525/10, Village Ghonsai, Saza-Met, Tal. Wada, Ghonsai, Palghar - 421312",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 2,
+      "sourceRow": 16
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-sayma-urali",
+      "name": "Sayma E-Waste Solutions",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Pune",
+      "address": "S. No. 323, Hissa No. 3, A Plot No. B-27, Urali Devashi, Tal. Haveli, Pune",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 2,
+      "sourceRow": 17
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-western-dahisar",
+      "name": "Western Recycler",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Thane",
+      "address": "Sr. No. 8/2, Plot No. 633, Shilphata, Panvel Road, Dahisar, Tal. & Dist. Thane",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 2,
+      "sourceRow": 19
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-tarai-manchar",
+      "name": "Tarai Projects Pvt. Ltd.",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Pune",
+      "address": "Gut No. 14/1/A, Atar Mala, Near Shivsagar Hotel, Manchar, Tal. Machar, Dist. Pune",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 3,
+      "sourceRow": 20
+    },
+    {
+      "id": "mpcb-ewaste-2024-05-jeenali-khupri",
+      "name": "Jeenali Trading & Comm. Serv. Pvt. Ltd.",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Maharashtra",
+      "district": "Palghar",
+      "address": "Gut No. 68/1, Village Khupri, Tal. Wada, Dist. Palghar",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "mpcb-ewaste-2024-05",
+      "sourceUrl": "https://mpcb.gov.in/sites/default/files/Authorised%20E-Waste%20Recyclers%20%26%20Refurbishers-May%202024.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourcePage": 3,
+      "sourceRow": 21
+    },
+    {
+      "id": "rspcb-ewaste-public-register-etco-jaipur",
+      "name": "ETCO E-Waste Recycler Private Ltd",
+      "industry": "E-waste recycling and refurbishing",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Jaipur",
+      "address": "SB-23, Shilp Bari, Road No. 14-15, VKI Area, Jaipur",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 1
+    },
+    {
+      "id": "rspcb-ewaste-public-register-shukla-bhiwadi",
+      "name": "Shukla E-waste Processor",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Bhiwadi",
+      "address": "H-309 (B), RIICO Industrial Area, Bhiwadi",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 2
+    },
+    {
+      "id": "rspcb-ewaste-public-register-gs-ringus",
+      "name": "GS International",
+      "industry": "E-waste dismantling and refurbishing",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Sikar",
+      "address": "Plot No. G1-101, Shri Khatushyam Ji Industrial Complex, Sri Madhopur Ringus, Sikar - 332404",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 3
+    },
+    {
+      "id": "rspcb-ewaste-public-register-adatte-karoli",
+      "name": "Adatte E-Waste Management Pvt. Ltd.",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Alwar",
+      "address": "F-120, Industrial Area, Karoli, Tapukara Extension, Tehsil Tijara, District Alwar",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 4
+    },
+    {
+      "id": "rspcb-ewaste-public-register-hm-kehrani",
+      "name": "H.M. E-Waste Management",
+      "industry": "E-waste recycling and refurbishing",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Khairthal-Tijara",
+      "address": "G1-226, G1-227, RIICO Industrial Area, Kehrani Bhiwadi Extension, Tehsil Tijara, District Khairthal-Tijara",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 5
+    },
+    {
+      "id": "rspcb-ewaste-public-register-goldengreen-ringus",
+      "name": "Golden Green Recyclers",
+      "industry": "E-waste dismantling, recycling and refurbishing",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Sikar",
+      "address": "G1-11, S.K.S. Industrial Area, Ringus, Sri Madhopur Ringus, Sikar - 332404",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 7
+    },
+    {
+      "id": "rspcb-ewaste-public-register-greenweb-manda",
+      "name": "Green Web Recycling",
+      "industry": "E-waste dismantling and refurbishing",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Jaipur",
+      "address": "H1-865, Industrial Area, Manda-II, Chomu, Jaipur - 303702",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 8
+    },
+    {
+      "id": "rspcb-ewaste-public-register-gogreen-khushkhera",
+      "name": "Go Green Management LLP",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Alwar",
+      "address": "G1-612N, Khushkhera RIICO Industrial Area, Bhiwadi, Alwar",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 9
+    },
+    {
+      "id": "rspcb-ewaste-public-register-marss-manda",
+      "name": "Marss Recycler Private Limited",
+      "industry": "E-waste refurbishing",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Jaipur",
+      "address": "G-5, Industrial Area Manda, Tehsil Chomu, District Jaipur",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 10
+    },
+    {
+      "id": "rspcb-ewaste-public-register-globalmetalists-dholpur",
+      "name": "The Global Metalists",
+      "industry": "E-waste refurbishing",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Rajasthan",
+      "district": "Dholpur",
+      "address": "J-176, RIICO Growth Center, RIICO Industrial Area, Dholpur",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "rspcb-ewaste-public-register",
+      "sourceUrl": "https://environment.rajasthan.gov.in/content/environment/en/rajasthan-state-pollution-control-board/information/WasteManagement/E-Waste_Management/DISMANTLERS-REFURBISHERS-RECYCLERS.html",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 11
+    },
+    {
+      "id": "hspcb-ewaste-public-list-thapar-ambala",
+      "name": "Thapar Disposal Industries",
+      "industry": "E-waste dismantling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Ambala",
+      "address": "902, A/5/6, Chara Mandi Road, Ambala City",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 29
+    },
+    {
+      "id": "hspcb-ewaste-public-list-mittal-panchkula",
+      "name": "Mittal Battery",
+      "industry": "E-waste dismantling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Panchkula",
+      "address": "Plot No. 349, Industrial Area, Phase-1, Panchkula",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 30
+    },
+    {
+      "id": "hspcb-ewaste-public-list-ewasterecycler-nuh",
+      "name": "E-waste Recycler India Pvt. Ltd.",
+      "industry": "E-waste dismantling and recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Nuh",
+      "address": "Shed No. 15, Roz ka Meo, Industrial Area, Nuh",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 31
+    },
+    {
+      "id": "hspcb-ewaste-public-list-exigo-panipat",
+      "name": "Exigo Recycling (P) Ltd. — Barsat Road, Panipat",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Panipat",
+      "address": "Barsat Road, Panipat",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 32
+    },
+    {
+      "id": "hspcb-ewaste-public-list-exigo-samalkha",
+      "name": "Exigo Recycling (P) Ltd. — Samalkha",
+      "industry": "E-waste recycling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Panipat",
+      "address": "GT Road, Samalkha, Panipat",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 33
+    },
+    {
+      "id": "hspcb-ewaste-public-list-earthwaste-ismaila",
+      "name": "Earth Waste Management Co.",
+      "industry": "E-waste dismantling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Rohtak",
+      "address": "Village Ismaila, Dist. Rohtak",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 36
+    },
+    {
+      "id": "hspcb-ewaste-public-list-giriraj-rohtak",
+      "name": "Giriraj Metal",
+      "industry": "E-waste dismantling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Rohtak",
+      "address": "Plot No. 39, HSIIDC, Dist. Rohtak",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 37
+    },
+    {
+      "id": "hspcb-ewaste-public-list-renu-bahadurgarh",
+      "name": "Renu Recycling Company",
+      "industry": "E-waste dismantling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "",
+      "address": "Plot No. 1257, MIE-B, Bahadurgarh",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 38
+    },
+    {
+      "id": "hspcb-ewaste-public-list-tesamm-wazidpur",
+      "name": "Tes Amm (India) Pvt. Ltd.",
+      "industry": "E-waste dismantling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Sonepat",
+      "address": "Village Wazidpur Saboli, Dist. Sonepat",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 39
+    },
+    {
+      "id": "hspcb-ewaste-public-list-bluenvir-rai",
+      "name": "Bluenvir",
+      "industry": "E-waste dismantling",
+      "materials": [
+        "E-waste"
+      ],
+      "state": "Haryana",
+      "district": "Sonipat",
+      "address": "81, HSIIDC, Rai, Dist. Sonipat",
+      "latitude": null,
+      "longitude": null,
+      "sourceId": "hspcb-ewaste-public-list",
+      "sourceUrl": "https://hspcb.gov.in/uploads/pages/ewaster_66ac829eb3965.pdf",
+      "sourcePublishedAt": null,
+      "checkedAt": "2026-11-24",
+      "sourceRow": 40
+    }
+  ]
+}
