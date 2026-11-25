@@ -1,0 +1,5774 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScrapLoop — Industrial Circular Material Exchange</title>
+  <style>
+    :root {
+      --bg-base: #F4F5F7;
+      --bg-surface: #FFFFFF;
+      --bg-hover: #F8FAFC;
+      --border: #E2E8F0;
+      --border-dark: #CBD5E1;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --text-faint: #94A3B8;
+      --primary: #047857;
+      --primary-hover: #065F46;
+      --primary-subtle: #ECFDF5;
+      --primary-border: #A7F3D0;
+      --accent-red: #DC2626;
+      --accent-red-subtle: #FEF2F2;
+      --accent-blue: #0284C7;
+      --accent-blue-subtle: #F0F9FF;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Horizontal Navigation Bar */
+    header {
+      background: var(--bg-surface);
+      border-bottom: 1.5px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-main {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #059669, #047857);
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      box-shadow: 0 2px 5px rgba(4, 120, 87, 0.25);
+    }
+
+    .brand-text h1 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Center Horizontal Navigation Tabs */
+    .nav-tabs {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-base);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 11px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn svg {
+      width: 15px;
+      height: 15px;
+      stroke-width: 2;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: color 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-surface);
+      color: var(--primary);
+      border-color: var(--border);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      font-weight: 700;
+    }
+
+    .tab-btn.active svg {
+      color: var(--primary);
+    }
+
+    /* Right Header Profile & Status */
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .node-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: var(--primary-subtle);
+      border: 1px solid var(--primary-border);
+      color: var(--primary);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+      white-space: nowrap;
+      flex-shrink: 0;
+      letter-spacing: 0.3px;
+    }
+
+    .status-dot {
+      width: 6.5px;
+      height: 6.5px;
+      background: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(4, 120, 87, 0.2);
+      flex-shrink: 0;
+    }
+
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-left: 1px solid var(--border);
+      padding-left: 10px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .avatar-pill {
+      width: 28px;
+      height: 28px;
+      background: #E0F2FE;
+      color: #0284C7;
+      border: 1px solid #BAE6FD;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .user-info {
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .user-name {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .user-sub {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 1px;
+    }
+
+    @media (max-width: 1100px) {
+      .brand-text p { display: none; }
+      .node-status { display: none; }
+    }
+
+    /* Main Dashboard View Container */
+    main {
+      flex: 1;
+      max-width: 1360px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 32px 48px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .view-container {
+      display: none;
+      flex-direction: column;
+      gap: 22px;
+      width: 100%;
+    }
+
+    .view-container.active {
+      display: flex;
+    }
+
+    .view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 14px;
+    }
+
+    .view-header h2 {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: var(--text-main);
+    }
+
+    .view-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    /* Metric Scope Toggle (All-India vs Local 50km) */
+    .scope-toggle-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      padding: 3px;
+      border-radius: 8px;
+    }
+
+    .scope-btn {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .scope-btn.active {
+      background: var(--primary-subtle);
+      border-color: var(--primary-border);
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Role Toggle Bar for Match Radar (Seller vs Buyer) */
+    .radar-role-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      padding: 6px;
+      border-radius: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .role-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px 16px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .role-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke-width: 2;
+    }
+
+    .role-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .role-btn.active {
+      background: var(--primary-subtle);
+      border-color: var(--primary);
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(4, 120, 87, 0.12);
+    }
+
+    .role-desc-strip {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-left: 3.5px solid var(--primary);
+      border-radius: 6px;
+      padding: 10px 16px;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .role-desc-strip strong {
+      color: var(--text-main);
+    }
+
+    /* KPI Summary Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 960px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      box-shadow: var(--shadow-card);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-1px);
+    }
+
+    .kpi-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      letter-spacing: 0.6px;
+    }
+
+    .kpi-number {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      letter-spacing: -0.5px;
+      font-variant-numeric: tabular-nums;
+      margin-top: 2px;
+    }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 3px;
+    }
+
+    /* Card Panels */
+    .card-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .card-panel-header {
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FAFAFA;
+    }
+
+    .card-panel-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-panel-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Byproduct Stream Row */
+    .stream-row {
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.15s ease;
+    }
+
+    .stream-row:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-dark);
+    }
+
+    .stream-row.active {
+      border-color: var(--primary);
+      background: var(--primary-subtle);
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    /* Buttons */
+    .btn-action {
+      background: var(--primary);
+      color: #fff;
+      border: 1px solid transparent;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s ease;
+    }
+
+    .btn-action:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-dark);
+    }
+
+    /* Professional Google Maps Industrial GIS Component */
+    .gmap-card {
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }
+
+    .gmap-header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: #FFFFFF;
+      border-bottom: 1px solid #E5E7EB;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .gmap-search-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #F3F4F6;
+      border: 1px solid #E5E7EB;
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #374151;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+    }
+
+    .gmap-view-controls {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .gmap-mode-btn {
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #4B5563;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .gmap-mode-btn:hover {
+      background: #F9FAFB;
+      color: #111827;
+    }
+
+    .gmap-mode-btn.active {
+      background: #047857;
+      color: #FFFFFF;
+      border-color: #047857;
+      box-shadow: 0 1px 3px rgba(4, 120, 87, 0.3);
+    }
+
+    .gmap-traffic-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: #059669;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #ECFDF5;
+      padding: 4px 9px;
+      border-radius: 20px;
+      border: 1px solid #A7F3D0;
+    }
+
+    .gmap-traffic-pulse {
+      width: 7px;
+      height: 7px;
+      background: #10B981;
+      border-radius: 50%;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    .gmap-canvas-viewport {
+      position: relative;
+      width: 100%;
+      height: 350px;
+      background: #F3F3F0;
+      overflow: hidden;
+      cursor: grab;
+    }
+
+    .gmap-canvas-viewport:active {
+      cursor: grabbing;
+    }
+
+    #radarCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Floating Google Maps InfoWindow (Speech Bubble) */
+    .gmap-bubble-card {
+      position: absolute;
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 10px 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0,0,0,0.08);
+      font-size: 12px;
+      pointer-events: none;
+      transform: translate(-50%, -100%);
+      margin-top: -14px;
+      z-index: 10;
+      min-width: 220px;
+      max-width: 280px;
+      transition: opacity 0.15s ease;
+    }
+
+    .gmap-bubble-card::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -7px;
+      border-width: 7px;
+      border-style: solid;
+      border-color: #FFFFFF transparent transparent transparent;
+    }
+
+    .gmap-bubble-card::before {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      margin-left: -8px;
+      border-width: 8px;
+      border-style: solid;
+      border-color: #CBD5E1 transparent transparent transparent;
+    }
+
+    /* Floating Navigation Route Badge */
+    .gmap-route-pill {
+      position: absolute;
+      background: #1E293B;
+      color: #FFFFFF;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 8;
+    }
+
+    /* Floating Google Map Controls */
+    .gmap-action-controls {
+      position: absolute;
+      right: 14px;
+      bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      background: #FFFFFF;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      border: 1px solid #E5E7EB;
+      overflow: hidden;
+      z-index: 5;
+    }
+
+    .gmap-action-btn {
+      width: 32px;
+      height: 32px;
+      background: #FFFFFF;
+      border: none;
+      color: #4B5563;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+    }
+
+    .gmap-action-btn:hover {
+      background: #F3F4F6;
+      color: #111827;
+    }
+
+    .gmap-action-btn + .gmap-action-btn {
+      border-top: 1px solid #E5E7EB;
+    }
+
+    /* Google Watermark & Scale */
+    .gmap-footer-bar {
+      position: absolute;
+      left: 10px;
+      bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 10px;
+      color: #6B7280;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .gmap-brand-text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      font-size: 13px;
+    }
+
+    .gmap-brand-text span:nth-child(1) { color: #4285F4; }
+    .gmap-brand-text span:nth-child(2) { color: #EA4335; }
+    .gmap-brand-text span:nth-child(3) { color: #FBBC05; }
+    .gmap-brand-text span:nth-child(4) { color: #4285F4; }
+    .gmap-brand-text span:nth-child(5) { color: #34A853; }
+    .gmap-brand-text span:nth-child(6) { color: #EA4335; }
+
+    .gmap-scale-rule {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 700;
+      color: #4B5563;
+    }
+
+    .gmap-scale-notch {
+      width: 48px;
+      height: 4px;
+      border-bottom: 2px solid #4B5563;
+      border-left: 2px solid #4B5563;
+      border-right: 2px solid #4B5563;
+    }
+
+    .map-legend-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      padding: 6px 4px 0;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    /* Supplier & Factory Match Cards */
+    .plant-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .match-card {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .match-card:hover {
+      border-color: var(--border-dark);
+      background: var(--bg-hover);
+    }
+
+    .match-card.selected {
+      border-color: var(--primary);
+      background: #F8FCF9;
+      box-shadow: 0 0 0 1px var(--primary);
+    }
+
+    .match-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .match-factory-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.2px;
+    }
+
+    .badge-recommend {
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      letter-spacing: 0.4px;
+    }
+
+    .badge-best {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .badge-alt {
+      background: #F1F5F9;
+      color: #475569;
+      border: 1px solid #E2E8F0;
+    }
+
+    .match-specs-line {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    .match-pct-pill {
+      font-weight: 800;
+      color: var(--primary);
+      font-family: var(--font-mono);
+      background: var(--primary-subtle);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--primary-border);
+    }
+
+    .quality-spec-badge {
+      background: #F1F5F9;
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 11.5px;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .match-price-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+    }
+
+    .price-breakdown-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    .badge-ready-buy {
+      background: #DCFCE7;
+      color: #15803D;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+
+    /* Selected Buyer Bottom Bar */
+    .selected-buyer-bar {
+      margin-top: auto;
+      padding: 16px;
+      background: #FAFAFA;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .selected-buyer-label {
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      letter-spacing: 0.6px;
+    }
+
+    .selected-buyer-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-top: 2px;
+    }
+
+    /* Multi-Supplier Pooling Box */
+    .pool-planner-box {
+      background: #FFFFFF;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pool-planner-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pool-planner-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pool-calc-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .pool-input-ton {
+      width: 80px;
+      padding: 6px 8px;
+      border: 1px solid var(--border-dark);
+      border-radius: 5px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    /* Smart Transport Comparison Styles (Clean, Executive & Presentable) */
+    .transport-insight-bar {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .insight-badge-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      max-width: 440px;
+    }
+
+    .insight-tag-lead {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: #047857;
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      padding: 3px 8px;
+      border-radius: 4px;
+      width: fit-content;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .insight-rec-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-top: 3px;
+    }
+
+    .insight-rec-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .insight-metrics-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .insight-metric {
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid var(--border);
+      padding-left: 14px;
+    }
+
+    .insight-metric-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-mono);
+    }
+
+    .insight-metric-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      margin-top: 2px;
+    }
+
+    .insight-metric-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .transport-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-bottom: 18px;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .transport-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .trans-supplier-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .trans-supplier-card:hover {
+      border-color: var(--border-dark);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+
+    .trans-supplier-card.winner {
+      border-color: #047857;
+      background: #FFFFFF;
+      box-shadow: 0 0 0 1.5px #047857;
+    }
+
+    .trans-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .trans-card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .trans-card-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .trans-tag {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      font-family: var(--font-mono);
+    }
+
+    .trans-tag-winner {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .trans-tag-alt {
+      background: #F1F5F9;
+      color: #475569;
+      border: 1px solid var(--border);
+    }
+
+    .trans-price-strip {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+
+    .trans-price-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .trans-price-val {
+      font-size: 20px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--text-main);
+      margin-top: 1px;
+    }
+
+    .trans-price-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .trans-breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-main);
+      padding: 3px 0;
+    }
+
+    .trans-breakdown-label {
+      color: var(--text-muted);
+    }
+
+    .trans-bar-wrap {
+      margin-top: 2px;
+      margin-bottom: 2px;
+    }
+
+    .stacked-bar-track {
+      height: 8px;
+      background: #E2E8F0;
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .stacked-bar-mat {
+      background: #047857;
+      height: 100%;
+    }
+
+    .stacked-bar-freight {
+      background: #0284C7;
+      height: 100%;
+    }
+
+    .trans-bar-legend {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .trans-savings-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px dashed var(--border);
+      padding-top: 8px;
+      font-size: 12px;
+    }
+
+    .trans-strip-summary {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 18px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* Arbitrage Tiles */
+    .arb-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 860px) {
+      .arb-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .arb-tile {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .arb-tile-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .arb-tile-val {
+      font-size: 24px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+      margin-top: 4px;
+    }
+
+    /* Clean Enterprise Tables */
+    .table-clean {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .table-clean th {
+      text-align: left;
+      padding: 11px 16px;
+      border-bottom: 1.5px solid var(--border);
+      background: #FAFAFA;
+      color: var(--text-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .table-clean td {
+      padding: 13px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .table-clean tr:hover td {
+      background: var(--bg-hover);
+    }
+
+    .status-tag {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .status-ready {
+      background: var(--primary-subtle);
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+    }
+
+    .status-transit {
+      background: var(--accent-blue-subtle);
+      color: var(--accent-blue);
+      border: 1px solid #BAE6FD;
+    }
+
+    .status-delivered {
+      background: #DCFCE7;
+      color: #15803D;
+      border: 1px solid #BBF7D0;
+    }
+
+    .status-pending {
+      background: #F3E8FF;
+      color: #7E22CE;
+      border: 1px solid #E9D5FF;
+    }
+
+    .filter-chip {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-chip:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .filter-chip.active {
+      background: var(--primary);
+      color: #FFFFFF;
+      border-color: var(--primary);
+    }
+
+    /* Comparison Modal */
+    .compare-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .compare-modal-overlay.open {
+      display: flex;
+    }
+
+    .compare-sheet {
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      max-width: 900px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px 28px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* Modal Transit Manifest */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .manifest-card {
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      max-width: 580px;
+      width: 100%;
+      padding: 26px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .manifest-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1.5px solid var(--border);
+      padding-bottom: 14px;
+    }
+
+    .manifest-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 12.5px;
+    }
+
+    .manifest-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .manifest-box span {
+      display: block;
+      font-size: 10.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+    }
+  </style>
+<style id="scraploop-layout-refresh">/* Presentation only. Data, text, IDs, event handlers and application scripts remain original. */
+:root {
+  --bg-base: #f7f9f6;
+  --bg-surface: #fff;
+  --bg-hover: #f4f7f1;
+  --border: #dce4da;
+  --border-dark: #bbcaba;
+  --text-main: #233c30;
+  --text-muted: #637367;
+  --text-faint: #768476;
+  --primary: #315f45;
+  --primary-hover: #254c36;
+  --primary-subtle: #eef4e9;
+  --primary-border: #bdcfb4;
+  --shadow-sm: none;
+  --shadow-card: none;
+  --shadow-md: 0 4px 16px #1f38200a;
+}
+body {
+  font-size: 14px;
+  line-height: 1.6;
+}
+header {
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  box-shadow: none;
+}
+.header-main {
+  max-width: 1280px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  padding: 25px 32px 0;
+  column-gap: 32px;
+  row-gap: 18px;
+}
+.brand-wrap {
+  gap: 13px;
+}
+.brand-logo {
+  background: var(--primary);
+  box-shadow: none;
+  border-radius: 4px;
+  width: 38px;
+  height: 38px;
+}
+.brand-text h1 {
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+.brand-text p {
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 3px;
+}
+.header-right {
+  grid-column: 2;
+  grid-row: 1;
+  gap: 20px;
+}
+.node-status {
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  padding: 0;
+  font-size: 11px;
+  font-weight: 500;
+}
+.status-dot {
+  box-shadow: none;
+  width: 5px;
+  height: 5px;
+}
+.user-badge {
+  padding-left: 20px;
+  gap: 10px;
+}
+.avatar-pill {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  box-shadow: none;
+}
+.user-name {
+  font-size: 13px;
+}
+.user-sub {
+  font-size: 11px;
+}
+.nav-tabs {
+  grid-column: 1/-1;
+  grid-row: 2;
+  gap: 30px;
+  overflow-x: auto;
+  max-width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  padding: 0;
+  scrollbar-width: thin;
+}
+.tab-btn {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 16px 0;
+  gap: 8px;
+  box-shadow: none;
+  min-height: 50px;
+  flex-shrink: 0;
+}
+.tab-btn.active {
+  border-color: var(--primary);
+  box-shadow: none;
+  background: none;
+  font-weight: 600;
+}
+.tab-btn:hover {
+  background: none;
+}
+.tab-btn svg {
+  width: 17px;
+  height: 17px;
+  stroke-width: 1.7;
+}
+main {
+  max-width: 1280px;
+  padding: 38px 32px 64px;
+}
+.view-container {
+  gap: 30px;
+}
+.view-header {
+  gap: 28px;
+  align-items: center;
+  padding-bottom: 24px;
+}
+.view-header > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+.view-header h2 {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.8px;
+}
+.view-header p {
+  font-size: 14px;
+  line-height: 1.7;
+  margin-top: 10px;
+  max-width: 760px;
+}
+.scope-toggle-wrap {
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 3px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.scope-btn {
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+  border-radius: 2px;
+}
+.kpi-grid {
+  gap: 20px;
+}
+.kpi-card {
+  padding: 23px 22px;
+  border-radius: 5px;
+  box-shadow: none;
+  gap: 9px;
+  min-height: 184px;
+  justify-content: space-between;
+}
+.kpi-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+.kpi-title,
+.kpi-label {
+  font-size: 10px;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+.kpi-number {
+  font-family: var(--font-sans);
+  font-size: 31px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -1px;
+}
+.kpi-sub {
+  font-size: 11px;
+  line-height: 1.65;
+  font-weight: 400;
+  display: block;
+  overflow-wrap: anywhere;
+}
+.kpi-value {
+  line-height: 1.4;
+}
+.layout-dashboard-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) !important;
+  gap: 28px !important;
+  align-items: start;
+}
+.card-panel {
+  min-width: 0;
+  border-radius: 5px;
+  box-shadow: none;
+}
+.card-panel-header {
+  padding: 22px 24px;
+  gap: 20px;
+  align-items: flex-start;
+  background: white;
+  border-color: var(--border);
+  flex-wrap: wrap;
+}
+.card-panel-header > div {
+  min-width: 0;
+}
+.card-panel-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
+  display: block;
+}
+.card-panel-header > div > div {
+  font-size: 12px !important;
+  line-height: 1.7;
+  margin-top: 6px !important;
+}
+.card-panel-body {
+  padding: 24px;
+  gap: 22px;
+  min-width: 0;
+}
+.stream-row {
+  padding: 19px 0;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  gap: 18px;
+  box-shadow: none !important;
+}
+.stream-row.active {
+  border-color: var(--border);
+  background: transparent;
+  box-shadow: none;
+}
+.stream-row:last-child {
+  border-bottom: 0;
+}
+.stream-row > div {
+  min-width: 0;
+}
+.stream-row strong {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  line-height: 1.6;
+}
+.stream-row > div > div {
+  font-size: 12px !important;
+  line-height: 1.7;
+  margin-top: 5px !important;
+}
+.stream-row > span {
+  flex-shrink: 0;
+  font-size: 11px !important;
+}
+.btn-action,
+.btn-secondary {
+  min-height: 42px;
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  box-shadow: none;
+  white-space: normal;
+  text-align: center;
+  justify-content: center;
+  max-width: 100%;
+}
+.btn-action:hover,
+.btn-secondary:hover {
+  transform: none;
+}
+.btn-action:focus-visible,
+.btn-secondary:focus-visible,
+.tab-btn:focus-visible,
+.scope-btn:focus-visible,
+.role-btn:focus-visible,
+summary:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #88aa75;
+  outline-offset: 3px;
+}
+.radar-role-bar {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  gap: 18px;
+}
+.role-btn {
+  padding: 15px 18px;
+  justify-content: flex-start;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.7;
+  background: white;
+}
+.role-btn svg {
+  flex-shrink: 0;
+}
+.role-btn.active {
+  background: var(--primary-subtle);
+  border-color: var(--primary-border);
+  box-shadow: none;
+}
+.role-desc-strip {
+  background: transparent;
+  border: 0;
+  border-left: 2px solid #a7bd98;
+  padding: 8px 16px;
+  gap: 24px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+.role-desc-strip > span:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.role-desc-strip > span:last-child {
+  white-space: nowrap;
+}
+.layout-material-toolbar {
+  gap: 20px !important;
+  align-items: flex-start !important;
+}
+.layout-material-toolbar > div {
+  flex-wrap: wrap;
+  gap: 14px !important;
+  min-width: 0;
+}
+.layout-material-toolbar > div > div {
+  flex-wrap: wrap;
+  gap: 8px !important;
+}
+.layout-matching-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) !important;
+  gap: 28px !important;
+  align-items: start;
+}
+.gmap-card {
+  box-shadow: none;
+  border-radius: 4px;
+}
+.gmap-header-bar {
+  padding: 14px;
+  gap: 12px;
+}
+.gmap-search-pill {
+  padding: 5px 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+  min-width: 0;
+  flex: 1 1 100%;
+  font-size: 11px;
+}
+.gmap-search-pill svg {
+  flex-shrink: 0;
+}
+.gmap-search-pill span {
+  overflow-wrap: anywhere;
+}
+.gmap-canvas-viewport {
+  max-width: 100%;
+  height: 340px;
+}
+.gmap-view-controls {
+  gap: 8px;
+}
+.gmap-traffic-tag {
+  font-size: 10px;
+  margin-left: auto;
+}
+.gmap-bubble-card {
+  max-width: calc(100% - 30px);
+  font-size: 11px;
+}
+.map-legend-bar {
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.map-legend-bar > div {
+  flex-wrap: wrap;
+  gap: 12px !important;
+}
+.legend-item {
+  white-space: normal;
+}
+.gmap-footer-bar {
+  font-size: 9px;
+  gap: 12px;
+}
+.plant-grid {
+  gap: 24px;
+}
+.match-card {
+  padding: 23px;
+  border-radius: 4px;
+  box-shadow: none;
+  border: 1px solid var(--border);
+  gap: 18px;
+}
+.match-card.selected {
+  box-shadow: none;
+  border-color: #94b382;
+  background: #fff;
+}
+.match-card-top {
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.match-card-top > div {
+  min-width: 0;
+}
+.match-factory-name {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.badge-recommend {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 4px 8px;
+  line-height: 1.5;
+}
+.match-specs-line {
+  gap: 10px;
+  line-height: 1.8;
+  flex-wrap: wrap;
+}
+.quality-spec-badge {
+  padding: 12px;
+  background: #f7f9f4;
+  line-height: 1.8;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.quality-spec-badge > span {
+  font-size: 11px;
+}
+.match-price-row {
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.match-price-row > div {
+  min-width: 0;
+}
+.match-price-row > div > div {
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+.price-value-bold {
+  font-family: var(--font-sans);
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+}
+.price-breakdown-sub {
+  font-size: 11px;
+  line-height: 1.95;
+  margin-top: 9px;
+}
+.price-meta-label {
+  font-size: 11px;
+  line-height: 1.7;
+}
+.badge-ready-buy {
+  white-space: normal;
+  font-size: 10px;
+  line-height: 1.5;
+}
+.selected-buyer-bar {
+  padding: 20px 0 0;
+  gap: 18px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+}
+.selected-buyer-title {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.selected-buyer-label {
+  font-size: 10px;
+  margin-bottom: 6px;
+}
+.selected-buyer-bar .btn-action {
+  width: 100%;
+}
+/* Existing details remain available on demand instead of occupying the whole initial view. */
+details.pool-planner-box {
+  padding: 0;
+  border: 1px solid var(--border);
+  background: white;
+  box-shadow: none;
+  border-radius: 4px;
+  display: block;
+}
+summary.pool-planner-head {
+  padding: 17px 18px;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  line-height: 1.7;
+}
+summary.pool-planner-head::before {
+  content: "+";
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--primary);
+  flex-shrink: 0;
+  line-height: 1.3;
+}
+details[open] > summary.pool-planner-head::before {
+  content: "−";
+}
+summary.pool-planner-head::-webkit-details-marker {
+  display: none;
+}
+.pool-planner-title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.7;
+}
+.pool-layout-body {
+  padding: 0 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.pool-calc-row {
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pool-input-ton {
+  padding: 10px 12px;
+  min-height: 42px;
+  font-size: 13px;
+  border-radius: 4px;
+}
+.pool-calc-row .btn-action {
+  flex-basis: 100%;
+}
+.pool-layout-body > div[style] {
+  max-width: 100%;
+}
+.pool-layout-body #poolResultOutput {
+  line-height: 1.9;
+  padding: 16px !important;
+  border-width: 1px !important;
+}
+.transport-insight-bar {
+  background: white;
+  border: 1px solid var(--border);
+  border-left: 3px solid #94b382;
+  box-shadow: none;
+  border-radius: 5px;
+  padding: 24px;
+  gap: 26px;
+  display: flex;
+  flex-direction: column;
+}
+.insight-badge-col {
+  border: 0;
+  padding: 0;
+  max-width: none;
+}
+.insight-tag-lead {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+  padding: 5px 8px;
+}
+.insight-rec-title {
+  font-size: 23px;
+  line-height: 1.4;
+  font-weight: 600;
+  margin-top: 10px;
+}
+.insight-rec-sub {
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 8px;
+}
+.insight-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+  border-top: 1px solid var(--border);
+  padding-top: 22px;
+}
+.insight-metric {
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.insight-metric-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+.insight-metric-val {
+  font-size: 25px;
+  letter-spacing: -0.5px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  line-height: 1.5;
+}
+.insight-metric-sub {
+  font-size: 11px;
+  line-height: 1.8;
+}
+.transport-toolbar {
+  background: none;
+  border: 0;
+  padding: 0;
+  gap: 26px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+.toolbar-group {
+  gap: 12px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+.toolbar-group > div {
+  flex-wrap: wrap;
+}
+.toolbar-label {
+  font-size: 12px;
+  font-weight: 500;
+}
+.transport-cards-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+.trans-supplier-card {
+  border-radius: 5px;
+  padding: 22px;
+  gap: 18px;
+  box-shadow: none !important;
+  min-width: 0;
+}
+.trans-supplier-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+.trans-supplier-card.winner {
+  box-shadow: none;
+  border-color: #94b382;
+}
+.trans-card-top {
+  align-items: flex-start;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.trans-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+.trans-card-meta {
+  font-size: 11px;
+  line-height: 1.9;
+}
+.trans-tag {
+  font-size: 10px;
+  white-space: normal;
+  line-height: 1.6;
+}
+.trans-price-strip {
+  background: none;
+  padding: 12px 0;
+  border-block: 1px solid var(--border);
+  border-radius: 0;
+}
+.trans-price-val {
+  font-family: var(--font-sans);
+  font-size: 27px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.trans-price-sub,
+.trans-price-label {
+  font-size: 11px;
+  line-height: 1.8;
+}
+.trans-breakdown-row {
+  line-height: 1.8;
+}
+.trans-savings-strip {
+  padding: 12px;
+  gap: 14px;
+  line-height: 1.8;
+}
+.trans-bar-legend {
+  gap: 12px;
+  flex-wrap: wrap;
+  line-height: 1.7;
+}
+.trans-strip-summary {
+  line-height: 1.9;
+  font-size: 12px;
+  padding: 18px 22px;
+  box-shadow: none;
+  background: #f0f5eb;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.layout-disclosure {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: white;
+}
+.layout-disclosure > summary {
+  padding: 18px 22px;
+  cursor: pointer;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 500;
+}
+.layout-disclosure > .card-panel {
+  border-width: 1px 0 0;
+  box-shadow: none;
+  border-radius: 0;
+  margin: 0 !important;
+}
+.layout-table-scroll {
+  overflow-x: auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.table-clean {
+  font-size: 13px;
+  min-width: 640px;
+}
+.table-clean th {
+  padding: 15px 20px;
+  background: #f6f8f3;
+  font-weight: 500;
+  font-size: 10px;
+  line-height: 1.7;
+}
+.table-clean td {
+  padding: 18px 20px;
+  line-height: 1.8;
+}
+.table-clean td > div,
+.table-clean td strong {
+  overflow-wrap: anywhere;
+}
+.arb-grid {
+  gap: 24px;
+}
+.arb-tile {
+  padding: 25px;
+  box-shadow: none;
+  border-radius: 5px;
+  gap: 9px;
+  min-width: 0;
+}
+.arb-tile-label {
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.8;
+}
+.arb-tile-val {
+  font-size: 27px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  line-height: 1.6;
+}
+.filter-chip {
+  padding: 9px 13px;
+  min-height: 38px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.layout-waybill-toolbar {
+  padding: 20px !important;
+  gap: 18px !important;
+}
+.layout-waybill-toolbar > div {
+  flex-wrap: wrap;
+  gap: 10px !important;
+  min-width: 0;
+}
+.layout-waybill-toolbar input {
+  min-height: 42px;
+  width: 100% !important;
+  min-width: 200px;
+}
+.compare-sheet,
+.manifest-card {
+  border-radius: 6px;
+  padding: 28px;
+  gap: 24px;
+  max-height: 90dvh;
+  overflow-y: auto;
+  box-shadow: 0 24px 80px #19352222;
+}
+.manifest-card {
+  max-width: 680px;
+}
+.manifest-grid {
+  gap: 16px;
+  font-size: 13px;
+}
+.manifest-box {
+  background: #f6f8f3;
+  padding: 16px;
+  line-height: 1.8;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.manifest-header {
+  gap: 20px;
+}
+.modal-overlay,
+.compare-modal-overlay {
+  overflow-y: auto;
+  padding: 24px;
+}
+.layout-match-card-scroll {
+  min-width: 0;
+}
+button,
+input,
+select {
+  touch-action: manipulation;
+}
+@media (max-width: 1100px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .transport-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .view-header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  .scope-toggle-wrap {
+    max-width: 100%;
+  }
+  .layout-dashboard-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .header-right {
+    gap: 14px;
+  }
+  .header-main {
+    row-gap: 12px;
+  }
+  .nav-tabs {
+    gap: 23px;
+  }
+  .tab-btn {
+    font-size: 12px;
+  }
+  .layout-matching-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .gmap-canvas-viewport {
+    height: 380px;
+  }
+  .match-card {
+    padding: 24px;
+  }
+  .selected-buyer-bar .btn-action {
+    width: auto;
+  }
+  .insight-metrics-row {
+    gap: 20px;
+  }
+}
+@media (max-width: 650px) {
+  .header-main {
+    padding: 20px 20px 0;
+    column-gap: 16px;
+    row-gap: 16px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .brand-text h1 {
+    font-size: 22px;
+  }
+  .header-right {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .nav-tabs {
+    grid-row: 3;
+    gap: 23px;
+    width: 100%;
+    min-width: 0;
+  }
+  .tab-btn {
+    padding: 13px 0;
+    font-size: 12px;
+  }
+  .tab-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+  .user-badge {
+    padding-left: 14px;
+    gap: 8px;
+  }
+  .user-name {
+    font-size: 12px;
+  }
+  .avatar-pill {
+    width: 30px;
+    height: 30px;
+  }
+  .node-status {
+    font-size: 10px;
+  }
+  .brand-logo {
+    width: 34px;
+    height: 34px;
+  }
+  main {
+    padding: 28px 20px 44px;
+  }
+  .view-container {
+    gap: 24px;
+  }
+  .view-header {
+    gap: 18px;
+    padding-bottom: 20px;
+  }
+  .view-header h2 {
+    font-size: 25px;
+    line-height: 1.3;
+  }
+  .view-header p {
+    font-size: 13px;
+    line-height: 1.8;
+  }
+  .kpi-grid {
+    gap: 12px;
+  }
+  .kpi-card {
+    padding: 18px 15px;
+    min-height: 184px;
+    gap: 10px;
+  }
+  .kpi-title,
+  .kpi-label {
+    font-size: 9px;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+  }
+  .kpi-number {
+    font-size: 24px;
+    overflow-wrap: anywhere;
+  }
+  .kpi-sub {
+    font-size: 10px;
+  }
+  .scope-toggle-wrap {
+    width: 100%;
+    display: flex;
+    gap: 4px;
+  }
+  .scope-btn {
+    font-size: 10px;
+    flex: 1;
+    padding: 9px 7px;
+  }
+  .card-panel-header {
+    padding: 18px;
+    gap: 16px;
+  }
+  .card-panel-title {
+    font-size: 15px;
+  }
+  .card-panel-body {
+    padding: 18px;
+    gap: 18px;
+  }
+  .stream-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .stream-row strong {
+    font-size: 14px !important;
+  }
+  .stream-row > div > div {
+    font-size: 11px !important;
+  }
+  .layout-dashboard-grid {
+    gap: 24px !important;
+  }
+  .layout-matching-grid {
+    gap: 24px !important;
+  }
+  .radar-role-bar {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .role-btn {
+    padding: 14px;
+    font-size: 12px;
+  }
+  .role-desc-strip {
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px 14px;
+    font-size: 11px;
+  }
+  .layout-material-toolbar > div {
+    flex-basis: 100%;
+  }
+  .layout-material-toolbar > div > span {
+    font-size: 12px !important;
+  }
+  .layout-material-toolbar > div > div {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+    width: 100%;
+  }
+  .layout-material-toolbar > button {
+    width: 100%;
+  }
+  .gmap-header-bar {
+    padding: 12px;
+    gap: 10px;
+  }
+  .gmap-search-pill {
+    font-size: 10px;
+    line-height: 1.7;
+  }
+  .gmap-traffic-tag {
+    font-size: 9px;
+  }
+  .gmap-canvas-viewport {
+    height: 310px;
+  }
+  .gmap-footer-bar > span {
+    font-size: 8px;
+  }
+  .gmap-bubble-card {
+    width: 210px;
+    padding: 12px;
+  }
+  .map-legend-bar {
+    font-size: 10px;
+    gap: 10px;
+  }
+  .map-legend-bar > div {
+    gap: 10px !important;
+  }
+  .map-legend-bar > span {
+    font-size: 10px !important;
+  }
+  .match-card {
+    padding: 18px;
+    gap: 18px;
+  }
+  .match-factory-name {
+    font-size: 15px;
+  }
+  .match-card-top > div {
+    align-items: flex-start !important;
+  }
+  .match-specs-line {
+    font-size: 11px;
+    gap: 8px;
+  }
+  .price-value-bold {
+    font-size: 25px;
+  }
+  .match-price-row {
+    gap: 12px;
+  }
+  .quality-spec-badge {
+    padding: 11px;
+    font-size: 10px;
+  }
+  .quality-spec-badge > span {
+    font-size: 10px;
+  }
+  .selected-buyer-bar .btn-action {
+    width: 100%;
+  }
+  .pool-planner-head {
+    flex-wrap: wrap;
+  }
+  .pool-layout-body {
+    padding: 0 14px 16px;
+  }
+  .pool-layout-body > div {
+    flex-wrap: wrap;
+  }
+  .pool-layout-body #poolResultOutput {
+    padding: 12px !important;
+    font-size: 11px !important;
+  }
+  .transport-insight-bar {
+    padding: 20px;
+    gap: 20px;
+  }
+  .insight-rec-title {
+    font-size: 20px;
+  }
+  .insight-rec-sub {
+    font-size: 12px;
+  }
+  .insight-metrics-row {
+    grid-template-columns: 1fr;
+    gap: 17px;
+  }
+  .insight-metric {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .insight-metric:last-child {
+    padding-bottom: 0;
+    border: 0;
+  }
+  .insight-metric-val {
+    font-size: 25px;
+  }
+  .transport-toolbar {
+    gap: 20px;
+  }
+  .toolbar-group {
+    width: 100%;
+    gap: 10px;
+  }
+  .toolbar-group > div {
+    gap: 8px !important;
+  }
+  .toolbar-group > div > button {
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+  .toolbar-group select {
+    width: 100% !important;
+  }
+  .trans-supplier-card {
+    padding: 20px;
+  }
+  .trans-savings-strip {
+    flex-wrap: wrap;
+  }
+  .trans-strip-summary {
+    padding: 17px;
+    font-size: 11px;
+  }
+  .arb-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .arb-tile {
+    padding: 23px;
+  }
+  .arb-tile-val {
+    font-size: 29px;
+  }
+  .layout-waybill-toolbar {
+    padding: 16px !important;
+  }
+  .layout-waybill-toolbar > div {
+    flex-basis: 100%;
+  }
+  .layout-waybill-toolbar > div > input {
+    min-width: 0;
+  }
+  .layout-table-scroll {
+    max-width: calc(100vw - 42px);
+  }
+  .table-clean {
+    min-width: 700px;
+    font-size: 12px;
+  }
+  .table-clean th {
+    padding: 13px 15px;
+  }
+  .table-clean td {
+    padding: 16px 15px;
+  }
+  .manifest-grid {
+    grid-template-columns: 1fr;
+  }
+  .modal-overlay,
+  .compare-modal-overlay {
+    padding: 14px;
+  }
+  .manifest-card,
+  .compare-sheet {
+    padding: 22px;
+    max-height: 90dvh;
+  }
+  .manifest-header {
+    flex-wrap: wrap;
+  }
+  .selected-buyer-title {
+    overflow-wrap: anywhere;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+@media print {
+  header {
+    position: static;
+  }
+  .layout-table-scroll {
+    overflow: visible;
+  }
+  .table-clean {
+    min-width: 0;
+  }
+  details.layout-disclosure > summary {
+    display: none;
+  }
+  .card-panel {
+    break-inside: avoid;
+  }
+}
+</style></head>
+<body>
+
+  <!-- Top Horizontal Header & Navigation Bar -->
+  <header>
+    <div class="header-main">
+      
+      <!-- Brand Logo -->
+      <div class="brand-wrap">
+        <div class="brand-logo">SL</div>
+        <div class="brand-text">
+          <h1>ScrapLoop</h1>
+          <p>Industrial Material Exchange</p>
+        </div>
+      </div>
+
+      <!-- Center Tabs -->
+      <nav class="nav-tabs" aria-label="Workspace navigation">
+        <button class="tab-btn active" id="nav-dashboard" onclick="showTab('dashboard')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"></path></svg>
+          Dashboard Overview
+        </button>
+
+        <button class="tab-btn" id="nav-matching" onclick="showTab('matching')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5"></path></svg>
+          Circular Match Radar
+        </button>
+
+        <button class="tab-btn" id="nav-transport" onclick="showTab('transport')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25H4.875c-.621 0-1.125.504-1.125 1.125v7.5c0 .621.504 1.125 1.125 1.125h2.25m6-9.75V15"></path></svg>
+          Smart Transport Comparison
+        </button>
+
+        <button class="tab-btn" id="nav-arbitrage" onclick="showTab('arbitrage')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Economic Arbitrage
+        </button>
+
+        <button class="tab-btn" id="nav-waybills" onclick="showTab('waybills')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25H4.875c-.621 0-1.125.504-1.125 1.125v7.5c0 .621.504 1.125 1.125 1.125h2.25m6-9.75V15"></path></svg>
+          Transit Waybills
+        </button>
+      </nav>
+
+      <!-- Right Facility Node Status -->
+      <div class="header-right">
+        <div class="node-status">
+          <div class="status-dot"></div>
+          <span id="headerClusterName">Pune MIDC</span>
+        </div>
+
+        <div class="user-badge">
+          <div class="avatar-pill" id="headerAvatar">PC</div>
+          <div class="user-info">
+            <div class="user-name" id="headerUserName">PolyCompound Hub</div>
+            <div class="user-sub" id="headerUserSub"><span style="color:#0284C7; font-weight:700;">Buyer Node</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Content Space -->
+  <main id="main-content">
+    
+    <!-- TAB 1: DASHBOARD OVERVIEW -->
+    <div class="view-container active" id="tab-dashboard">
+      <div class="view-header">
+        <div>
+          <h2>Industrial Circularity Dashboard</h2>
+          <p>Real-time national metrics and local matching for secondary industrial materials across India.</p>
+        </div>
+
+        <!-- Scope Toggle: All-India vs Local Cluster -->
+        <div class="scope-toggle-wrap">
+          <button class="scope-btn active" id="scope-national" onclick="setMetricScope('national')">
+            🇮🇳 All-India Market
+          </button>
+          <button class="scope-btn" id="scope-local" onclick="setMetricScope('local')">
+            📍 Local Facility (50km)
+          </button>
+        </div>
+      </div>
+
+      <!-- 4 KPI Cards: Displaying Actual Current All-India Values -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <span class="kpi-title" id="kpi1-label">ALL-INDIA MONTHLY INDUSTRIAL WASTE</span>
+          <div class="kpi-number" id="kpi1-val">5.16 MMT</div>
+          <div class="kpi-sub" id="kpi1-sub">↑ Out of ~62 MMT total national stream (CPCB)</div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title" id="kpi2-label">ALL-INDIA DELIVERED COST ARBITRAGE</span>
+          <div class="kpi-number" id="kpi2-val">₹14,200 Cr</div>
+          <div class="kpi-sub" id="kpi2-sub">↑ 34.2% avg raw material cost saving</div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title" id="kpi3-label">REGISTERED RECOVERY &amp; COMPOUNDER HUBS</span>
+          <div class="kpi-number" id="kpi3-val">1,850+ Plants</div>
+          <div class="kpi-sub" id="kpi3-sub">• GIDC, MIDC, SIPCOT, RIICO &amp; NCR Belts</div>
+        </div>
+
+        <div class="kpi-card">
+          <span class="kpi-title" id="kpi4-label">AUDITED CARBON EMISSION AVOIDANCE</span>
+          <div class="kpi-number" id="kpi4-val">8.4 MMT CO₂e</div>
+          <div class="kpi-sub" id="kpi4-sub">• Certified MoEFCC circularity baseline</div>
+        </div>
+      </div>
+
+      <!-- Split Layout -->
+      <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:20px;" class="layout-dashboard-grid">
+        <!-- Left: Waste Inventory -->
+        <div class="card-panel">
+          <div class="card-panel-header">
+            <span class="card-panel-title">Active Scrap Inventory &amp; Specifications</span>
+            <button class="btn-action" onclick="showTab('matching')">Open Match Radar →</button>
+          </div>
+          <div class="card-panel-body">
+            <div class="stream-row active" onclick="setFeedstock('pp'); showTab('matching');">
+              <div>
+                <strong style="font-size:13.5px; color:var(--text-main);">Polypropylene Slit Edge-Trims</strong>
+                <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">5.0 MT • MFI 12.4 g/10min • Plot 42 Logistics Yard</div>
+              </div>
+              <span style="font-family:var(--font-mono); color:var(--primary); font-weight:700; font-size:12px;">Matched • 98% Match</span>
+            </div>
+
+            <div class="stream-row" onclick="setFeedstock('al'); showTab('matching');">
+              <div>
+                <strong style="font-size:13.5px; color:var(--text-main);">Al-6061 Aerospace Machining Swarf</strong>
+                <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">8.2 MT • Si: 0.6%, Mg: 1.0% • Degreased Clean</div>
+              </div>
+              <span style="font-family:var(--font-mono); color:var(--text-muted); font-weight:700; font-size:12px;">Ready • 99% Match</span>
+            </div>
+
+            <div class="stream-row" onclick="setFeedstock('ash'); showTab('matching');">
+              <div>
+                <strong style="font-size:13.5px; color:var(--text-main);">Class-F Mineral Fly Ash</strong>
+                <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">24.0 MT • Fineness 380 m²/kg • Dry Bulk Silo</div>
+              </div>
+              <span style="font-family:var(--font-mono); color:var(--text-muted); font-weight:700; font-size:12px;">Ready • 97% Match</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Top Arbitrage Summary -->
+        <div class="card-panel">
+          <div class="card-panel-header">
+            <span class="card-panel-title">Top Active Arbitrage Opportunity</span>
+            <button class="btn-secondary" onclick="showTab('arbitrage')">View Ledger</button>
+          </div>
+          <div class="card-panel-body">
+            <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:7px; padding:16px; display:flex; flex-direction:column; gap:10px;">
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span style="color:var(--text-muted);">Top Candidate Plant:</span>
+                <strong id="dashLeadBuyer">PolyCompound Hub (22 km)</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span style="color:var(--text-muted);">Virgin Material Benchmark:</span>
+                <span style="color:var(--accent-red); text-decoration:line-through; font-family:var(--font-mono); font-weight:600;">₹2,00,000</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; font-size:12px;">
+                <span style="color:var(--text-muted);">Secondary Deal Price:</span>
+                <strong style="color:var(--primary); font-family:var(--font-mono);">₹1,30,000 for 5T batch</strong>
+              </div>
+              <div style="background:var(--primary); color:#fff; padding:10px 14px; border-radius:6px; display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                <span style="font-size:12px; font-weight:600;">Net Arbitrage Savings:</span>
+                <strong style="font-family:var(--font-mono); font-size:15px;">₹55,400 (27.7%)</strong>
+              </div>
+            </div>
+
+            <button onclick="openManifest()" style="background:var(--text-main); color:#fff; border:none; padding:12px; border-radius:6px; font-weight:700; font-size:13px; cursor:pointer; transition:background 0.15s ease;">
+              Issue Transit Waybill Directly →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: CIRCULAR MATCH RADAR (Redesigned as Clean Regional Map) -->
+    <div class="view-container" id="tab-matching">
+      <div class="view-header">
+        <div>
+          <h2>Find Suppliers &amp; Secondary Material Near You</h2>
+          <p id="radarSubheading">Discover nearby factories that can supply your required material at verified quality and landed prices.</p>
+        </div>
+      </div>
+
+      <!-- SELLER vs BUYER Dual Role Toggle -->
+      <div class="radar-role-bar">
+        <button class="role-btn active" id="btn-role-seller" onclick="setRadarRole('seller')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"></path></svg>
+          I am a Seller (Scrap Generator) — Find Buyers in Need
+        </button>
+
+        <button class="role-btn" id="btn-role-buyer" onclick="setRadarRole('buyer')">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"></path></svg>
+          I am a Buyer (Processing Plant) — Find Nearby Suppliers
+        </button>
+      </div>
+
+      <!-- Informative Perspective Explanation Strip -->
+      <div class="role-desc-strip" id="roleDescStrip">
+        <span>🏭 <strong>Seller Perspective:</strong> Discover factories looking to purchase your generated scrap material within haul radius.</span>
+        <span style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--primary);">Outbound Supply</span>
+      </div>
+
+      <!-- 1. What Material Do You Need? (Feedstock Selector) -->
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;" class="layout-material-toolbar">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:13px; font-weight:800; color:var(--text-main); font-family:var(--font-mono);" id="streamSelectorLabel">What Material Do You Need?</span>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-action" id="btn-stream-pp" onclick="setFeedstock('pp')">PP Edge-Trims</button>
+            <button class="btn-secondary" id="btn-stream-al" onclick="setFeedstock('al')">Aluminium 6061</button>
+            <button class="btn-secondary" id="btn-stream-ash" onclick="setFeedstock('ash')">Fly Ash Grade-F</button>
+          </div>
+        </div>
+
+        <button class="btn-secondary" onclick="openCompareSheet()">
+          ⚖️ Compare Suppliers Table
+        </button>
+      </div>
+
+      <div style="display:grid; grid-template-columns: 1fr 1.1fr; gap:22px; align-items:start;" class="layout-matching-grid">
+        
+        <!-- Left: Improved Regional Map (No submarine radar!) -->
+        <div class="card-panel">
+          <div class="card-panel-header">
+            <div>
+              <span class="card-panel-title" id="radarCardTitle">Find Suppliers Near You</span>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">Discover factories that can supply your required material.</div>
+            </div>
+            <span style="font-family:var(--font-mono); font-weight:700; color:var(--primary); font-size:12px;" id="radarRadiusLabel">35 km search radius</span>
+          </div>
+
+          <div class="card-panel-body">
+            <!-- Search Distance Slider -->
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:600;">
+                <span id="sliderPromptLabel">Search distance:</span>
+                <span id="sliderNumText" style="color:var(--primary); font-family:var(--font-mono); font-weight:700;">35 km</span>
+              </div>
+              <input type="range" min="5" max="50" value="35" id="radiusInput" oninput="changeRadius(this.value)">
+              <div style="display:flex; justify-content:space-between; font-size:10.5px; color:var(--text-faint); font-family:var(--font-mono);">
+                <span>5 km</span>
+                <span>50 km</span>
+              </div>
+            </div>
+
+            <!-- Professional Google Maps Industrial GIS Component -->
+            <div class="gmap-card">
+              <div class="gmap-header-bar">
+                <div class="gmap-search-pill">
+                  <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                  <span id="gmapCorridorText">Pune • Chakan MIDC • Talegaon Industrial Corridor</span>
+                </div>
+                <div class="gmap-view-controls">
+                  <button class="gmap-mode-btn active" id="btnGMapRoad" onclick="setGMapStyle('roadmap')">🗺️ Map</button>
+                  <button class="gmap-mode-btn" id="btnGMapSat" onclick="setGMapStyle('satellite')">🛰️ Satellite</button>
+                </div>
+                <div class="gmap-traffic-tag">
+                  <span class="gmap-traffic-pulse"></span>
+                  <span>Freight Traffic: Clear</span>
+                </div>
+              </div>
+
+              <div class="gmap-canvas-viewport" id="gmapViewport">
+                <canvas id="radarCanvas" width="560" height="350"></canvas>
+                
+                <!-- Floating Google Maps InfoWindow Balloon -->
+                <div class="gmap-bubble-card" id="gmapInfoWindow" style="display:none;"></div>
+
+                <!-- Floating Route Travel Time Badge -->
+                <div class="gmap-route-pill" id="gmapRouteBadge" style="display:none;">
+                  <span>🚗 42 min (22 km) via NH-48</span>
+                </div>
+
+                <!-- Floating Controls -->
+                <div class="gmap-action-controls">
+                  <button class="gmap-action-btn" onclick="zoomGMap(1.2)" title="Zoom In">+</button>
+                  <button class="gmap-action-btn" onclick="zoomGMap(0.8)" title="Zoom Out">−</button>
+                  <button class="gmap-action-btn" onclick="resetGMap()" title="Center on Factory" style="font-size:13px;">⌖</button>
+                </div>
+
+                <!-- Watermark & Scale Bar -->
+                <div class="gmap-footer-bar">
+                  <div class="gmap-brand-text">
+                    <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+                  </div>
+                  <span>ScrapLoop GIS • Survey of India</span>
+                </div>
+
+                <div style="position:absolute; right:14px; bottom:8px; pointer-events:none;">
+                  <div class="gmap-scale-rule">
+                    <span id="gmapScaleNum">5 km</span>
+                    <div class="gmap-scale-notch"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Map Legend -->
+            <div class="map-legend-bar" style="margin-top:8px;">
+              <div style="display:flex; gap:16px; align-items:center;">
+                <div class="legend-item">
+                  <div style="width:12px; height:12px; background:#047857; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px #047857;"></div>
+                  <strong style="color:var(--text-main);">Your Factory</strong> (Search Origin)
+                </div>
+                <div class="legend-item">
+                  <div style="width:12px; height:12px; background:#EA4335; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px #EA4335; display:flex; align-items:center; justify-content:center; color:#fff; font-size:8px; font-weight:800;">A</div>
+                  <span>Best Match</span>
+                </div>
+                <div class="legend-item">
+                  <div style="width:12px; height:12px; background:#0284C7; border-radius:50%; border:2px solid #fff; box-shadow:0 0 0 1px #0284C7; display:flex; align-items:center; justify-content:center; color:#fff; font-size:8px; font-weight:800;">B</div>
+                  <span>Alternative Supplier</span>
+                </div>
+              </div>
+              <span style="font-size:10.5px; color:var(--text-faint); font-style:italic;">Real-time highway routing via NH-48</span>
+            </div>
+
+            <!-- Smart Multi-Supplier Pooling Box (ScrapLoop Power Feature) -->
+            <details class="pool-planner-box"><summary class="pool-planner-head">
+                <span class="pool-planner-title">⚡ Smart Multi-Supplier Pool Planner</span>
+                <span style="font-size:11px; background:#DCFCE7; color:#15803D; padding:2px 8px; border-radius:12px; font-weight:700; border:1px solid #BBF7D0;">Verified Batch Match</span>
+              </summary><div class="pool-layout-body">
+              
+              <p style="font-size:12px; color:var(--text-muted); line-height:1.45; margin:0;" id="poolExplainerText">
+                Need more material than one factory can supply? ScrapLoop automatically pools compliant lots across nearby factories into one unified batch with combined transport optimization.
+              </p>
+              
+              <!-- Quick Preset Buttons -->
+              <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:11.5px; margin-top:2px;">
+                <span style="color:var(--text-faint); font-weight:600;">Quick Tonnage:</span>
+                <button class="gmap-mode-btn" style="padding:2px 8px; font-size:11px;" onclick="setPoolPreset(5)">5 MT</button>
+                <button class="gmap-mode-btn" style="padding:2px 8px; font-size:11px;" onclick="setPoolPreset(8.5)">8.5 MT (Max 35km)</button>
+                <button class="gmap-mode-btn" style="padding:2px 8px; font-size:11px;" onclick="setPoolPreset(10)">10 MT</button>
+                <button class="gmap-mode-btn" style="padding:2px 8px; font-size:11px;" onclick="setPoolPreset(25)">25 MT</button>
+                <button class="gmap-mode-btn" style="padding:2px 8px; font-size:11px;" onclick="setPoolPreset(100)">100 MT</button>
+              </div>
+
+              <div class="pool-calc-row">
+                <span style="font-size:12.5px; font-weight:700; color:var(--text-main);" id="poolInputPrompt">I need:</span>
+                <input type="number" class="pool-input-ton" id="poolTargetTon" value="8.5" min="1" max="500" step="0.5" oninput="calculateCombinedPool()">
+                <span style="font-size:12.5px; font-weight:600; color:var(--text-muted);">tonnes</span>
+                <button class="btn-action" style="padding:7px 14px; font-size:12px;" onclick="calculateCombinedPool()">
+                  ⚡ Calculate Exact Pooled Batch
+                </button>
+              </div>
+
+              <!-- Real-time Exact Calculation Output Box -->
+              <div id="poolResultOutput" style="font-size:12px; background:#F8FAFC; border:1.5px solid var(--border); border-radius:8px; padding:12px;">
+                <!-- Dynamically populated via calculateCombinedPool() -->
+              </div>
+            </div></details>
+
+          </div>
+        </div>
+
+        <!-- Right: Connected Supplier Cards with Full Price, Quality & Landed Cost -->
+        <div class="card-panel">
+          <div class="card-panel-header">
+            <div>
+              <span class="card-panel-title" id="matchListHeader">Factories Looking to Buy Your Scrap</span>
+              <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;" id="matchListSub">We found 2 factories interested in your material within 35 km.</div>
+            </div>
+            <span style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--primary);" id="viableCountBadge">2 interested buyers nearby</span>
+          </div>
+
+          <div class="card-panel-body">
+            <!-- Dynamic Connected Supplier Cards List -->
+            <div class="plant-grid" id="plantsGrid">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Selected Buyer Bottom Action Bar -->
+            <div class="selected-buyer-bar">
+              <div>
+                <div class="selected-buyer-label" id="selectedMatchLabel">SELECTED SUPPLIER</div>
+                <div class="selected-buyer-title" id="selectedPlantName">PolyCompound Hub • 22 km away</div>
+              </div>
+              <button class="btn-action" id="btnMatchExecute" onclick="showTab('transport')">
+                Compare Total Delivered Cost →
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 3: SMART TRANSPORT COMPARISON (Feature: Delivered Cost vs Distance) -->
+    <div class="view-container" id="tab-transport">
+      <div class="view-header">
+        <div>
+          <h2>Smart Transport Comparison</h2>
+          <p>Delivered cost analysis comparing raw material quote plus transportation haul to identify your real lowest-cost supplier.</p>
+        </div>
+      </div>
+
+      <!-- Key Insight Executive Summary Bar -->
+      <div class="transport-insight-bar" id="transportInsightBar">
+        <div class="insight-badge-col">
+          <span class="insight-tag-lead" id="transBadgeTag">★ OPTIMAL SOURCING DEAL</span>
+          <div class="insight-rec-title" id="transRecTitle">Supplier C is Your Best Delivered Deal</div>
+          <div class="insight-rec-sub" id="transRecSub">Delivers ₹15,400 more in net savings despite being farther away.</div>
+        </div>
+        <div class="insight-metrics-row">
+          <div class="insight-metric">
+            <span class="insight-metric-label">Delivered Spend</span>
+            <span class="insight-metric-val" id="transValCost">₹1,26,400</span>
+            <span class="insight-metric-sub" id="transValPerTon">₹12,640/tonne landed</span>
+          </div>
+          <div class="insight-metric">
+            <span class="insight-metric-label">Net Sourcing Savings</span>
+            <span class="insight-metric-val" style="color:#15803D;" id="transValSavings">₹93,600</span>
+            <span class="insight-metric-sub" id="transValSavingsPct">42.5% vs virgin</span>
+          </div>
+          <div class="insight-metric">
+            <span class="insight-metric-label">Crossover Breakeven</span>
+            <span class="insight-metric-val" style="color:#0284C7;" id="transValBreakeven">84 km</span>
+            <span class="insight-metric-sub">max economical haul</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Row: Feedstock, Tonnage, Vehicle -->
+      <div class="transport-toolbar">
+        <div class="toolbar-group">
+          <span class="toolbar-label">Feedstock:</span>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-action" id="btn-trans-pp" onclick="setTransportStream('pp')">PP Edge-Trims</button>
+            <button class="btn-secondary" id="btn-trans-al" onclick="setTransportStream('al')">Aluminium 6061</button>
+            <button class="btn-secondary" id="btn-trans-ash" onclick="setTransportStream('ash')">Fly Ash Grade-F</button>
+          </div>
+        </div>
+
+        <div class="toolbar-group">
+          <span class="toolbar-label">Batch Order:</span>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <input type="number" id="transBatchTon" class="pool-input-ton" value="10" min="1" max="100" step="1" oninput="renderTransportComparison()">
+            <span style="font-size:12px; color:var(--text-muted); font-weight:600;">tonnes</span>
+          </div>
+        </div>
+
+        <div class="toolbar-group">
+          <span class="toolbar-label">Haulage Vehicle:</span>
+          <select id="transVehicleType" class="pool-input-ton" style="width:190px; padding:6px 10px; font-weight:600;" onchange="renderTransportComparison()">
+            <option value="multi" selected="">16-Wheeler (10-16t, ₹65/km)</option>
+            <option value="lcv">Tata 407 (3.5t, ₹35/km)</option>
+            <option value="bulker">Bulk Tanker (25-40t, ₹95/km)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Interactive Supplier Comparison Cards Grid -->
+      <div class="transport-cards-grid" id="transportCardsGrid">
+        <!-- Dynamically rendered via renderTransportComparison() -->
+      </div>
+
+      <!-- Detailed Breakdown Table Panel -->
+      <details class="layout-disclosure"><summary>Detailed supplier cost breakdown</summary><div class="card-panel" style="margin-top:14px;">
+        <div class="card-panel-header">
+          <div>
+            <span class="card-panel-title">Delivered Cost Economics by Supplier</span>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:1px;">Factory price + freight haul breakdown for current batch size.</div>
+          </div>
+          <button class="btn-action" onclick="showTab('arbitrage')">
+            View Arbitrage Ledger →
+          </button>
+        </div>
+        <div class="card-panel-body" style="padding:0;">
+          <div class="layout-table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table class="table-clean" id="transportTable">
+            <!-- Dynamically populated -->
+          </table></div>
+        </div>
+      </div></details>
+
+      <!-- Sleek 1-line Logistics Rule Callout -->
+      <div class="trans-strip-summary">
+        <span style="font-size:15px;">⚡</span>
+        <div>
+          <strong>The Distance Sourcing Rule:</strong> Freight typically accounts for just 4%–9% of delivered secondary material spend. A supplier offering a 15% unit discount often yields far higher net savings even with a longer transit haul.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 4: ECONOMIC ARBITRAGE (Feature 04) -->
+    <div class="view-container" id="tab-arbitrage">
+      <div class="view-header">
+        <div>
+          <h2>Economic Arbitrage Ledger (Feature 04)</h2>
+          <p>Bilateral unit economics comparing virgin material benchmarks against secondary delivered pricing.</p>
+        </div>
+      </div>
+
+      <div class="arb-grid">
+        <div class="arb-tile">
+          <div class="arb-tile-label">Virgin Feedstock Benchmark</div>
+          <div class="arb-tile-val" id="arbVirgin" style="color:var(--accent-red); text-decoration:line-through;">₹2,00,000</div>
+          <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Primary market procurement cost</div>
+        </div>
+        <div class="arb-tile">
+          <div class="arb-tile-label">ScrapLoop Secondary Price</div>
+          <div class="arb-tile-val" id="arbSecondary" style="color:var(--primary);">₹1,30,000</div>
+          <div style="font-size:11.5px; color:var(--text-muted); margin-top:4px;">Agreed secondary feedstock subtotal</div>
+        </div>
+        <div class="arb-tile" style="border-color:var(--primary-border); background:var(--primary-subtle);">
+          <div class="arb-tile-label" style="color:var(--primary);">Net Buyer Arbitrage</div>
+          <div class="arb-tile-val" id="arbSavings" style="color:var(--primary);">₹55,400 (27.7%)</div>
+          <div style="font-size:11.5px; color:var(--primary); font-weight:600; margin-top:4px;">Net saved delivered to plant</div>
+        </div>
+      </div>
+
+      <!-- Itemized Ledger Table -->
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <div>
+            <span class="card-panel-title">Order Price Breakdown (What You Pay)</span>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">Simple, transparent billing for this delivery batch.</div>
+          </div>
+          <button class="btn-action" onclick="openManifest()">Issue Delivery Pass →</button>
+        </div>
+        <div class="card-panel-body" style="padding:0;">
+          <div class="layout-table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table class="table-clean">
+            <thead>
+              <tr>
+                <th>Cost Item</th>
+                <th>Who Pays</th>
+                <th>Details</th>
+                <th style="text-align:right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1. Material Cost</strong></td>
+                <td><span style="background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700;">Buyer</span></td>
+                <td id="tableMaterialNote">5.0 Metric Tons PP Homopolymer</td>
+                <td style="text-align:right; font-family:var(--font-mono); font-weight:700;" id="tableSecondary">₹1,30,000</td>
+              </tr>
+              <tr>
+                <td><strong>2. Truck Delivery</strong></td>
+                <td><span style="background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700;">Buyer</span></td>
+                <td id="tableFreightNote">Point-to-point transit (22 km distance)</td>
+                <td style="text-align:right; font-family:var(--font-mono); font-weight:700;" id="tableFreight">₹4,200</td>
+              </tr>
+              <tr>
+                <td><strong>3. ScrapLoop Service Fee</strong></td>
+                <td><span style="background:#F1F5F9; color:#475569; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700;">Buyer</span></td>
+                <td>8% platform fee (quality verification &amp; matchmaking)</td>
+                <td style="text-align:right; font-family:var(--font-mono); font-weight:700;" id="tableFee">₹10,400</td>
+              </tr>
+              <tr style="background:#F8FAFC; font-weight:800; border-top:1.5px solid var(--border);">
+                <td colspan="3"><strong style="font-size:13.5px; color:var(--text-main);">Total Delivered Price (Delivered to Your Door)</strong></td>
+                <td style="text-align:right; font-family:var(--font-mono); font-size:16px; color:#047857;" id="tableDelivered">₹1,44,600</td>
+              </tr>
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+
+      <!-- Seller Savings / Environmental Bonus Callout -->
+      <div style="background:#FFFFFF; border:1px solid #BBF7D0; border-radius:8px; padding:12px 18px; margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:18px;">🌱</span>
+          <div>
+            <div style="font-size:12.5px; font-weight:800; color:#065F46;">Seller Bonus: Avoided Landfill Penalty</div>
+            <div style="font-size:11.5px; color:#047857;">By selling this scrap to you instead of trashing it, the seller saved on municipal dumping fees.</div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:10.5px; color:#047857; font-weight:700;">SELLER SAVED</div>
+          <div style="font-size:16px; font-weight:800; color:#15803D; font-family:var(--font-mono);" id="tableAvoided">+₹12,500</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: TRANSIT WAYBILLS (Feature 05) -->
+    <div class="view-container" id="tab-waybills">
+      <div class="view-header">
+        <div>
+          <h2>Digital Transit Waybills &amp; Consignment Records (Feature 05)</h2>
+          <p>Bilateral regulatory compliance notes, live freight manifest tracking, and verified carbon audit ledgers.</p>
+        </div>
+      </div>
+
+      <!-- Waybills KPI Summary Strip -->
+      <div class="kpi-grid" style="margin-bottom:18px;">
+        <div class="kpi-card">
+          <div class="kpi-label">TOTAL ACTIVE CONSIGNMENTS</div>
+          <div class="kpi-value" style="font-size:20px;">12 Shipments</div>
+          <div class="kpi-sub">185.9 MT industrial material</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">LIVE IN-TRANSIT DISPATCHES</div>
+          <div class="kpi-value" style="font-size:20px; color:#0284C7;">4 Trucks Hauling</div>
+          <div class="kpi-sub">47.2 MT on road right now</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">CERTIFIED CO₂ AVOIDED</div>
+          <div class="kpi-value" style="font-size:20px; color:#047857;">185.3 MT CO₂e</div>
+          <div class="kpi-sub">Verified circular offset registry</div>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-label">CUMULATIVE TRADE SETTLEMENT</div>
+          <div class="kpi-value" style="font-size:20px;">₹50.36 Lakh</div>
+          <div class="kpi-sub">Delivered secondary economy</div>
+        </div>
+      </div>
+
+      <!-- Filter & Search Toolbar -->
+      <div style="background:#FFFFFF; border:1px solid var(--border); border-radius:8px; padding:12px 16px; margin-bottom:16px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;" class="layout-waybill-toolbar">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span style="font-size:12px; font-weight:700; color:var(--text-main);">Filter Status:</span>
+          <button class="filter-chip active" id="chip-all" onclick="filterWaybills('ALL')">All Records (12)</button>
+          <button class="filter-chip" id="chip-transit" onclick="filterWaybills('IN TRANSIT')">In Transit (4)</button>
+          <button class="filter-chip" id="chip-ready" onclick="filterWaybills('READY FOR TRANSIT')">Ready (3)</button>
+          <button class="filter-chip" id="chip-delivered" onclick="filterWaybills('DELIVERED')">Delivered (4)</button>
+          <button class="filter-chip" id="chip-pending" onclick="filterWaybills('VERIFICATION PENDING')">Pending (1)</button>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+          <input type="text" id="waybillSearchInput" placeholder="🔍 Search waybill, facility, truck..." style="padding:6px 12px; border:1px solid var(--border-dark); border-radius:6px; font-size:12px; width:220px;" oninput="searchWaybills(this.value)">
+        </div>
+      </div>
+
+      <!-- Consignment Records Table Panel -->
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <span class="card-panel-title">Active Dispatched Consignment Records (<span id="waybillRecordCount">12</span> Found)</span>
+          <button class="btn-action" onclick="openManifest()">+ View Active Pass</button>
+        </div>
+        <div class="card-panel-body" style="padding:0;">
+          <div class="layout-table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table class="table-clean" id="waybillsMasterTable">
+            <thead>
+              <tr>
+                <th>Waybill # &amp; E-Way Bill</th>
+                <th>Material Feedstock &amp; Quantity</th>
+                <th>Consignor → Consignee Route</th>
+                <th>Carrier &amp; Truck Reg</th>
+                <th>Status</th>
+                <th>Carbon Offset</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="waybillsTableBody">
+              <!-- Dynamically populated via renderWaybillsTable() -->
+            </tbody>
+          </table></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Side-by-Side Supplier Comparison Sheet Modal -->
+  <div class="compare-modal-overlay" id="compareModal" onclick="closeCompareOnBackdrop(event)">
+    <div class="compare-sheet">
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:1.5px solid var(--border); padding-bottom:12px;">
+        <div>
+          <h3 style="font-size:17px; font-weight:800; color:var(--text-main);">Side-by-Side Supplier Comparison</h3>
+          <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Compare available quantity, material purity, transportation haul, and net landed price.</p>
+        </div>
+        <button onclick="closeCompareSheet()" style="background:transparent; border:none; font-size:20px; cursor:pointer; color:var(--text-muted);">×</button>
+      </div>
+
+      <div class="layout-table-scroll" tabindex="0" role="region" aria-label="Scrollable table"><table class="table-clean" id="compareTable">
+        <!-- Rendered dynamically -->
+      </table></div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="btn-action" onclick="closeCompareSheet()">Done Comparing</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Waybill -->
+  <div class="modal-overlay" id="manifestModal">
+    <div class="manifest-card">
+      <div class="manifest-header">
+        <div>
+          <div style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-muted); font-weight:700;">
+            SCRAPLOOP DIGITAL TRANSIT RECORD // BILATERAL CONSIGNMENT
+          </div>
+          <h3 style="font-size:16px; font-weight:800; margin-top:3px; color:var(--text-main);">Regulatory Material Consignment Waybill</h3>
+        </div>
+        <div style="background:var(--primary-subtle); color:var(--primary); border:1px solid var(--primary-border); font-family:var(--font-mono); font-size:11px; padding:4px 8px; border-radius:4px; font-weight:700;" id="mCode">
+          #SL-2026-PP
+        </div>
+      </div>
+
+      <div class="manifest-grid">
+        <div class="manifest-box">
+          <span>Origin Plant (Generator)</span>
+          <strong id="mOrigin">Apex Packaging Ltd.</strong>
+          <div style="color:var(--text-muted); font-size:11px; margin-top:2px;">Plot 42, Sector 18 Logistics Belt</div>
+        </div>
+
+        <div class="manifest-box">
+          <span>Destination (Compounder)</span>
+          <strong id="mDest">PolyCompound Hub</strong>
+          <div style="color:var(--text-muted); font-size:11px; margin-top:2px;" id="mDestLoc">Zone B Precision Hub (22 km)</div>
+        </div>
+
+        <div class="manifest-box">
+          <span>Material Specification</span>
+          <strong id="mMaterial">PP Homopolymer (5.0 MT)</strong>
+          <div style="color:var(--text-muted); font-size:11px; margin-top:2px;">MFI: 12.4 • 99.2% Purity Verified</div>
+        </div>
+
+        <div class="manifest-box">
+          <span>Delivered Trade Value</span>
+          <strong id="mPrice" style="color:var(--primary); font-size:14px;">₹1,44,600</strong>
+          <div style="color:var(--accent-blue); font-size:11px; margin-top:2px;" id="mCarbon">Offset: 6.8 MT CO₂e</div>
+        </div>
+      </div>
+
+      <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:6px; padding:11px 13px; font-size:11.5px; color:var(--text-muted); line-height:1.45;">
+        <strong>Regulatory Attestation:</strong> Inter-plant transit dispatched under ScrapLoop secondary resource circularity protocol. Freight haul locked point-to-point.
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn-secondary" onclick="window.print()">Print Official Pass</button>
+        <button class="btn-action" onclick="closeManifest()">Confirm Freight Dispatch</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GPS Live Telematics Modal -->
+  <div class="modal-overlay" id="trackingModal" onclick="closeTrackingOnBackdrop(event)">
+    <div class="manifest-card" style="max-width:540px;">
+      <div class="manifest-header">
+        <div>
+          <div style="font-size:10.5px; font-family:var(--font-mono); color:var(--text-muted); font-weight:700;">
+            FASTAG &amp; AIS-140 GPS TELEMATICS // SATELLITE TRANSIT BEACON
+          </div>
+          <h3 style="font-size:16px; font-weight:800; margin-top:3px; color:var(--text-main);" id="trackTruckTitle">Truck MH-14 BJ 7812 In Transit</h3>
+        </div>
+        <div style="background:#E0F2FE; color:#0284C7; border:1px solid #BAE6FD; font-family:var(--font-mono); font-size:11px; padding:4px 8px; border-radius:4px; font-weight:700;" id="trackStatusTag">
+          LIVE GPS ACTIVE
+        </div>
+      </div>
+
+      <div class="manifest-grid" style="grid-template-columns: 1fr 1fr; margin-bottom:14px;">
+        <div class="manifest-box">
+          <span>Carrier &amp; Vehicle</span>
+          <strong id="trackCarrier">Mahalaxmi Freight</strong>
+          <div style="color:var(--text-muted); font-size:11px; margin-top:2px;" id="trackDriver">16-Wheeler Multi-Axle • FASTag Active</div>
+        </div>
+        <div class="manifest-box">
+          <span>Speed &amp; Telematics</span>
+          <strong id="trackSpeed" style="color:#047857;">48 km/h • On Schedule</strong>
+          <div style="color:var(--text-muted); font-size:11px; margin-top:2px;" id="trackETA">ETA: 35 mins remaining</div>
+        </div>
+        <div class="manifest-box">
+          <span>Transit Corridor</span>
+          <strong id="trackRoute">Chakan → Pimpri Hub</strong>
+          <div style="color:var(--text-muted); font-size:11px; margin-top:2px;" id="trackDist">22 km Corridor via NH-48</div>
+        </div>
+        <div class="manifest-box">
+          <span>Toll &amp; Border Checkpoint</span>
+          <strong id="trackToll">Talegaon Toll Plaza Cleared</strong>
+          <div style="color:var(--text-muted); font-size:11px; margin-top:2px;">E-Way Bill: Valid &amp; Verified</div>
+        </div>
+      </div>
+
+      <div style="background:#F8FAFC; border:1px solid var(--border); border-radius:6px; padding:11px 13px; font-size:11.5px; color:var(--text-muted); line-height:1.45; margin-bottom:16px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+          <span style="font-weight:700; color:var(--text-main);">Current Coordinates:</span>
+          <span style="font-family:var(--font-mono); color:var(--primary); font-weight:700;" id="trackCoords">18.7214° N, 73.8122° E</span>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="font-weight:700; color:var(--text-main);">Geofence Status:</span>
+          <span style="color:#15803D; font-weight:700;">Inside Approved Green Transit Corridor</span>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px;">
+        <button class="btn-action" onclick="closeTrackingModal()">Close Tracking</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // National vs Local Macro Benchmarks
+    const SCOPES = {
+      national: {
+        k1_label: "ALL-INDIA MONTHLY INDUSTRIAL SCRAP",
+        k1_val: "5.16 MMT",
+        k1_sub: "↑ Out of ~62 MMT total national stream (CPCB)",
+        k2_label: "ALL-INDIA DELIVERED COST ARBITRAGE",
+        k2_val: "₹14,200 Cr",
+        k2_sub: "↑ 34.2% avg raw material cost saving",
+        k3_label: "REGISTERED RECOVERY & COMPOUNDER HUBS",
+        k3_val: "1,850+ Plants",
+        k3_sub: "• GIDC, MIDC, SIPCOT, RIICO & NCR Belts",
+        k4_label: "AUDITED CARBON EMISSION AVOIDANCE",
+        k4_val: "8.4 MMT CO₂e",
+        k4_sub: "• Certified MoEFCC circularity baseline"
+      },
+      local: {
+        k1_label: "LOCAL YARD SCRAP DIVERTED (THIS RUN)",
+        k1_val: "37.2 MT",
+        k1_sub: "↑ +14.2% vs previous run batch",
+        k2_label: "DELIVERED LOCAL COST ARBITRAGE",
+        k2_val: "₹4.82 Lakh",
+        k2_sub: "↑ 34% avg raw material saving",
+        k3_label: "REGIONAL COMPOUNDER HUBS",
+        k3_val: "3 Plants",
+        k3_sub: "• Inside active 35km haul radius",
+        k4_label: "AUDITED BATCH CARBON AVOIDANCE",
+        k4_val: "40.5 MT CO₂e",
+        k4_sub: "• Certified batch circular offset"
+      }
+    };
+
+    function setMetricScope(scope) {
+      document.getElementById('scope-national').classList.toggle('active', scope === 'national');
+      document.getElementById('scope-local').classList.toggle('active', scope === 'local');
+
+      const s = SCOPES[scope];
+      document.getElementById('kpi1-label').textContent = s.k1_label;
+      document.getElementById('kpi1-val').textContent = s.k1_val;
+      document.getElementById('kpi1-sub').innerHTML = s.k1_sub;
+
+      document.getElementById('kpi2-label').textContent = s.k2_label;
+      document.getElementById('kpi2-val').textContent = s.k2_val;
+      document.getElementById('kpi2-sub').innerHTML = s.k2_sub;
+
+      document.getElementById('kpi3-label').textContent = s.k3_label;
+      document.getElementById('kpi3-val').textContent = s.k3_val;
+      document.getElementById('kpi3-sub').innerHTML = s.k3_sub;
+
+      document.getElementById('kpi4-label').textContent = s.k4_label;
+      document.getElementById('kpi4-val').textContent = s.k4_val;
+      document.getElementById('kpi4-sub').innerHTML = s.k4_sub;
+    }
+
+    // High-Clarity Industrial Dataset
+    const DATA = {
+      pp: {
+        name: "Polypropylene Edge-Trims",
+        ton: "5.0 MT",
+        numericTon: 5.0,
+        code: "#SL-2026-PP",
+        materialSpec: "PP Homopolymer (MFI 12.4)",
+        virginCost: 200000,
+        secondaryBase: 130000,
+        avoidedDisposal: 12500,
+        co2: "6.8 MT CO₂e",
+        seller: {
+          myFacility: "Apex Packaging Ltd.",
+          myFacilitySub: "Generator &bull; Plot 42 Logistics Yard",
+          originLoc: "Plot 42, Sector 18 Logistics Belt",
+          headerTitle: "Factories Looking to Buy Your Scrap",
+          headerSub: "We found 2 factories interested in your material within 35 km.",
+          headerBadge: "2 interested buyers nearby",
+          streamHeading: "What Material Do You Have to Sell?",
+          selectedPrefix: "SELECTED BUYER",
+          btnActionText: "Calculate How Much You Can Earn →",
+          plants: [
+            {
+              name: "PolyCompound Hub",
+              badge: "Best Match",
+              badgeType: "best",
+              recommendation: "Closest factory with highest material compatibility (22 km)",
+              dist: 22,
+              fit: 98,
+              capacityTon: 12.0,
+              availableQty: "12.0 tonnes capacity",
+              demand: "Needs 8–12 tonnes per month",
+              qualityText: "PP Homopolymer · MFI: 12.4 g/10min · Contam: <0.2%",
+              qualityVerified: true,
+              matPrice: 130000,
+              pricePerTon: 26000,
+              freight: 4200,
+              angle: 45,
+              status: "Ready to Buy"
+            },
+            {
+              name: "Bharat Polymer Moulds",
+              badge: "Another Option",
+              badgeType: "alt",
+              recommendation: "Automotive molding facility with standard recipe tolerance",
+              dist: 34,
+              fit: 94,
+              capacityTon: 5.0,
+              availableQty: "5.0 tonnes capacity",
+              demand: "Needs 5 tonnes per month",
+              qualityText: "PP Copolymer Blend · MFI: 11.5 g/10min",
+              qualityVerified: true,
+              matPrice: 126000,
+              pricePerTon: 25200,
+              freight: 5800,
+              angle: 150,
+              status: "Ready to Buy"
+            },
+            {
+              name: "Apex Reprocessors",
+              badge: "Alternative Hub",
+              badgeType: "alt",
+              recommendation: "High volume extrusion reprocessor (longer haul)",
+              dist: 46,
+              fit: 89,
+              capacityTon: 15.0,
+              availableQty: "15.0 tonnes capacity",
+              demand: "Needs 15 tonnes per month",
+              qualityText: "Post-industrial regrind tolerance",
+              qualityVerified: false,
+              matPrice: 122000,
+              pricePerTon: 24400,
+              freight: 7200,
+              angle: 285,
+              status: "Ready to Buy"
+            }
+          ]
+        },
+        buyer: {
+          myFacility: "PolyCompound Hub",
+          myFacilitySub: "Compounder &bull; Zone B Precision Park",
+          originLoc: "Zone B Industrial Area (22 km)",
+          headerTitle: "Factories Available to Supply Secondary Material",
+          headerSub: "We found 2 nearby manufacturing plants with verified stock within 35 km.",
+          headerBadge: "2 available suppliers nearby",
+          streamHeading: "What Material Do You Need?",
+          selectedPrefix: "SELECTED SUPPLIER",
+          btnActionText: "Calculate Total Landed Cost & Save →",
+          plants: [
+            {
+              name: "Apex Packaging Ltd.",
+              badge: "Best Match",
+              badgeType: "best",
+              recommendation: "Closest generator with highest verified purity (98.4% clean)",
+              dist: 22,
+              fit: 98,
+              capacityTon: 5.0,
+              availableQty: "5.0 tonnes ready for pickup",
+              demand: "Lot size: 5.0 MT ready in yard",
+              qualityText: "PP Homopolymer · MFI: 12.4 g/10min · Contam: <0.25%",
+              qualityVerified: true,
+              matPrice: 130000,
+              pricePerTon: 26000,
+              freight: 4200,
+              angle: 225,
+              status: "Available for Pickup"
+            },
+            {
+              name: "Suraj Film Converters",
+              badge: "Another Option",
+              badgeType: "alt",
+              recommendation: "Clean edge-slits from continuous BOPP packaging lines",
+              dist: 28,
+              fit: 95,
+              capacityTon: 3.5,
+              availableQty: "3.5 tonnes ready for pickup",
+              demand: "Lot size: 3.5 MT ready in yard",
+              qualityText: "BOPP Film Trims · MFI: 13.0 g/10min · Clean",
+              qualityVerified: true,
+              matPrice: 91000,
+              pricePerTon: 26000,
+              freight: 4900,
+              angle: 60,
+              status: "Available for Pickup"
+            },
+            {
+              name: "Delta Rigid Packaging",
+              badge: "Alternative Hub",
+              badgeType: "alt",
+              recommendation: "Thermoform punch trims (bulk factory-direct discount: ₹24,200/t)",
+              dist: 42,
+              fit: 90,
+              capacityTon: 7.2,
+              availableQty: "7.2 tonnes ready for pickup",
+              demand: "Lot size: 7.2 MT ready in yard",
+              qualityText: "PP Sheet Trims · MFI: 10.8 g/10min",
+              qualityVerified: false,
+              matPrice: 121000,
+              pricePerTon: 24200,
+              freight: 6800,
+              angle: 320,
+              status: "Available for Pickup"
+            }
+          ]
+        }
+      },
+      al: {
+        name: "Al-6061 Machining Swarf",
+        ton: "8.2 MT",
+        numericTon: 8.2,
+        code: "#SL-2026-AL",
+        materialSpec: "Al-6061 Aerospace Grade Swarf",
+        virginCost: 340000,
+        secondaryBase: 215000,
+        avoidedDisposal: 18000,
+        co2: "14.2 MT CO₂e",
+        seller: {
+          myFacility: "Matrix Precision CNC",
+          myFacilitySub: "Generator &bull; C-12 Aerospace Tooling Zone",
+          originLoc: "C-12, Aerospace Tooling Zone",
+          headerTitle: "Factories Looking to Buy Your Metal Swarf",
+          headerSub: "We found 2 induction smelters interested in your metal swarf within 35 km.",
+          headerBadge: "2 interested buyers nearby",
+          streamHeading: "What Material Do You Have to Sell?",
+          selectedPrefix: "SELECTED BUYER",
+          btnActionText: "Calculate How Much You Can Earn →",
+          plants: [
+            {
+              name: "Deccan Secondary Smelter",
+              badge: "Best Match",
+              badgeType: "best",
+              recommendation: "Closest smelter with furnace induction tuned to 6061 alloy",
+              dist: 18,
+              fit: 99,
+              capacityTon: 20.0,
+              availableQty: "20.0 tonnes capacity",
+              demand: "Needs 20 tonnes per month",
+              qualityText: "Al-6061 Spec · Si: 0.6%, Mg: 1.0% · Fe <0.25%",
+              qualityVerified: true,
+              matPrice: 215000,
+              pricePerTon: 26220,
+              freight: 3600,
+              angle: 95,
+              status: "Ready to Buy"
+            },
+            {
+              name: "Kalyan Extrusions",
+              badge: "Another Option",
+              badgeType: "alt",
+              recommendation: "Architectural extrusion mill seeking clean dry turnings",
+              dist: 29,
+              fit: 95,
+              capacityTon: 10.0,
+              availableQty: "10.0 tonnes capacity",
+              demand: "Needs 10 tonnes per month",
+              qualityText: "6061 / 6063 Ingot Grade Tolerance",
+              qualityVerified: true,
+              matPrice: 210000,
+              pricePerTon: 25610,
+              freight: 5100,
+              angle: 210,
+              status: "Ready to Buy"
+            },
+            {
+              name: "Shakti Die Casting",
+              badge: "Alternative Hub",
+              badgeType: "alt",
+              recommendation: "Gravity casting unit (secondary specification tolerance)",
+              dist: 42,
+              fit: 88,
+              capacityTon: 15.0,
+              availableQty: "15.0 tonnes capacity",
+              demand: "Needs 12 tonnes per month",
+              qualityText: "Milled Swarf &bull; Secondary Induction",
+              qualityVerified: false,
+              matPrice: 202000,
+              pricePerTon: 24630,
+              freight: 7400,
+              angle: 330,
+              status: "Ready to Buy"
+            }
+          ]
+        },
+        buyer: {
+          myFacility: "Deccan Secondary Smelter",
+          myFacilitySub: "Smelter &bull; Sector 8 Metallurgy Cluster",
+          originLoc: "Sector 8 Metallurgy Cluster",
+          headerTitle: "Factories Available to Supply Secondary Material",
+          headerSub: "We found 2 machining plants with dry 6061 turnings within 35 km.",
+          headerBadge: "2 available suppliers nearby",
+          streamHeading: "What Material Do You Need?",
+          selectedPrefix: "SELECTED SUPPLIER",
+          btnActionText: "Calculate Total Landed Cost & Save →",
+          plants: [
+            {
+              name: "Matrix Precision CNC",
+              badge: "Best Match",
+              badgeType: "best",
+              recommendation: "Closest generator with dry, degreased aerospace turnings",
+              dist: 18,
+              fit: 99,
+              capacityTon: 8.2,
+              availableQty: "8.2 tonnes ready for pickup",
+              demand: "Lot size: 8.2 MT dry turnings ready",
+              qualityText: "Al-6061 · Si: 0.6%, Mg: 1.0% · Fe <0.2% Degreased",
+              qualityVerified: true,
+              matPrice: 215000,
+              pricePerTon: 26220,
+              freight: 3600,
+              angle: 275,
+              status: "Available for Pickup"
+            },
+            {
+              name: "Kirloskar Tooling Unit",
+              badge: "Another Option",
+              badgeType: "alt",
+              recommendation: "Dry milled aluminum chips (Fe < 0.25%)",
+              dist: 26,
+              fit: 96,
+              capacityTon: 6.0,
+              availableQty: "6.0 tonnes ready for pickup",
+              demand: "Lot size: 6.0 MT ready in bins",
+              qualityText: "Milled 6061 Chips · Oil < 0.5%",
+              qualityVerified: true,
+              matPrice: 158000,
+              pricePerTon: 26330,
+              freight: 4800,
+              angle: 140,
+              status: "Available for Pickup"
+            },
+            {
+              name: "Bharat Auto CNC Works",
+              badge: "Alternative Hub",
+              badgeType: "alt",
+              recommendation: "High-volume automotive turnings",
+              dist: 38,
+              fit: 89,
+              capacityTon: 11.5,
+              availableQty: "11.5 tonnes ready for pickup",
+              demand: "Lot size: 11.5 MT bulk turnings",
+              qualityText: "Mixed Al-6xxx Swarf",
+              qualityVerified: false,
+              matPrice: 295000,
+              pricePerTon: 25650,
+              freight: 6500,
+              angle: 30,
+              status: "Available for Pickup"
+            }
+          ]
+        }
+      },
+      ash: {
+        name: "Mineral Fly Ash (Class-F)",
+        ton: "24.0 MT",
+        numericTon: 24.0,
+        code: "#SL-2026-ASH",
+        materialSpec: "Class-F Pozzolanic Silo Bulk",
+        virginCost: 110000,
+        secondaryBase: 48000,
+        avoidedDisposal: 32000,
+        co2: "19.5 MT CO₂e",
+        seller: {
+          myFacility: "NTPC Thermal Basin",
+          myFacilitySub: "Generator &bull; Power Basin Silo Station #4",
+          originLoc: "Power Basin Silo Station #4",
+          headerTitle: "Factories Looking to Buy Your Fly Ash",
+          headerSub: "We found 2 precast and cement plants in need of ash within 35 km.",
+          headerBadge: "2 interested buyers nearby",
+          streamHeading: "What Material Do You Have to Sell?",
+          selectedPrefix: "SELECTED BUYER",
+          btnActionText: "Calculate How Much You Can Earn →",
+          plants: [
+            {
+              name: "UltraBlock Precast Concrete",
+              badge: "Best Match",
+              badgeType: "best",
+              recommendation: "Closest masonry unit with highest ongoing consumption (14 km)",
+              dist: 14,
+              fit: 99,
+              capacityTon: 50.0,
+              availableQty: "50.0 tonnes intake/day",
+              demand: "Needs 50 tonnes per week",
+              qualityText: "Class-F Pozzolan · Fineness 380 m²/kg · LOI <1.4%",
+              qualityVerified: true,
+              matPrice: 48000,
+              pricePerTon: 2000,
+              freight: 6200,
+              angle: 75,
+              status: "Ready to Buy"
+            },
+            {
+              name: "Surya Green Cement Mill",
+              badge: "Another Option",
+              badgeType: "alt",
+              recommendation: "PPC clinker blend mill with dry silo intake",
+              dist: 31,
+              fit: 93,
+              capacityTon: 80.0,
+              availableQty: "80.0 tonnes intake/day",
+              demand: "Needs 80 tonnes per week",
+              qualityText: "Dry Silo Pozzolanic Grade",
+              qualityVerified: true,
+              matPrice: 45000,
+              pricePerTon: 1875,
+              freight: 9800,
+              angle: 190,
+              status: "Ready to Buy"
+            },
+            {
+              name: "PaveTech Ready-Mix",
+              badge: "Alternative Hub",
+              badgeType: "alt",
+              recommendation: "Highway sub-base stabilization project",
+              dist: 47,
+              fit: 86,
+              capacityTon: 100.0,
+              availableQty: "100.0 tonnes intake/day",
+              demand: "Needs 100 tonnes per week",
+              qualityText: "Sub-base Soil Stabilization Grade",
+              qualityVerified: false,
+              matPrice: 42000,
+              pricePerTon: 1750,
+              freight: 13500,
+              angle: 345,
+              status: "Ready to Buy"
+            }
+          ]
+        },
+        buyer: {
+          myFacility: "UltraBlock Precast Concrete",
+          myFacilitySub: "Precast Mill &bull; Heavy Building Park",
+          originLoc: "Sector 9 Heavy Building Park",
+          headerTitle: "Factories Available to Supply Secondary Material",
+          headerSub: "We found 2 thermal power plants with dry fly ash silos within 35 km.",
+          headerBadge: "2 available suppliers nearby",
+          streamHeading: "What Material Do You Need?",
+          selectedPrefix: "SELECTED SUPPLIER",
+          btnActionText: "Calculate Total Landed Cost & Save →",
+          plants: [
+            {
+              name: "NTPC Thermal Basin",
+              badge: "Best Match",
+              badgeType: "best",
+              recommendation: "Closest power plant with Class-F pozzolanic dry silo (LOI < 1.4%)",
+              dist: 14,
+              fit: 99,
+              capacityTon: 24.0,
+              availableQty: "24.0 tonnes ready in silo",
+              demand: "Available: 24.0 tonnes tanker lot",
+              qualityText: "Class-F Pozzolan · Fineness: 380 m²/kg · LOI < 1.4%",
+              qualityVerified: true,
+              matPrice: 48000,
+              pricePerTon: 2000,
+              freight: 6200,
+              angle: 255,
+              status: "Available for Pickup"
+            },
+            {
+              name: "Jindal Captive Power",
+              badge: "Another Option",
+              badgeType: "alt",
+              recommendation: "Dry bulk pozzolanic fly ash (fineness 340 m²/kg)",
+              dist: 27,
+              fit: 94,
+              capacityTon: 35.0,
+              availableQty: "35.0 tonnes ready in silo",
+              demand: "Available: 35.0 tonnes tanker lot",
+              qualityText: "Dry Silo Pozzolan · Fineness 340 m²/kg",
+              qualityVerified: true,
+              matPrice: 69000,
+              pricePerTon: 1970,
+              freight: 8500,
+              angle: 120,
+              status: "Available for Pickup"
+            },
+            {
+              name: "Tata Steel Boiler Unit",
+              badge: "Alternative Hub",
+              badgeType: "alt",
+              recommendation: "High-volume pulverized fuel ash",
+              dist: 44,
+              fit: 88,
+              capacityTon: 40.0,
+              availableQty: "40.0 tonnes ready in silo",
+              demand: "Available: 40.0 tonnes bulk ash",
+              qualityText: "Pulverized Boiler Ash",
+              qualityVerified: false,
+              matPrice: 78000,
+              pricePerTon: 1950,
+              freight: 12800,
+              angle: 310,
+              status: "Available for Pickup"
+            }
+          ]
+        }
+      }
+    };
+
+    let activeStream = 'pp';
+    let activeRadius = 35;
+    let selectedPlantIdx = 0;
+    let currentRole = 'buyer'; // default to buyer as requested!
+    let plantPinsPositions = []; // for canvas click detection
+
+    function setRadarRole(role) {
+      currentRole = role;
+      document.getElementById('btn-role-seller').classList.toggle('active', role === 'seller');
+      document.getElementById('btn-role-buyer').classList.toggle('active', role === 'buyer');
+
+      if (role === 'seller') {
+        const avatar = document.getElementById('headerAvatar');
+        if (avatar) {
+          avatar.textContent = 'AP';
+          avatar.style.background = '#ECFDF5';
+          avatar.style.color = '#047857';
+          avatar.style.borderColor = '#A7F3D0';
+        }
+        document.getElementById('headerUserName').textContent = 'Apex Packaging';
+        document.getElementById('headerUserSub').innerHTML = '<span style="color:#047857; font-weight:700;">Seller Node</span>';
+        const cluster = document.getElementById('headerClusterName');
+        if (cluster) cluster.textContent = 'Chakan MIDC';
+
+        document.getElementById('roleDescStrip').innerHTML = `
+          <span>🏭 <strong>Seller Perspective:</strong> Discover factories looking to purchase your generated scrap material within haul radius.</span>
+          <span style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--primary);">Outbound Supply</span>
+        `;
+        document.getElementById('radarCardTitle').textContent = `Find Interested Buyers Near You`;
+        document.getElementById('streamSelectorLabel').textContent = `What Material Do You Have to Sell?`;
+        document.getElementById('sliderPromptLabel').textContent = `Search radius around your factory:`;
+      } else {
+        const avatar = document.getElementById('headerAvatar');
+        if (avatar) {
+          avatar.textContent = 'PC';
+          avatar.style.background = '#E0F2FE';
+          avatar.style.color = '#0284C7';
+          avatar.style.borderColor = '#BAE6FD';
+        }
+        document.getElementById('headerUserName').textContent = 'PolyCompound Hub';
+        document.getElementById('headerUserSub').innerHTML = '<span style="color:#0284C7; font-weight:700;">Buyer Node</span>';
+        const cluster = document.getElementById('headerClusterName');
+        if (cluster) cluster.textContent = 'Pune MIDC';
+
+        document.getElementById('roleDescStrip').innerHTML = `
+          <span>🏢 <strong>Buyer Perspective:</strong> Discover nearby factories with verified secondary material ready to supply your manufacturing recipe.</span>
+          <span style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:var(--accent-blue);">Inbound Procurement</span>
+        `;
+        document.getElementById('radarCardTitle').textContent = `Find Suppliers Near You`;
+        document.getElementById('streamSelectorLabel').textContent = `What Material Do You Need?`;
+        document.getElementById('sliderPromptLabel').textContent = `Search within:`;
+      }
+
+      renderMatchingView();
+      updateArbitrageView();
+      renderTransportComparison();
+    }
+
+    function showTab(tabName) {
+      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      const targetView = document.getElementById('tab-' + tabName);
+      if (targetView) targetView.classList.add('active');
+
+      const targetBtn = document.getElementById('nav-' + tabName);
+      if (targetBtn) targetBtn.classList.add('active');
+
+      if (tabName === 'matching') {
+        renderMatchingView();
+      } else if (tabName === 'transport') {
+        renderTransportComparison();
+      } else if (tabName === 'waybills') {
+        renderWaybillsTable();
+      }
+    }
+
+    let transportStream = 'pp';
+
+    function setTransportStream(key) {
+      transportStream = key;
+      ['pp', 'al', 'ash'].forEach(k => {
+        const btn = document.getElementById('btn-trans-' + k);
+        if (btn) btn.className = k === key ? 'btn-action' : 'btn-secondary';
+      });
+      renderTransportComparison();
+    }
+
+    function renderTransportComparison() {
+      const streamKey = transportStream || activeStream || 'pp';
+      const d = DATA[streamKey];
+      const roleData = d[currentRole];
+      const batchTon = parseFloat(document.getElementById('transBatchTon').value) || 10;
+      const vehicleType = document.getElementById('transVehicleType').value || 'multi';
+      
+      const ratePerKm = vehicleType === 'lcv' ? 35 : (vehicleType === 'bulker' ? 95 : 65);
+      const virginRate = d.virginCost / d.numericTon;
+      const virginTotal = batchTon * virginRate;
+
+      // Compute delivered economics for all plants
+      const plantItems = roleData.plants.map((plant, idx) => {
+        const letter = String.fromCharCode(65 + idx);
+        const dist = plant.dist;
+        const calcFreight = Math.round(1800 + (dist * ratePerKm * 1.4));
+        const matSpend = batchTon * plant.pricePerTon;
+        const totalDelivered = matSpend + calcFreight;
+        const effectivePerTon = Math.round(totalDelivered / batchTon);
+        const netSavings = virginTotal - totalDelivered;
+        const savingsPct = ((netSavings / virginTotal) * 100).toFixed(1);
+
+        return {
+          letter: letter,
+          plant: plant,
+          dist: dist,
+          pricePerTon: plant.pricePerTon,
+          matSpend: matSpend,
+          freight: calcFreight,
+          totalDelivered: totalDelivered,
+          effectivePerTon: effectivePerTon,
+          netSavings: netSavings,
+          savingsPct: savingsPct
+        };
+      });
+
+      // Rank by distance (lowest dist = rank 1)
+      const sortedByDist = [...plantItems].sort((a, b) => a.dist - b.dist);
+      sortedByDist.forEach((item, r) => item.distRank = r + 1);
+
+      // Rank by total delivered cost (lowest delivered = rank 1 = WINNER)
+      const sortedByCost = [...plantItems].sort((a, b) => a.totalDelivered - b.totalDelivered);
+      sortedByCost.forEach((item, r) => item.costRank = r + 1);
+
+      const winner = sortedByCost[0];
+      const closest = sortedByDist[0];
+      const isWinnerDifferentFromClosest = winner.plant.name !== closest.plant.name;
+
+      // Update Top Key Insight Executive Bar
+      const badgeTag = document.getElementById('transBadgeTag');
+      const recTitle = document.getElementById('transRecTitle');
+      const recSub = document.getElementById('transRecSub');
+      const valCost = document.getElementById('transValCost');
+      const valPerTon = document.getElementById('transValPerTon');
+      const valSavings = document.getElementById('transValSavings');
+      const valSavingsPct = document.getElementById('transValSavingsPct');
+      const valBreakeven = document.getElementById('transValBreakeven');
+
+      const extraSaved = closest.totalDelivered - winner.totalDelivered;
+      const extraDist = winner.dist - closest.dist;
+      const matDiscount = closest.pricePerTon - winner.pricePerTon;
+      const totalMatSavings = matDiscount * batchTon;
+      const crossoverKm = isWinnerDifferentFromClosest
+        ? Math.round(closest.dist + (totalMatSavings / (ratePerKm * 1.4)))
+        : Math.round(winner.dist * 2.2);
+
+      if (recTitle) {
+        if (isWinnerDifferentFromClosest) {
+          if (badgeTag) badgeTag.textContent = '★ OPTIMAL SOURCING DEAL';
+          recTitle.textContent = `${winner.letter}. ${winner.plant.name} yields highest net return`;
+          if (recSub) recSub.textContent = `Saves ₹${extraSaved.toLocaleString('en-IN')} more on delivered total, absorbing ${extraDist} km extra haulage.`;
+        } else {
+          if (badgeTag) badgeTag.textContent = '★ BEST DELIVERED VALUE';
+          recTitle.textContent = `${winner.letter}. ${winner.plant.name} is closest and lowest cost`;
+          if (recSub) recSub.textContent = `Shortest transport distance (${winner.dist} km) combined with lowest total landed spend.`;
+        }
+      }
+
+      if (valCost) valCost.textContent = '₹' + Math.round(winner.totalDelivered).toLocaleString('en-IN');
+      if (valPerTon) valPerTon.textContent = `₹${winner.effectivePerTon.toLocaleString('en-IN')}/t landed`;
+      if (valSavings) valSavings.textContent = '₹' + Math.round(winner.netSavings).toLocaleString('en-IN');
+      if (valSavingsPct) valSavingsPct.textContent = `${winner.savingsPct}% vs virgin`;
+      if (valBreakeven) valBreakeven.textContent = crossoverKm + ' km';
+
+      // Render Comparison Cards
+      const cardsGrid = document.getElementById('transportCardsGrid');
+      if (cardsGrid) {
+        cardsGrid.innerHTML = plantItems.map((item, idx) => {
+          const isWin = item.costRank === 1;
+          const isClosest = item.distRank === 1;
+          const matPct = Math.round((item.matSpend / item.totalDelivered) * 100);
+          const freightPct = 100 - matPct;
+
+          return `
+            <div class="trans-supplier-card ${isWin ? 'winner' : ''}">
+              <div class="trans-card-top">
+                <div>
+                  <div class="trans-card-title">${item.letter}. ${item.plant.name}</div>
+                  <div class="trans-card-meta">${item.dist} km distance &bull; ${item.plant.badge}</div>
+                </div>
+                <span class="trans-tag ${isWin ? 'trans-tag-winner' : 'trans-tag-alt'}">
+                  ${isWin ? '★ Best Delivered Deal' : (isClosest ? 'Closest Facility' : 'Option ' + item.letter)}
+                </span>
+              </div>
+
+              <div class="trans-price-strip">
+                <div class="trans-price-label">TOTAL DELIVERED SPEND (${batchTon} MT)</div>
+                <div class="trans-price-val" style="color:${isWin ? '#047857' : 'var(--text-main)'};">
+                  ₹${Math.round(item.totalDelivered).toLocaleString('en-IN')}
+                </div>
+                <div class="trans-price-sub">₹${item.effectivePerTon.toLocaleString('en-IN')} / tonne landed</div>
+              </div>
+
+              <div style="font-size:12px; display:flex; flex-direction:column; gap:4px;">
+                <div class="trans-breakdown-row">
+                  <span class="trans-breakdown-label">Material Quote:</span>
+                  <span style="font-family:var(--font-mono); font-weight:600;">₹${item.matSpend.toLocaleString('en-IN')} (₹${item.pricePerTon.toLocaleString('en-IN')}/t)</span>
+                </div>
+                <div class="trans-breakdown-row">
+                  <span class="trans-breakdown-label">Road Freight (${item.dist} km):</span>
+                  <span style="font-family:var(--font-mono); font-weight:600; color:#0284C7;">+₹${item.freight.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+
+              <div class="trans-bar-wrap">
+                <div class="stacked-bar-track">
+                  <div class="stacked-bar-mat" style="width:${matPct}%;"></div>
+                  <div class="stacked-bar-freight" style="width:${freightPct}%;"></div>
+                </div>
+                <div class="trans-bar-legend">
+                  <span>Material: ${matPct}%</span>
+                  <span>Freight: ${freightPct}%</span>
+                </div>
+              </div>
+
+              <div class="trans-savings-strip">
+                <span style="color:var(--text-muted); font-size:11.5px;">Net Savings vs Virgin:</span>
+                <strong style="color:#15803D; font-family:var(--font-mono); font-size:13px;">Save ₹${Math.round(item.netSavings).toLocaleString('en-IN')} (${item.savingsPct}%)</strong>
+              </div>
+
+              <button class="${isWin ? 'btn-action' : 'btn-secondary'}" style="width:100%; padding:8px; font-size:12px; margin-top:4px;" onclick="selectTransportWinner(${idx})">
+                ${isWin ? '✔ Select Optimal Deal' : 'Select Supplier'}
+              </button>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Render Detailed Breakdown Table
+      const table = document.getElementById('transportTable');
+      if (table) {
+        table.innerHTML = `
+          <thead>
+            <tr>
+              <th>Supplier Node</th>
+              <th>Road Distance</th>
+              <th>Material Rate</th>
+              <th>Freight Cost</th>
+              <th>Total Delivered Spend</th>
+              <th>Net Buyer Savings</th>
+              <th style="text-align:right;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${plantItems.map((item, idx) => `
+              <tr style="${item.costRank === 1 ? 'background:#F0FDF4;' : ''}">
+                <td>
+                  <strong style="color:var(--text-main); font-size:12.5px;">${item.letter}. ${item.plant.name}</strong>
+                  ${item.costRank === 1 ? '<span style="margin-left:6px; background:#DCFCE7; color:#15803D; font-size:10px; padding:2px 6px; border-radius:3px; font-weight:800;">★ BEST VALUE</span>' : ''}
+                  <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${item.plant.spec || item.plant.badge}</div>
+                </td>
+                <td>
+                  <span style="font-family:var(--font-mono); font-weight:700;">${item.dist} km</span>
+                  <div style="font-size:10.5px; color:var(--text-muted);">#${item.distRank} distance</div>
+                </td>
+                <td>
+                  <span style="font-family:var(--font-mono); font-weight:600;">₹${item.pricePerTon.toLocaleString('en-IN')}/t</span>
+                  <div style="font-size:10.5px; color:var(--text-muted);">₹${item.matSpend.toLocaleString('en-IN')} total</div>
+                </td>
+                <td>
+                  <span style="font-family:var(--font-mono); font-weight:600; color:#0284C7;">+₹${item.freight.toLocaleString('en-IN')}</span>
+                  <div style="font-size:10.5px; color:var(--text-muted);">@ ₹${ratePerKm}/km</div>
+                </td>
+                <td>
+                  <strong style="font-family:var(--font-mono); color:${item.costRank === 1 ? '#047857' : 'var(--text-main)'}; font-size:13px;">₹${Math.round(item.totalDelivered).toLocaleString('en-IN')}</strong>
+                  <div style="font-size:10.5px; color:var(--text-muted); font-family:var(--font-mono);">₹${item.effectivePerTon.toLocaleString('en-IN')}/t landed</div>
+                </td>
+                <td>
+                  <strong style="color:#15803D; font-family:var(--font-mono); font-size:12.5px;">Save ₹${Math.round(item.netSavings).toLocaleString('en-IN')}</strong>
+                  <div style="font-size:10.5px; color:#15803D;">(${item.savingsPct}% vs virgin)</div>
+                </td>
+                <td style="text-align:right;">
+                  <button class="${item.costRank === 1 ? 'btn-action' : 'btn-secondary'}" style="padding:4px 10px; font-size:11px;" onclick="selectTransportWinner(${idx})">
+                    ${item.costRank === 1 ? 'Select Deal' : 'Select'}
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        `;
+      }
+    }
+
+    function selectTransportWinner(idx) {
+      selectedPlantIdx = idx;
+      showTab('arbitrage');
+    }
+
+    function setFeedstock(key) {
+      activeStream = key;
+      selectedPlantIdx = 0;
+
+      ['pp', 'al', 'ash'].forEach(k => {
+        const btn = document.getElementById('btn-stream-' + k);
+        if (btn) {
+          if (k === key) {
+            btn.className = 'btn-action';
+          } else {
+            btn.className = 'btn-secondary';
+          }
+        }
+      });
+
+      renderMatchingView();
+      updateArbitrageView();
+      renderTransportComparison();
+    }
+
+    function changeRadius(val) {
+      activeRadius = parseInt(val);
+      document.getElementById('sliderNumText').textContent = activeRadius + ' km';
+      document.getElementById('radarRadiusLabel').textContent = activeRadius + ' km search radius';
+      renderMatchingView();
+      updateArbitrageView();
+      renderTransportComparison();
+    }
+
+    // Render Connected Supplier Cards
+    function renderMatchingView() {
+      const d = DATA[activeStream];
+      const roleData = d[currentRole];
+      const grid = document.getElementById('plantsGrid');
+      grid.innerHTML = '';
+
+      const viable = roleData.plants.filter(p => p.dist <= activeRadius);
+
+      document.getElementById('matchListHeader').textContent = roleData.headerTitle;
+      document.getElementById('matchListSub').textContent = `We found ${viable.length} factories interested in your material within ${activeRadius} km.`;
+      document.getElementById('viableCountBadge').textContent = `${viable.length} factories nearby`;
+      document.getElementById('selectedMatchLabel').textContent = roleData.selectedPrefix;
+      document.getElementById('btnMatchExecute').textContent = roleData.btnActionText;
+
+      if (viable.length === 0) {
+        grid.innerHTML = `<div style="padding:24px; text-align:center; color:var(--text-muted); font-size:12.5px; border:1px dashed var(--border); border-radius:8px; background:#fff;">No factories found within ${activeRadius} km. Increase search radius slider.</div>`;
+        document.getElementById('selectedPlantName').textContent = 'None';
+        hideGMapInfoWindow();
+        calculateCombinedPool();
+        drawGoogleMap();
+        return;
+      }
+
+      if (selectedPlantIdx >= viable.length) selectedPlantIdx = 0;
+
+      viable.forEach((plant, idx) => {
+        const isSel = idx === selectedPlantIdx;
+        const letter = String.fromCharCode(65 + idx);
+        const card = document.createElement('div');
+        card.className = `match-card ${isSel ? 'selected' : ''}`;
+        card.id = `supplier-card-${idx}`;
+        
+        card.onclick = () => {
+          selectedPlantIdx = idx;
+          renderMatchingView();
+          updateArbitrageView();
+          drawGoogleMap();
+        };
+
+        card.onmouseenter = () => {
+          hoveredPlantIdx = idx;
+          showGMapInfoWindowForPlant(idx);
+          drawGoogleMap();
+        };
+
+        card.onmouseleave = () => {
+          hoveredPlantIdx = null;
+          showGMapInfoWindowForPlant(selectedPlantIdx);
+          drawGoogleMap();
+        };
+
+        const badgeClass = plant.badgeType === 'best' ? 'badge-best' : 'badge-alt';
+        const priceLabel = currentRole === 'seller' ? "Buyer's offer" : "Material price + estimated freight";
+        const landedCost = plant.matPrice + plant.freight;
+        const savingsVsVirgin = d.virginCost - landedCost;
+        const letterBg = idx === 0 ? '#EA4335' : (idx === 1 ? '#0284C7' : '#7C3AED');
+
+        card.innerHTML = `
+          <div class="match-card-top">
+            <div style="display:flex; align-items:center; gap:9px;">
+              <span style="width:22px; height:22px; border-radius:50%; background:${letterBg}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:800; font-family:var(--font-mono); box-shadow:0 1px 3px rgba(0,0,0,0.2);">${letter}</span>
+              <div>
+                <div class="match-factory-name">${plant.name}</div>
+                <div style="font-size:11.5px; color:#15803D; font-weight:600; margin-top:1px;">★ ${plant.recommendation}</div>
+              </div>
+            </div>
+            <span class="badge-recommend ${badgeClass}">${plant.badge}</span>
+          </div>
+
+          <div class="match-specs-line">
+            <span class="match-pct-pill">${plant.fit}% Material Compatibility</span>
+            <span>&bull;</span>
+            <strong style="color:var(--text-main); font-size:13px;">${plant.dist} km away</strong>
+            <span>&bull;</span>
+            <span style="background:#F0FDF4; color:#15803D; padding:2px 8px; border-radius:4px; font-weight:700; border:1px solid #BBF7D0;">
+              📦 ${plant.availableQty}
+            </span>
+          </div>
+
+          <!-- Feature B: Show Quality & Specification -->
+          <div class="quality-spec-badge">
+            <span><strong>Quality:</strong> ${plant.qualityText}</span>
+            <span style="font-weight:700; color:${plant.qualityVerified ? '#15803D' : '#64748B'};">
+              ${plant.qualityVerified ? '✔ Lab-Verified' : 'Estim. Specs'}
+            </span>
+          </div>
+
+          <!-- Feature C: Show Price & Estimated Delivery Cost -->
+          <div class="match-price-row">
+            <div>
+              <div class="price-meta-label">${priceLabel}</div>
+              <div style="display:flex; align-items:baseline; gap:8px; margin-top:2px;">
+                <span class="price-value-bold">₹${landedCost.toLocaleString('en-IN')}</span>
+                <span style="font-size:12px; color:var(--text-muted); font-family:var(--font-mono); font-weight:600;">(Delivered Landed Cost)</span>
+              </div>
+              <div class="price-breakdown-sub">
+                Material: <strong>₹${plant.matPrice.toLocaleString('en-IN')}</strong> (₹${plant.pricePerTon.toLocaleString('en-IN')}/t) &bull; Transport: <strong>+₹${plant.freight.toLocaleString('en-IN')}</strong> (${plant.dist}km haul)
+                <br>
+                <span style="color:#15803D; font-weight:700;">Save ₹${savingsVsVirgin.toLocaleString('en-IN')} vs ₹${d.virginCost.toLocaleString('en-IN')} virgin market benchmark</span>
+              </div>
+            </div>
+            <span class="badge-ready-buy">${plant.status}</span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+
+      const sel = viable[selectedPlantIdx];
+      document.getElementById('selectedPlantName').textContent = `${sel.name} &bull; ${sel.dist} km away`;
+      
+      calculateCombinedPool();
+      drawGoogleMap();
+      showGMapInfoWindowForPlant(selectedPlantIdx);
+    }
+
+    function updateArbitrageView() {
+      const d = DATA[activeStream];
+      const roleData = d[currentRole];
+      const viable = roleData.plants.filter(p => p.dist <= activeRadius);
+
+      if (viable.length === 0) return;
+
+      const plant = viable[selectedPlantIdx];
+      const virgin = d.virginCost;
+      const secondary = plant.matPrice;
+      const freight = plant.freight;
+      const fee = secondary * 0.08;
+      const delivered = secondary + freight + fee;
+      const savings = virgin - delivered;
+      const savingsPct = ((savings / virgin) * 100).toFixed(1);
+
+      document.getElementById('arbVirgin').textContent = '₹' + virgin.toLocaleString('en-IN');
+      document.getElementById('arbSecondary').textContent = '₹' + secondary.toLocaleString('en-IN');
+      document.getElementById('arbSavings').textContent = `₹${Math.round(savings).toLocaleString('en-IN')} (${savingsPct}%)`;
+
+      document.getElementById('tableSecondary').textContent = '₹' + secondary.toLocaleString('en-IN');
+      document.getElementById('tableMaterialNote').textContent = `${d.ton} ${d.materialSpec}`;
+      document.getElementById('tableFreightNote').textContent = `Point-to-point transit (${plant.dist} km)`;
+      document.getElementById('tableFreight').textContent = '₹' + freight.toLocaleString('en-IN');
+      document.getElementById('tableFee').textContent = '₹' + Math.round(fee).toLocaleString('en-IN');
+      document.getElementById('tableAvoided').textContent = '+₹' + d.avoidedDisposal.toLocaleString('en-IN');
+      document.getElementById('tableDelivered').textContent = '₹' + Math.round(delivered).toLocaleString('en-IN');
+    }
+
+    // Preset Helper for Smart Multi-Supplier Pooling
+    function setPoolPreset(val) {
+      document.getElementById('poolTargetTon').value = val;
+      calculateCombinedPool();
+    }
+
+    // 100% Mathematically Exact Smart Multi-Supplier Pooling Feature
+    function calculateCombinedPool() {
+      const targetTon = parseFloat(document.getElementById('poolTargetTon').value);
+      const output = document.getElementById('poolResultOutput');
+      if (!output) return;
+
+      if (isNaN(targetTon) || targetTon <= 0) {
+        output.style.display = 'block';
+        output.innerHTML = `<div style="color:var(--accent-red); font-weight:600; padding:4px;">Please enter a valid tonnage (e.g., 5, 8.5, 10, or 25).</div>`;
+        return;
+      }
+
+      const d = DATA[activeStream];
+      const roleData = d[currentRole];
+      const viable = roleData.plants.filter(p => p.dist <= activeRadius);
+
+      if (viable.length === 0) {
+        output.style.display = 'block';
+        output.innerHTML = `<div style="color:var(--text-muted); padding:6px;">No factories found within ${activeRadius} km. Please increase search distance.</div>`;
+        return;
+      }
+
+      // Virgin cost benchmark per tonne for this stream
+      const virginPerTon = d.virginCost / d.numericTon; // e.g. PP: 200,000 / 5.0 = 40,000/t
+
+      // Total available capacity in currently active radius
+      const totalCapacityInRadius = viable.reduce((sum, p) => sum + (p.capacityTon || 5.0), 0);
+
+      // Allocate sequentially from viable plants (best match / lowest landed cost first)
+      let remainingNeeded = targetTon;
+      const allocations = [];
+      let totalAllocatedTon = 0;
+      let totalSecondarySpend = 0;
+      let totalFreightSpend = 0;
+
+      for (let i = 0; i < viable.length; i++) {
+        if (remainingNeeded <= 0.001) break;
+        const plant = viable[i];
+        const letter = String.fromCharCode(65 + i);
+        const plantCap = plant.capacityTon || 5.0;
+        const take = Math.min(remainingNeeded, plantCap);
+
+        if (take > 0) {
+          const matCost = take * plant.pricePerTon;
+          // Prorate freight realistic to batch size (min 60% base freight for mobilization)
+          const loadFraction = Math.max(0.6, Math.min(1.0, take / plantCap));
+          const freightCost = Math.round(plant.freight * loadFraction);
+          const landedCost = matCost + freightCost;
+
+          allocations.push({
+            letter: letter,
+            plant: plant,
+            tonTaken: take,
+            available: plantCap,
+            pricePerTon: plant.pricePerTon,
+            matCost: matCost,
+            freightCost: freightCost,
+            landedCost: landedCost
+          });
+
+          totalAllocatedTon += take;
+          totalSecondarySpend += matCost;
+          totalFreightSpend += freightCost;
+          remainingNeeded -= take;
+        }
+      }
+
+      const totalDelivered = totalSecondarySpend + totalFreightSpend;
+      // Virgin cost benchmark is computed ONLY for the exact tonnes actually sourced!
+      const virginBenchmarkSourced = totalAllocatedTon * virginPerTon;
+      const netSavings = virginBenchmarkSourced - totalDelivered;
+      const savingsPct = virginBenchmarkSourced > 0 ? ((netSavings / virginBenchmarkSourced) * 100).toFixed(1) : "0.0";
+      const deficit = Math.max(0, targetTon - totalAllocatedTon);
+      const isFullyFulfilled = deficit < 0.01;
+      const fulfillmentPct = Math.min(100, (totalAllocatedTon / targetTon) * 100).toFixed(1);
+
+      output.style.display = 'block';
+
+      let statusBadgeHtml = '';
+      if (isFullyFulfilled) {
+        statusBadgeHtml = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-weight:800; color:#15803D; display:flex; align-items:center; gap:6px; font-size:12.5px;">
+              ✅ 100% Fulfilled: Pooled ${totalAllocatedTon.toFixed(1)} MT from ${allocations.length} Local Factories
+            </span>
+            <span style="font-size:11px; font-weight:700; background:#DCFCE7; color:#15803D; padding:2px 8px; border-radius:4px; font-family:var(--font-mono);">
+              Complete Order
+            </span>
+          </div>
+        `;
+      } else {
+        statusBadgeHtml = `
+          <div style="background:#FFFBEB; border:1px solid #FCD34D; border-radius:6px; padding:8px 10px; margin-bottom:10px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-weight:800; color:#B45309; font-size:12px;">
+                ⚠️ Capacity Limit in ${activeRadius} km Radius: Sourced ${totalAllocatedTon.toFixed(1)} MT of ${targetTon.toFixed(1)} MT (${fulfillmentPct}% fulfilled)
+              </span>
+              <span style="font-weight:700; color:#B45309; font-family:var(--font-mono); font-size:11px;">
+                ${deficit.toFixed(1)} MT deficit
+              </span>
+            </div>
+            <div style="font-size:11px; color:#78350F; margin-top:3px;">
+              Total compliant inventory inside ${activeRadius} km is ${totalCapacityInRadius.toFixed(1)} MT across ${viable.length} factories. See fulfillment options below.
+            </div>
+          </div>
+        `;
+      }
+
+      const itemsHtml = allocations.map(a => `
+        <div style="display:grid; grid-template-columns: 24px 1fr auto; gap:8px; align-items:center; padding:6px 0; border-bottom:1px dashed #E2E8F0;">
+          <span style="width:20px; height:20px; border-radius:50%; background:#047857; color:#fff; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:800; font-family:var(--font-mono);">${a.letter}</span>
+          <div>
+            <div style="font-weight:700; color:#0F172A;">${a.plant.name} <span style="font-weight:400; color:#64748B; font-size:11px;">(${a.plant.dist} km haul)</span></div>
+            <div style="font-size:11px; color:#475569;">
+              Take <strong>${a.tonTaken.toFixed(1)} MT</strong> (of ${a.available.toFixed(1)} MT available) @ ₹${a.pricePerTon.toLocaleString('en-IN')}/t + ₹${a.freightCost.toLocaleString('en-IN')} freight
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:700; font-family:var(--font-mono); color:#0F172A;">₹${Math.round(a.landedCost).toLocaleString('en-IN')}</div>
+            <div style="font-size:10px; color:#15803D; font-weight:600;">delivered</div>
+          </div>
+        </div>
+      `).join('');
+
+      let actionsHtml = '';
+      if (!isFullyFulfilled) {
+        actionsHtml = `
+          <div style="margin-top:10px; padding:10px; background:#F8FAFC; border:1px solid #E2E8F0; border-radius:6px;">
+            <div style="font-size:11.5px; font-weight:700; color:#334155; margin-bottom:6px;">
+              💡 Options to fulfill remaining ${deficit.toFixed(1)} MT:
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              ${activeRadius < 50 ? `
+                <button class="gmap-mode-btn" style="background:#047857; color:#fff; border-color:#047857; padding:4px 10px;" onclick="changeRadius(50); document.getElementById('radiusInput').value=50; calculateCombinedPool();">
+                  🔍 Expand Radius to 50 km (+7.2 MT available)
+                </button>
+              ` : ''}
+              <button class="gmap-mode-btn" style="padding:4px 10px;" onclick="alert('Recurring order created! Dispatches ${totalAllocatedTon.toFixed(1)} MT bi-weekly until ${targetTon.toFixed(1)} MT is delivered.')">
+                📅 Schedule as Bi-Weekly Haul
+              </button>
+              <button class="gmap-mode-btn" style="padding:4px 10px;" onclick="alert('Balance ${deficit.toFixed(1)} MT requested from Regional Aggregator Hub (MIDC Chakan Buffer Yard). Quote dispatched!')">
+                🏭 Source from MIDC Buffer Hub
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      output.innerHTML = `
+        ${statusBadgeHtml}
+        <div style="display:flex; flex-direction:column; gap:2px; margin-bottom:8px;">
+          ${itemsHtml}
+        </div>
+        <div style="padding-top:8px; border-top:1.5px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div>
+            <div style="font-size:11px; color:#64748B;">
+              Combined Secondary Landed (${totalAllocatedTon.toFixed(1)} MT):
+            </div>
+            <div style="font-size:15px; font-weight:800; font-family:var(--font-mono); color:#0F172A;">
+              ₹${Math.round(totalDelivered).toLocaleString('en-IN')}
+            </div>
+            <div style="font-size:10px; color:#64748B;">
+              Virgin Benchmark (${totalAllocatedTon.toFixed(1)} MT @ ₹${Math.round(virginPerTon).toLocaleString('en-IN')}/t): ₹${Math.round(virginBenchmarkSourced).toLocaleString('en-IN')}
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px; color:#15803D; font-weight:700;">Net Realized Savings</div>
+            <div style="font-size:16px; font-weight:800; font-family:var(--font-mono); color:#15803D;">
+              Save ₹${Math.round(netSavings).toLocaleString('en-IN')}
+            </div>
+            <div style="font-size:10.5px; font-weight:700; color:#15803D;">
+              (${savingsPct}% cheaper than virgin)
+            </div>
+          </div>
+        </div>
+        ${actionsHtml}
+      `;
+    }
+
+    // Side-by-Side Compare Suppliers Sheet
+    function openCompareSheet() {
+      const d = DATA[activeStream];
+      const roleData = d[currentRole];
+      const viable = roleData.plants.filter(p => p.dist <= activeRadius);
+
+      const table = document.getElementById('compareTable');
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Supplier Name</th>
+            <th>Distance</th>
+            <th>Available Quantity</th>
+            <th>Compatibility</th>
+            <th>Price / Tonne</th>
+            <th>Transport Cost</th>
+            <th>Total Landed Cost</th>
+            <th style="text-align:right;">Net Savings</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${viable.map((p, idx) => {
+            const landed = p.matPrice + p.freight;
+            const savings = d.virginCost - landed;
+            const letter = String.fromCharCode(65 + idx);
+            return `
+              <tr>
+                <td><strong>[${letter}] ${p.name}</strong><br><span style="font-size:11px; color:#15803D;">★ ${p.badge}</span></td>
+                <td><span style="font-family:var(--font-mono); font-weight:700;">${p.dist} km</span></td>
+                <td><span style="background:#F0FDF4; color:#15803D; padding:2px 6px; border-radius:4px; font-weight:700;">${p.availableQty}</span></td>
+                <td><strong style="color:var(--primary); font-family:var(--font-mono);">${p.fit}%</strong></td>
+                <td><span style="font-family:var(--font-mono);">₹${p.pricePerTon.toLocaleString('en-IN')}/t</span></td>
+                <td><span style="font-family:var(--font-mono);">₹${p.freight.toLocaleString('en-IN')}</span></td>
+                <td><strong style="font-family:var(--font-mono); color:var(--text-main);">₹${landed.toLocaleString('en-IN')}</strong></td>
+                <td style="text-align:right;"><strong style="color:#15803D; font-family:var(--font-mono);">Save ₹${savings.toLocaleString('en-IN')}</strong></td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      `;
+      document.getElementById('compareModal').classList.add('open');
+    }
+
+    function closeCompareSheet() {
+      document.getElementById('compareModal').classList.remove('open');
+    }
+
+    function closeCompareOnBackdrop(e) {
+      if (e.target.id === 'compareModal') closeCompareSheet();
+    }
+
+    function openManifest() {
+      const d = DATA[activeStream];
+      const roleData = d[currentRole];
+      const viable = roleData.plants.filter(p => p.dist <= activeRadius);
+      const plant = viable[selectedPlantIdx] || roleData.plants[0];
+      const secondary = plant.matPrice;
+      const delivered = secondary + plant.freight + (secondary * 0.08);
+
+      const origin = currentRole === 'seller' ? roleData.myFacility : plant.name;
+      const dest = currentRole === 'seller' ? plant.name : roleData.myFacility;
+
+      document.getElementById('mCode').textContent = d.code;
+      document.getElementById('mOrigin').textContent = origin;
+      document.getElementById('mDest').textContent = dest;
+      document.getElementById('mDestLoc').textContent = `${plant.spec || plant.name} (${plant.dist} km haul)`;
+      document.getElementById('mMaterial').textContent = `${d.name} (${d.ton})`;
+      document.getElementById('mPrice').textContent = '₹' + Math.round(delivered).toLocaleString('en-IN');
+      document.getElementById('mCarbon').textContent = `Offset: ${d.co2}`;
+
+      document.getElementById('manifestModal').classList.add('open');
+    }
+
+    function closeManifest() {
+      document.getElementById('manifestModal').classList.remove('open');
+    }
+
+    // =========================================================================
+    // Feature 05: Digital Transit Waybills & Consignment Records Engine
+    // =========================================================================
+    const WAYBILLS_DATA = [
+      {
+        id: "WB-2026-0891",
+        ewb: "5418 9021 3411",
+        category: "Polymer",
+        material: "PP Edge-Trims & Film Offcuts",
+        spec: "MFI: 12.4 • 99.2% Purity • Unprinted",
+        qty: "8.5 MT",
+        tons: 8.5,
+        consignor: "Apex Packaging Ltd.",
+        consignorLoc: "Chakan MIDC Ph-2, Pune",
+        consignee: "PolyCompound Hub",
+        consigneeLoc: "Pimpri Auto Cluster, Pune",
+        distance: "22 km",
+        carrier: "Mahalaxmi Industrial Freight",
+        truck: "MH-14 BJ 7812",
+        truckType: "16-Wheeler Multi-Axle",
+        status: "IN TRANSIT",
+        statusDesc: "En route via NH-48 (ETA 35m)",
+        co2: "6.8 MT CO₂e",
+        value: 144600
+      },
+      {
+        id: "WB-2026-0892",
+        ewb: "5418 9021 3412",
+        category: "Polymer",
+        material: "BOPP Slitter Rewind Scrap",
+        spec: "Grade A1 • Co-extruded • Optical Film",
+        qty: "5.0 MT",
+        tons: 5.0,
+        consignor: "Cosmo Films Converting",
+        consignorLoc: "Waluj MIDC, Aurangabad",
+        consignee: "Gujarat Polymer Moulds",
+        consigneeLoc: "GIDC Vatva, Ahmedabad",
+        distance: "385 km",
+        carrier: "Navata Surface Transport",
+        truck: "GJ-16 AV 4590",
+        truckType: "16-Wheeler Multi-Axle",
+        status: "IN TRANSIT",
+        statusDesc: "En route NH-48 Vadodara Bypass",
+        co2: "4.2 MT CO₂e",
+        value: 87500
+      },
+      {
+        id: "WB-2026-0887",
+        ewb: "5418 9021 3407",
+        category: "Mineral",
+        material: "Fly Ash Dry Class-F (IS 3812)",
+        spec: "SiO2+Al2O3 >70% • Blaine 340 m²/kg",
+        qty: "32.0 MT",
+        tons: 32.0,
+        consignor: "NTPC Korba Thermal Super STPS",
+        consignorLoc: "Korba Silo 4, Chhattisgarh",
+        consignee: "Ultratech ReadyMix Plant",
+        consigneeLoc: "Urla Industrial Area, Raipur",
+        distance: "185 km",
+        carrier: "VRL Bulk Pneumatic Bulker",
+        truck: "CG-04 JC 6621",
+        truckType: "Pneumatic Bulk Tanker",
+        status: "READY FOR TRANSIT",
+        statusDesc: "Gate Pass cleared • Weighbridge locked",
+        co2: "26.4 MT CO₂e",
+        value: 29800
+      },
+      {
+        id: "WB-2026-0888",
+        ewb: "5418 9021 3408",
+        category: "Metal",
+        material: "Aluminium 6061 CNC Turning Swarf",
+        spec: "Clean degreased swarf • Fe < 0.22%",
+        qty: "4.2 MT",
+        tons: 4.2,
+        consignor: "Precision Machining Components",
+        consignorLoc: "Ambattur Ind. Estate, Chennai",
+        consignee: "Deccan Secondary Smelters",
+        consigneeLoc: "Sri City SEZ, Andhra Pradesh",
+        distance: "65 km",
+        carrier: "Southern Cargo Express",
+        truck: "TN-05 BD 9140",
+        truckType: "Tata 407 LCV",
+        status: "DELIVERED",
+        statusDesc: "Unloaded & Spectro Checked",
+        co2: "38.6 MT CO₂e",
+        value: 714000
+      },
+      {
+        id: "WB-2026-0889",
+        ewb: "5418 9021 3409",
+        category: "Polymer",
+        material: "HDPE Blow Moulding Flashings",
+        spec: "MFI: 0.28 • Density 0.954 • Drum Grade",
+        qty: "6.8 MT",
+        tons: 6.8,
+        consignor: "Supreme Industries Containers",
+        consignorLoc: "Talegaon Floriculture Belt, Pune",
+        consignee: "Bharat Polymer Moulds",
+        consigneeLoc: "Chakan Ph-1, Pune",
+        distance: "34 km",
+        carrier: "Mahalaxmi Industrial Freight",
+        truck: "MH-12 KQ 3218",
+        truckType: "Tata 407 LCV",
+        status: "IN TRANSIT",
+        statusDesc: "En route via Talegaon-Chakan Rd",
+        co2: "5.4 MT CO₂e",
+        value: 112200
+      },
+      {
+        id: "WB-2026-0890",
+        ewb: "5418 9021 3410",
+        category: "Metal",
+        material: "Heavy Copper Millberry Wire Scrap",
+        spec: "99.9% Electrolytic purity • Clean stripped",
+        qty: "2.4 MT",
+        tons: 2.4,
+        consignor: "Sterlite Copper Wiring Scrap",
+        consignorLoc: "Silvassa Ind. Estate, D&NH",
+        consignee: "Metallo-Alloy Precision Casting",
+        consigneeLoc: "Bhosari MIDC, Pune",
+        distance: "248 km",
+        carrier: "SafeXpress Armored Logistics",
+        truck: "MH-48 AC 1109",
+        truckType: "GPS Closed Container",
+        status: "IN TRANSIT",
+        statusDesc: "En route Mumbai-Pune Expressway",
+        co2: "18.2 MT CO₂e",
+        value: 1728000
+      },
+      {
+        id: "WB-2026-0885",
+        ewb: "5418 9021 3405",
+        category: "Polymer",
+        material: "Post-Industrial Clear PET Flakes",
+        spec: "Hot washed • IV 0.74 dl/g • Flake 10mm",
+        qty: "11.2 MT",
+        tons: 11.2,
+        consignor: "Polyplex Eco-Bottle Wash",
+        consignorLoc: "Sanand GIDC, Gujarat",
+        consignee: "Reliance Recron Recycled Fiber",
+        consigneeLoc: "Hoshiarpur Plant, Punjab",
+        distance: "1,180 km",
+        carrier: "Western Dedicated Rail Freight",
+        truck: "WR-CONTR-9941",
+        truckType: "Containerized Rail Wagon",
+        status: "READY FOR TRANSIT",
+        statusDesc: "Staged at Sabarmati ICD Dry Port",
+        co2: "14.8 MT CO₂e",
+        value: 492800
+      },
+      {
+        id: "WB-2026-0886",
+        ewb: "5418 9021 3406",
+        category: "Mineral",
+        material: "Ground Granulated Blast Furnace Slag",
+        spec: "Glass content >92% • Blaine 420 m²/kg",
+        qty: "28.5 MT",
+        tons: 28.5,
+        consignor: "Tata Steel Kalinganagar Works",
+        consignorLoc: "Jajpur Slag Grinding Yard, Odisha",
+        consignee: "Dalmia Bharat Cement Terminal",
+        consigneeLoc: "Bokaro Steel City, Jharkhand",
+        distance: "310 km",
+        carrier: "Eastern Heavy Logistics",
+        truck: "JH-05 CM 8842",
+        truckType: "Pneumatic Bulk Tanker",
+        status: "DELIVERED",
+        statusDesc: "Discharged into Silo #3",
+        co2: "22.8 MT CO₂e",
+        value: 62700
+      },
+      {
+        id: "WB-2026-0883",
+        ewb: "5418 9021 3403",
+        category: "Metal",
+        material: "Aluminium Stamping Trims (5052-H32)",
+        spec: "Marine grade alloy • Clean sheared skeletons",
+        qty: "5.8 MT",
+        tons: 5.8,
+        consignor: "Mahindra Auto Stamping Div",
+        consignorLoc: "Chakan Auto Cluster, Pune",
+        consignee: "Hindalco Recycling Hub",
+        consigneeLoc: "Taloja MIDC, Navi Mumbai",
+        distance: "118 km",
+        carrier: "Penta Fleet Logistics",
+        truck: "MH-14 AH 2301",
+        truckType: "16-Wheeler Multi-Axle",
+        status: "DELIVERED",
+        statusDesc: "Gross-Tare Weighbill Signed",
+        co2: "51.6 MT CO₂e",
+        value: 928000
+      },
+      {
+        id: "WB-2026-0884",
+        ewb: "5418 9021 3404",
+        category: "Polymer",
+        material: "LDPE Natural Shrink Film Scrap",
+        spec: "100% Virgin off-spec • Unprinted bales",
+        qty: "7.0 MT",
+        tons: 7.0,
+        consignor: "ITC Packaging & Printing Unit",
+        consignorLoc: "Haridwar SIDCUL, Uttarakhand",
+        consignee: "Shivalik Polymer Reprocessors",
+        consigneeLoc: "Roorkee Industrial Area, UK",
+        distance: "28 km",
+        carrier: "Doon Freight Link",
+        truck: "UK-08 CA 5504",
+        truckType: "Tata 407 LCV",
+        status: "DELIVERED",
+        statusDesc: "Receipt Confirmed & Ledger Closed",
+        co2: "6.1 MT CO₂e",
+        value: 161000
+      },
+      {
+        id: "WB-2026-0881",
+        ewb: "5418 9021 3401",
+        category: "Mineral",
+        material: "High-Silica Boiler Bottom Ash",
+        spec: "Coarse aggregate blend • Sand substitute",
+        qty: "40.0 MT",
+        tons: 40.0,
+        consignor: "Adani Power Thermal Generation",
+        consignorLoc: "Mundra Ash Pond 2, Kutch, Gujarat",
+        consignee: "Kutch Eco-Bricks Consortium",
+        consigneeLoc: "Gandhidham Infrastructure, Gujarat",
+        distance: "62 km",
+        carrier: "Gujarat Earthmovers Fleet",
+        truck: "GJ-12 Z 9811",
+        truckType: "Heavy Tri-Axle Tipper",
+        status: "READY FOR TRANSIT",
+        statusDesc: "Moisture tested 8.2% • Dispatching",
+        co2: "3.2 MT CO₂e",
+        value: 18000
+      },
+      {
+        id: "WB-2026-0882",
+        ewb: "5418 9021 3402",
+        category: "Polymer",
+        material: "PP Co-Polymer Auto Bumper Regrind",
+        spec: "Black regrind • Impact modified • Melt 8",
+        qty: "4.6 MT",
+        tons: 4.6,
+        consignor: "Varroc Polymer Molding",
+        consignorLoc: "Ranjangaon MIDC, Pune",
+        consignee: "Polymer Composites Lab",
+        consigneeLoc: "Chakan MIDC Ph-3, Pune",
+        distance: "74 km",
+        carrier: "Express Road Carriers",
+        truck: "MH-12 RN 4022",
+        truckType: "Tata 407 LCV",
+        status: "VERIFICATION PENDING",
+        statusDesc: "Lab NIR Spectroscopy purity test underway",
+        co2: "3.8 MT CO₂e",
+        value: 96600
+      }
+    ];
+
+    let currentWaybillsFilter = 'ALL';
+    let currentWaybillsSearch = '';
+
+    function filterWaybills(status) {
+      currentWaybillsFilter = status;
+      ['all', 'transit', 'ready', 'delivered', 'pending'].forEach(k => {
+        const chip = document.getElementById('chip-' + k);
+        if (chip) chip.classList.remove('active');
+      });
+
+      if (status === 'ALL') {
+        const c = document.getElementById('chip-all');
+        if (c) c.classList.add('active');
+      } else if (status === 'IN TRANSIT') {
+        const c = document.getElementById('chip-transit');
+        if (c) c.classList.add('active');
+      } else if (status === 'READY FOR TRANSIT') {
+        const c = document.getElementById('chip-ready');
+        if (c) c.classList.add('active');
+      } else if (status === 'DELIVERED') {
+        const c = document.getElementById('chip-delivered');
+        if (c) c.classList.add('active');
+      } else if (status === 'VERIFICATION PENDING') {
+        const c = document.getElementById('chip-pending');
+        if (c) c.classList.add('active');
+      }
+
+      renderWaybillsTable();
+    }
+
+    function searchWaybills(query) {
+      currentWaybillsSearch = (query || '').trim();
+      renderWaybillsTable();
+    }
+
+    function renderWaybillsTable(records) {
+      const tbody = document.getElementById('waybillsTableBody');
+      if (!tbody) return;
+
+      const dataToRender = records || WAYBILLS_DATA.filter(item => {
+        const matchesFilter = currentWaybillsFilter === 'ALL' || item.status === currentWaybillsFilter;
+        if (!matchesFilter) return false;
+        if (!currentWaybillsSearch) return true;
+        const q = currentWaybillsSearch.toLowerCase();
+        return item.id.toLowerCase().includes(q) ||
+               item.ewb.toLowerCase().includes(q) ||
+               item.material.toLowerCase().includes(q) ||
+               item.consignor.toLowerCase().includes(q) ||
+               item.consignee.toLowerCase().includes(q) ||
+               item.truck.toLowerCase().includes(q) ||
+               item.carrier.toLowerCase().includes(q);
+      });
+
+      const countBadge = document.getElementById('waybillRecordCount');
+      if (countBadge) countBadge.textContent = dataToRender.length;
+
+      if (dataToRender.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted); font-size:13px;">No consignment waybills match the current filter or search criteria.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = dataToRender.map(row => {
+        let statusBadgeClass = 'status-transit';
+        let statusDotColor = '#0284C7';
+        if (row.status === 'DELIVERED') {
+          statusBadgeClass = 'status-delivered';
+          statusDotColor = '#15803D';
+        } else if (row.status === 'READY FOR TRANSIT') {
+          statusBadgeClass = 'status-ready';
+          statusDotColor = '#047857';
+        } else if (row.status === 'VERIFICATION PENDING') {
+          statusBadgeClass = 'status-pending';
+          statusDotColor = '#7E22CE';
+        }
+
+        return `
+          <tr>
+            <td>
+              <strong style="font-family:var(--font-mono); color:var(--text-main); font-size:12.5px;">#${row.id}</strong>
+              <div style="font-size:11px; font-family:var(--font-mono); color:var(--text-muted); margin-top:2px;">EWB: ${row.ewb}</div>
+            </td>
+            <td>
+              <strong style="color:var(--text-main); font-size:12.5px;">${row.material}</strong>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${row.spec} &bull; <span style="font-family:var(--font-mono); font-weight:700; color:var(--primary);">${row.qty}</span></div>
+            </td>
+            <td>
+              <div style="font-size:12px; font-weight:600; color:var(--text-main);">${row.consignor} <span style="color:var(--text-muted);">&rarr;</span> ${row.consignee}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${row.consignorLoc} &bull; <span style="font-family:var(--font-mono); font-weight:600;">${row.distance}</span></div>
+            </td>
+            <td>
+              <div style="font-size:12px; font-weight:700; font-family:var(--font-mono); color:var(--text-main);">${row.truck}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">${row.carrier} (${row.truckType})</div>
+            </td>
+            <td>
+              <span class="status-tag ${statusBadgeClass}">
+                <span style="display:inline-block; width:6px; height:6px; border-radius:50%; background:${statusDotColor}; margin-right:5px;"></span>${row.status}
+              </span>
+              <div style="font-size:10.5px; color:var(--text-muted); margin-top:3px;">${row.statusDesc}</div>
+            </td>
+            <td>
+              <strong style="font-family:var(--font-mono); color:#15803D; font-size:12px;">↑ ${row.co2}</strong>
+              <div style="font-size:10.5px; color:var(--text-muted); margin-top:2px;">₹${Number(row.value).toLocaleString('en-IN')} Trade</div>
+            </td>
+            <td style="text-align:right;">
+              <div style="display:inline-flex; gap:6px;">
+                <button class="btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="openSpecificWaybill('${row.id}')">View Pass</button>
+                <button class="btn-action" style="padding:4px 8px; font-size:11px; background:#0284C7;" onclick="trackWaybillTruck('${row.id}')">Track</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function openSpecificWaybill(code) {
+      const record = WAYBILLS_DATA.find(w => w.id === code) || WAYBILLS_DATA[0];
+      if (!record) return;
+
+      document.getElementById('mCode').textContent = '#' + record.id + ' // ' + record.ewb;
+      document.getElementById('mOrigin').textContent = record.consignor;
+      document.getElementById('mDest').textContent = record.consignee;
+      document.getElementById('mDestLoc').textContent = `${record.consigneeLoc} (${record.distance} haul via ${record.carrier})`;
+      document.getElementById('mMaterial').textContent = `${record.material} (${record.qty})`;
+      document.getElementById('mPrice').textContent = '₹' + Number(record.value).toLocaleString('en-IN');
+      document.getElementById('mCarbon').textContent = `Offset: ${record.co2}`;
+
+      document.getElementById('manifestModal').classList.add('open');
+    }
+
+    function trackWaybillTruck(id) {
+      const record = WAYBILLS_DATA.find(w => w.id === id) || WAYBILLS_DATA[0];
+      if (!record) return;
+
+      const titleEl = document.getElementById('trackTruckTitle');
+      const tagEl = document.getElementById('trackStatusTag');
+      const carrierEl = document.getElementById('trackCarrier');
+      const driverEl = document.getElementById('trackDriver');
+      const speedEl = document.getElementById('trackSpeed');
+      const etaEl = document.getElementById('trackETA');
+      const routeEl = document.getElementById('trackRoute');
+      const distEl = document.getElementById('trackDist');
+      const tollEl = document.getElementById('trackToll');
+      const coordsEl = document.getElementById('trackCoords');
+
+      if (titleEl) titleEl.textContent = 'Truck ' + record.truck + ' • ' + record.status;
+      if (tagEl) {
+        tagEl.textContent = record.status === 'IN TRANSIT' ? 'LIVE GPS ACTIVE' : (record.status === 'DELIVERED' ? 'DELIVERY COMPLETE' : 'STAGED AT YARD');
+        tagEl.style.background = record.status === 'IN TRANSIT' ? '#E0F2FE' : (record.status === 'DELIVERED' ? '#DCFCE7' : '#FEF3C7');
+        tagEl.style.color = record.status === 'IN TRANSIT' ? '#0284C7' : (record.status === 'DELIVERED' ? '#15803D' : '#B45309');
+      }
+      if (carrierEl) carrierEl.textContent = record.carrier;
+      if (driverEl) driverEl.textContent = record.truckType + ' • FASTag Active';
+      if (speedEl) {
+        if (record.status === 'IN TRANSIT') {
+          speedEl.textContent = '48 km/h • On Schedule';
+          speedEl.style.color = '#047857';
+        } else if (record.status === 'DELIVERED') {
+          speedEl.textContent = '0 km/h • Yard Discharged';
+          speedEl.style.color = '#15803D';
+        } else {
+          speedEl.textContent = 'Stationary • Loading Bay';
+          speedEl.style.color = '#B45309';
+        }
+      }
+      if (etaEl) etaEl.textContent = record.statusDesc;
+      if (routeEl) routeEl.innerHTML = record.consignor.split(' ')[0] + ' &rarr; ' + record.consignee.split(' ')[0];
+      if (distEl) distEl.textContent = record.distance + ' Corridor haul';
+      if (tollEl) tollEl.textContent = record.status === 'DELIVERED' ? 'Destination Inward Weighbridge Cleared' : (record.status === 'IN TRANSIT' ? 'Talegaon / Highway Toll Cleared' : 'Security Gate Inspection Passed');
+      if (coordsEl) coordsEl.textContent = '18.7214° N, 73.8122° E (AIS-140 Live Stream)';
+
+      document.getElementById('trackingModal').classList.add('open');
+    }
+
+    function closeTrackingModal() {
+      const modal = document.getElementById('trackingModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    function closeTrackingOnBackdrop(e) {
+      if (e.target.id === 'trackingModal') closeTrackingModal();
+    }
+
+    // =========================================================================
+    // Professional Google Maps Industrial Cartography Engine
+    // =========================================================================
+    const canvas = document.getElementById('radarCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let gmapStyle = 'roadmap'; // 'roadmap' or 'satellite'
+    let gmapZoom = 1.0;
+    let gmapPanX = 0;
+    let gmapPanY = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let hoveredPlantIdx = null;
+
+    function setGMapStyle(style) {
+      gmapStyle = style;
+      document.getElementById('btnGMapRoad').classList.toggle('active', style === 'roadmap');
+      document.getElementById('btnGMapSat').classList.toggle('active', style === 'satellite');
+      drawGoogleMap();
+    }
+
+    function zoomGMap(factor) {
+      gmapZoom = Math.max(0.65, Math.min(2.5, gmapZoom * factor));
+      const scaleKm = Math.round(5 / gmapZoom);
+      const scaleNum = document.getElementById('gmapScaleNum');
+      if (scaleNum) scaleNum.textContent = scaleKm + ' km';
+      drawGoogleMap();
+      showGMapInfoWindowForPlant(selectedPlantIdx);
+    }
+
+    function resetGMap() {
+      gmapZoom = 1.0;
+      gmapPanX = 0;
+      gmapPanY = 0;
+      const scaleNum = document.getElementById('gmapScaleNum');
+      if (scaleNum) scaleNum.textContent = '5 km';
+      drawGoogleMap();
+      showGMapInfoWindowForPlant(selectedPlantIdx);
+    }
+
+    // Canvas Mouse Interaction (Pan, Click, Hover)
+    canvas.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      dragStartX = e.clientX - gmapPanX;
+      dragStartY = e.clientY - gmapPanY;
+    });
+
+    window.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        gmapPanX = e.clientX - dragStartX;
+        gmapPanY = e.clientY - dragStartY;
+        drawGoogleMap();
+        showGMapInfoWindowForPlant(selectedPlantIdx);
+        return;
+      }
+
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      let hovered = null;
+      plantPinsPositions.forEach((pin) => {
+        const dx = clickX - pin.screenX;
+        const dy = clickY - pin.screenY;
+        if (Math.sqrt(dx * dx + dy * dy) < 20) {
+          hovered = pin.idx;
+        }
+      });
+
+      if (hovered !== hoveredPlantIdx) {
+        hoveredPlantIdx = hovered;
+        canvas.style.cursor = hovered !== null ? 'pointer' : 'grab';
+        showGMapInfoWindowForPlant(hovered !== null ? hovered : selectedPlantIdx);
+        drawGoogleMap();
+      }
+    });
+
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      plantPinsPositions.forEach((pin) => {
+        const dx = clickX - pin.screenX;
+        const dy = clickY - pin.screenY;
+        if (Math.sqrt(dx * dx + dy * dy) < 22) {
+          selectedPlantIdx = pin.idx;
+          renderMatchingView();
+          updateArbitrageView();
+          drawGoogleMap();
+          showGMapInfoWindowForPlant(pin.idx);
+          const cardEl = document.getElementById(`supplier-card-${pin.idx}`);
+          if (cardEl) cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      });
+    });
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      if (e.deltaY < 0) {
+        zoomGMap(1.1);
+      } else {
+        zoomGMap(0.9);
+      }
+    }, { passive: false });
+
+    // Show Google Maps InfoWindow Speech Bubble
+    function showGMapInfoWindowForPlant(idx) {
+      const bubble = document.getElementById('gmapInfoWindow');
+      if (!bubble) return;
+
+      const d = DATA[activeStream];
+      const roleData = d[currentRole];
+      const viable = roleData.plants.filter(p => p.dist <= activeRadius);
+
+      if (viable.length === 0 || idx >= viable.length || idx < 0) {
+        bubble.style.display = 'none';
+        return;
+      }
+
+      const plant = viable[idx];
+      const pinPos = plantPinsPositions.find(p => p.idx === idx);
+      if (!pinPos) {
+        bubble.style.display = 'none';
+        return;
+      }
+
+      const letter = String.fromCharCode(65 + idx);
+      const landed = plant.matPrice + plant.freight;
+      const letterBg = idx === 0 ? '#EA4335' : (idx === 1 ? '#0284C7' : '#7C3AED');
+
+      bubble.style.display = 'block';
+      bubble.style.left = pinPos.screenX + 'px';
+      bubble.style.top = (pinPos.screenY - 26) + 'px';
+
+      bubble.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:16px; height:16px; border-radius:50%; background:${letterBg}; color:#fff; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:800; font-family:var(--font-mono);">${letter}</span>
+            <strong style="color:#0F172A; font-size:12px;">${plant.name}</strong>
+          </div>
+          <span style="background:#DCFCE7; color:#15803D; font-size:9.5px; font-weight:800; padding:1px 5px; border-radius:3px;">${plant.fit}% Fit</span>
+        </div>
+        <div style="font-size:11px; color:#475569; margin-bottom:4px;">
+          📍 <strong>${plant.dist} km away</strong> &bull; 42 min haul via NH-48
+        </div>
+        <div style="font-size:11px; color:#047857; font-weight:600; margin-bottom:4px;">
+          📦 ${plant.availableQty}
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline; padding-top:4px; border-top:1px dashed #E2E8F0; font-family:var(--font-mono);">
+          <span style="font-size:10.5px; color:#64748B;">Landed Spend:</span>
+          <strong style="font-size:12px; color:#0F172A;">₹${landed.toLocaleString('en-IN')}</strong>
+        </div>
+      `;
+    }
+
+    function hideGMapInfoWindow() {
+      const bubble = document.getElementById('gmapInfoWindow');
+      if (bubble) bubble.style.display = 'none';
+      const routeBadge = document.getElementById('gmapRouteBadge');
+      if (routeBadge) routeBadge.style.display = 'none';
+    }
+
+    // Helper: Draw Google Maps Teardrop Pin
+    function drawGMapTeardrop(ctx, x, y, letter, color, isSelected, labelText, isOrigin) {
+      // Pin drop ground shadow
+      ctx.beginPath();
+      ctx.ellipse(x + 2, y + 2, 7, 3, 0, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
+      ctx.fill();
+
+      // Outer Glow when selected or hovered
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(x, y - 18, 18, 0, Math.PI * 2);
+        ctx.fillStyle = isOrigin ? 'rgba(4, 120, 87, 0.22)' : 'rgba(234, 67, 53, 0.22)';
+        ctx.fill();
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // Teardrop Pin Path
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.bezierCurveTo(x - 9, y - 8, x - 13, y - 16, x - 13, y - 22);
+      ctx.arc(x, y - 22, 13, Math.PI, 0, false);
+      ctx.bezierCurveTo(x + 13, y - 16, x + 9, y - 8, x, y);
+      ctx.fillStyle = color;
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+
+      // White circular inner core
+      ctx.beginPath();
+      ctx.arc(x, y - 22, 6.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+
+      // Inner Symbol/Letter
+      if (isOrigin) {
+        // Factory icon/star dot
+        ctx.beginPath();
+        ctx.arc(x, y - 22, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#047857';
+        ctx.fill();
+      } else {
+        ctx.fillStyle = '#0F172A';
+        ctx.font = 'bold 9.5px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(letter, x, y - 22);
+      }
+
+      // Clean Collision-Free Pill Label
+      if (labelText) {
+        ctx.font = isSelected ? 'bold 10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif' : '9.5px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        const textWidth = ctx.measureText(labelText).width;
+        let pillX = x + 15;
+        let pillY = y - 22;
+
+        if (isOrigin) {
+          pillX = x - (textWidth + 14) / 2;
+          pillY = y - 44;
+        } else if (x < (canvas.width / 2 + gmapPanX)) {
+          // Left side of origin: position label to the left to avoid overlapping center!
+          pillX = x - textWidth - 24;
+        }
+
+        // Label pill background
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.roundRect(pillX, pillY - 9, textWidth + 14, 18, 5);
+        ctx.fill();
+        ctx.strokeStyle = isSelected ? color : '#CBD5E1';
+        ctx.lineWidth = isSelected ? 1.5 : 1;
+        ctx.stroke();
+
+        // Label text
+        ctx.fillStyle = isSelected ? '#0F172A' : '#334155';
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(labelText, pillX + 7, pillY);
+      }
+    }
+
+    // Main Google Maps Cartography Renderer
+    function drawGoogleMap() {
+      const w = canvas.width;
+      const h = canvas.height;
+      const cx = w / 2;
+      const cy = h / 2;
+      const maxR = Math.min(cx, cy) - 25;
+
+      ctx.clearRect(0, 0, w, h);
+      plantPinsPositions = [];
+
+      const isSat = gmapStyle === 'satellite';
+
+      // 1. Base Map Background
+      ctx.fillStyle = isSat ? '#1A2E26' : '#F3F3F0';
+      ctx.fillRect(0, 0, w, h);
+
+      // Save transform for zoom & pan
+      ctx.save();
+      ctx.translate(cx + gmapPanX, cy + gmapPanY);
+      ctx.scale(gmapZoom, gmapZoom);
+
+      // 2. Industrial Zoning Landmasses (MIDC Parcels)
+      const zones = [
+        { name: 'MIDC CHAKAN PH-2', poly: [[40, -110], [130, -120], [140, -60], [50, -50]], fill: isSat ? '#22382C' : '#E6F4EA', stroke: isSat ? '#2E4C3B' : '#CEEAD6' },
+        { name: 'TALEGAON AUTO CLUSTER', poly: [[-140, -90], [-60, -90], [-50, -30], [-130, -30]], fill: isSat ? '#203438' : '#EBF1F6', stroke: isSat ? '#2B474C' : '#D2E3FC' },
+        { name: 'BHOSARI PRECISION PARK', poly: [[40, 40], [130, 30], [140, 95], [50, 105]], fill: isSat ? '#342622' : '#FDF2E9', stroke: isSat ? '#48352F' : '#FADBD8' }
+      ];
+
+      zones.forEach(z => {
+        ctx.beginPath();
+        z.poly.forEach((pt, i) => {
+          if (i === 0) ctx.moveTo(pt[0], pt[1]);
+          else ctx.lineTo(pt[0], pt[1]);
+        });
+        ctx.closePath();
+        ctx.fillStyle = z.fill;
+        ctx.fill();
+        ctx.strokeStyle = z.stroke;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Zone Label
+        ctx.fillStyle = isSat ? '#5C8A73' : '#94A3B8';
+        ctx.font = 'bold 7.5px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(z.name, (z.poly[0][0] + z.poly[2][0]) / 2, (z.poly[0][1] + z.poly[2][1]) / 2);
+      });
+
+      // 3. Meandering Waterway (Mula-Mutha Industrial River)
+      ctx.beginPath();
+      ctx.moveTo(-cx - 50, 60);
+      ctx.bezierCurveTo(-40, 80, 20, -10, cx + 50, 20);
+      ctx.strokeStyle = isSat ? '#0E2838' : '#B8DDF8';
+      ctx.lineWidth = 14;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      ctx.strokeStyle = isSat ? '#143C54' : '#93C5FD';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // River label
+      ctx.fillStyle = isSat ? '#386B8C' : '#60A5FA';
+      ctx.font = 'italic 8px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('~ Mula-Mutha River Basin ~', -20, 64);
+
+      // 4. Highway & Expressway Grid
+      // NH-48 Expressway (Yellow-Orange Google Highway)
+      ctx.beginPath();
+      ctx.moveTo(-cx - 50, -50);
+      ctx.lineTo(cx + 50, -30);
+      ctx.strokeStyle = isSat ? '#B45309' : '#E5A83B';
+      ctx.lineWidth = 7;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(-cx - 50, -50);
+      ctx.lineTo(cx + 50, -30);
+      ctx.strokeStyle = isSat ? '#FBBF24' : '#FFD166';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      // NH-48 Shield Badge
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(80, -42, 28, 12);
+      ctx.strokeStyle = '#B45309';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(80, -42, 28, 12);
+      ctx.fillStyle = '#B45309';
+      ctx.font = 'bold 7.5px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('NH 48', 94, -33);
+
+      // SH-27 Arterial Road (White with casing)
+      ctx.beginPath();
+      ctx.moveTo(0, -cy - 50);
+      ctx.lineTo(0, cy + 50);
+      ctx.strokeStyle = isSat ? '#475569' : '#CBD5E1';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(0, -cy - 50);
+      ctx.lineTo(0, cy + 50);
+      ctx.strokeStyle = isSat ? '#94A3B8' : '#FFFFFF';
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
+
+      // SH-27 Shield Badge
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(-14, 85, 28, 12);
+      ctx.strokeStyle = '#64748B';
+      ctx.strokeRect(-14, 85, 28, 12);
+      ctx.fillStyle = '#334155';
+      ctx.font = 'bold 7.5px sans-serif';
+      ctx.fillText('SH 27', 0, 94);
+
+      // MIDC Loop Connectors
+      ctx.beginPath();
+      ctx.arc(0, 0, 75, 0, Math.PI * 2);
+      ctx.strokeStyle = isSat ? '#334155' : '#E2E8F0';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 5. Distance Reference Rings (15 km, 30 km, 50 km)
+      const rings = [
+        { r: maxR * (15 / 50), label: '15 km' },
+        { r: maxR * (30 / 50), label: '30 km' },
+        { r: maxR, label: '50 km' }
+      ];
+
+      rings.forEach(ring => {
+        ctx.strokeStyle = isSat ? 'rgba(255, 255, 255, 0.12)' : '#CBD5E1';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([2, 4]);
+        ctx.beginPath();
+        ctx.arc(0, 0, ring.r, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Ring label
+        ctx.fillStyle = isSat ? '#94A3B8' : '#64748B';
+        ctx.font = 'bold 8.5px monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(ring.label, ring.r - 26, -5);
+      });
+
+      // 6. Active Search Radius Circular Zone
+      const activeRadiusR = maxR * (activeRadius / 50);
+      ctx.fillStyle = isSat ? 'rgba(16, 185, 129, 0.08)' : 'rgba(4, 120, 87, 0.06)';
+      ctx.beginPath();
+      ctx.arc(0, 0, activeRadiusR, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = isSat ? '#10B981' : '#047857';
+      ctx.lineWidth = 1.8;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.arc(0, 0, activeRadiusR, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Search Radius Tag at top of circle
+      ctx.fillStyle = '#047857';
+      ctx.fillRect(-45, -activeRadiusR - 8, 90, 16);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 8.5px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${activeRadius} km Radius Active`, 0, -activeRadiusR + 3);
+
+      // 7. Selected Route Navigation Polyline (Google Blue)
+      const d = DATA[activeStream];
+      const roleData = d[currentRole];
+      const viable = roleData.plants.filter(p => p.dist <= activeRadius);
+
+      let selPx = 0, selPy = 0;
+      if (viable.length > 0 && selectedPlantIdx < viable.length) {
+        const selPlant = viable[selectedPlantIdx];
+        const rad = (selPlant.angle * Math.PI) / 180;
+        const distRatio = selPlant.dist / 50;
+        selPx = Math.cos(rad) * (maxR * distRatio);
+        selPy = Math.sin(rad) * (maxR * distRatio);
+
+        // Blue route outer glow
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(selPx, selPy);
+        ctx.strokeStyle = 'rgba(26, 115, 232, 0.3)';
+        ctx.lineWidth = 9;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+
+        // Blue highway route
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(selPx, selPy);
+        ctx.strokeStyle = '#1A73E8';
+        ctx.lineWidth = 5;
+        ctx.stroke();
+
+        // Inner white transit core
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(selPx, selPy);
+        ctx.strokeStyle = '#FFFFFF';
+        ctx.lineWidth = 1.8;
+        ctx.setLineDash([4, 4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Update floating route badge position
+        const routeBadge = document.getElementById('gmapRouteBadge');
+        if (routeBadge) {
+          const midX = (0 + selPx) / 2;
+          const midY = (0 + selPy) / 2;
+          // Convert back to canvas screen coordinates
+          const screenMidX = cx + gmapPanX + midX * gmapZoom;
+          const screenMidY = cy + gmapPanY + midY * gmapZoom;
+          routeBadge.style.display = 'flex';
+          routeBadge.style.left = screenMidX + 'px';
+          routeBadge.style.top = screenMidY + 'px';
+          routeBadge.innerHTML = `<span>🚗 42 min (${selPlant.dist} km) via NH-48</span>`;
+        }
+      } else {
+        const routeBadge = document.getElementById('gmapRouteBadge');
+        if (routeBadge) routeBadge.style.display = 'none';
+      }
+
+      // 8. Draw Supplier Pins (A, B, C)
+      viable.forEach((p, idx) => {
+        const rad = (p.angle * Math.PI) / 180;
+        const distRatio = p.dist / 50;
+        const px = Math.cos(rad) * (maxR * distRatio);
+        const py = Math.sin(rad) * (maxR * distRatio);
+
+        const isSelected = idx === selectedPlantIdx;
+        const isHovered = idx === hoveredPlantIdx;
+        const letter = String.fromCharCode(65 + idx);
+        const pinColor = idx === 0 ? '#EA4335' : (idx === 1 ? '#0284C7' : '#7C3AED');
+
+        // Calculate absolute screen coords for click and InfoWindow detection
+        const screenX = cx + gmapPanX + px * gmapZoom;
+        const screenY = cy + gmapPanY + py * gmapZoom;
+
+        plantPinsPositions.push({
+          x: px,
+          y: py,
+          screenX: screenX,
+          screenY: screenY,
+          idx: idx,
+          name: p.name,
+          letter: letter
+        });
+
+        const label = `${letter}. ${p.name} (${p.dist} km)`;
+        drawGMapTeardrop(ctx, px, py, letter, pinColor, isSelected || isHovered, label, false);
+      });
+
+      // 9. Center: Your Factory Pin (Search Origin)
+      // Animated Live GPS Radar Wave around factory
+      const pulseTime = (Date.now() / 1000) % 2;
+      const pulseRadius = 14 + pulseTime * 12;
+      ctx.beginPath();
+      ctx.arc(0, 0, pulseRadius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(4, 120, 87, ${Math.max(0, 0.3 - pulseTime * 0.15)})`;
+      ctx.fill();
+
+      // Green Google Pin for Your Factory
+      drawGMapTeardrop(ctx, 0, 0, '★', '#047857', true, '📍 Your Factory (Origin)', true);
+
+      ctx.restore();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setFeedstock('pp');
+      setRadarRole('buyer'); // start on buyer as user requested!
+      resetGMap();
+      renderWaybillsTable();
+    });
+  </script>
+
+
+</body></html>

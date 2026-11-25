@@ -76,3 +76,11 @@ The working branches are `feat/specialist-vision-benchmark`, `feat/material-anal
 The Overview includes an original Blender-built factory and circular conveyor carrying recovered copper, polymer offcuts and cardboard. Its authored eight-second animation repeats seamlessly. The model sits directly on the page with a transparent background and no surrounding labels or playback controls. Drag to rotate. Reduced-motion users start paused, and the animation pauses when off-screen or the tab is hidden. A rendered WebP poster is the loading/error fallback. The existing overview map remains visible.
 
 The GLB and locally hosted viewer work without Blender installed. The editable scene is [design/blender/material-loop.blend](design/blender/material-loop.blend); the generator and rebuild instructions are in [design/blender/README.md](design/blender/README.md). This is an illustrative sculpture, not live facility or inventory data.
+
+## Root HTML layout refresh
+
+The root `index.html` is the user's original standalone industrial exchange interface, restyled for readability. Its original figures, suppliers, material specifications, prices, waybills, calculations and application scripts are preserved. This presentation-only pass does not replace the source data or validate its claims.
+
+Open that exact file directly in a browser. Navigation, role/stream switching, radius selection, pooling, transport comparison, ledger and waybill controls remain available. Pooling details and the detailed transport table expand on demand; tables scroll inside their containers on smaller screens.
+
+`design/standalone/original.html` preserves the downloaded source. Edit `design/standalone/layout.css` for presentation changes, then run `npm run build:standalone`. The build script changes wrappers/classes only and asserts that the original scripts are unchanged. Browser checks compare all original scripts, text and datasets, then exercise the original controls at phone, tablet and laptop widths. The separate `dist/` application opened by `npm run dev` remains a different entry point.

@@ -12,7 +12,8 @@
     "ml:train": ".venv/bin/python ml/train.py",
     "test:ml": ".venv/bin/python -m unittest discover -s ml -p 'test_*.py'",
     "ml:evaluate": ".venv/bin/python ml/evaluate.py",
-    "assets:vendor": "node scripts/copy-viewer.mjs"
+    "assets:vendor": "node scripts/copy-viewer.mjs",
+    "build:standalone": "node scripts/build-standalone.mjs"
   },
   "engines": {
     "node": ">=24"
