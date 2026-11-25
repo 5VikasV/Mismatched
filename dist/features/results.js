@@ -1,11 +1,46 @@
-import {esc,num} from './shared.js';
-export async function mountFeature(root,context){
- let alive=true;root.dataset.feature='results';root.innerHTML='<p role="status">Loading measured model results…</p>';
- try{
-  const {report:r}=await context.api('/api/model-report');if(!alive)return()=>{};
-  if(!r){root.innerHTML='<div class="eyebrow">MODEL RESULTS</div><h1>No evaluation report yet.</h1><p>Prepare the dataset and run local training. Results appear here only after evaluation completes.</p><pre>.venv/bin/python ml/prepare.py\n.venv/bin/python ml/train.py</pre>';return()=>{alive=false;};}
-  const m=r.trained.test,b=r.baseline.test,pct=v=>`${(100*v).toFixed(1)}%`;
-  root.innerHTML=`<div class="eyebrow">MODEL / MEASURED PERFORMANCE</div><h1>Know where the model stands.</h1><p>${esc(r.modelVersion)} · ${esc(r.status)} · ${esc(r.createdAt)}</p><div class="metric-strip">${[[pct(m.accuracy),'Test accuracy'],[pct(m.macroF1),'Test macro-F1'],[pct(r.testCoverage),'Accepted prediction coverage'],[`${num(r.medianInferenceMs)} ms`,'Median local inference']].map(([v,l])=>`<div class="metric"><strong>${v}</strong><span>${l}</span></div>`).join('')}</div><section class="panel panel-body"><h2>Baseline versus trained model</h2><div class="table-scroll"><table><thead><tr><th>Method</th><th>Validation macro-F1</th><th>Test macro-F1</th><th>Test accuracy</th></tr></thead><tbody><tr><th>Frozen feature prototypes</th><td>${pct(r.baseline.validation.macroF1)}</td><td>${pct(b.macroF1)}</td><td>${pct(b.accuracy)}</td></tr><tr><th>Trained specialist</th><td>${pct(r.trained.validation.macroF1)}</td><td>${pct(m.macroF1)}</td><td>${pct(m.accuracy)}</td></tr></tbody></table></div><p>Confidence threshold: ${pct(r.threshold)}. Precision among accepted test predictions: ${r.acceptedTestPrecision==null?'No accepted predictions':pct(r.acceptedTestPrecision)}. Model scores are not guarantees.</p><p>Training: ${num(r.counts.train)} · Validation: ${num(r.counts.validation)} · Held-out test: ${num(r.counts.test)} images. Seed ${r.seed}. Training took ${num(r.trainingSeconds)} seconds.</p></section><section class="panel panel-body"><h2>Class performance</h2><div class="table-scroll"><table><thead><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Test images</th></tr></thead><tbody>${m.classes.map(c=>`<tr><th>${esc(c.label)}</th><td>${pct(c.precision)}</td><td>${pct(c.recall)}</td><td>${pct(c.f1)}</td><td>${c.count}</td></tr>`).join('')}</tbody></table></div></section><section class="panel panel-body"><h2>Confusion matrix</h2><p>Rows: correct labels. Columns: predictions.</p><div class="table-scroll"><table><thead><tr><th>Actual / predicted</th>${r.classes.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${m.confusionMatrix.map((row,i)=>`<tr><th>${esc(r.classes[i])}</th>${row.map(n=>`<td>${n}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section><section class="panel panel-body"><h2>Where it makes mistakes</h2><p>Sample IDs identify local dataset images; no dataset photos are redistributed here.</p>${r.mistakes.slice(0,15).map(e=>`<details><summary>${esc(e.expected)} → ${esc(e.predicted)} (${pct(e.confidence)})</summary><p class="sample-id">${esc(e.sampleId)}</p><p>${esc(e.source)} · Dataset-provided label, not expert-confirmed.</p></details>`).join('')||'<p>No test errors recorded.</p>'}</section><section class="panel panel-body"><h2>Source and limits</h2><p><a class="text-link" href="https://huggingface.co/datasets/garythung/trashnet" target="_blank" rel="noopener noreferrer">TrashNet — Gary Thung and Mindy Yang</a> · ${esc(r.source.license)}</p><ul>${r.limitations.map(l=>`<li>${esc(l)}</li>`).join('')}</ul><p>TACO: candidate, pending image permissions and mapping. ZeroWaste: research only; excluded from this model.</p></section>`;
- }catch(e){if(alive)root.innerHTML=`<p role="alert">${esc(e.message)}</p>`;}
- return()=>{alive=false;};
+import { esc, num } from "./shared.js";
+export async function mountFeature(root, context) {
+  let alive = true;
+  root.dataset.feature = "results";
+  root.innerHTML = '<p role="status">Loading measured model results…</p>';
+  try {
+    const { report: r } = await context.api("/api/model-report");
+    if (!alive) return () => {};
+    if (!r) {
+      root.innerHTML =
+        '<div class="eyebrow">MODEL RESULTS</div><h1>No evaluation report yet.</h1><p>Prepare the dataset and run local training. Results appear here only after evaluation completes.</p><pre>.venv/bin/python ml/prepare.py\n.venv/bin/python ml/train.py</pre>';
+      return () => {
+        alive = false;
+      };
+    }
+    const m = r.trained.test,
+      b = r.baseline.test,
+      pct = (v) => `${(100 * v).toFixed(1)}%`;
+    root.innerHTML = `<div class="eyebrow">MODEL / MEASURED PERFORMANCE</div><h1>Know where the model stands.</h1><p>${esc(r.modelVersion)} · ${esc(r.status)} · ${esc(r.createdAt)}</p><div class="metric-strip">${[
+      [pct(m.accuracy), "Test accuracy"],
+      [pct(m.macroF1), "Test macro-F1"],
+      [pct(r.testCoverage), "Accepted prediction coverage"],
+      [`${num(r.medianInferenceMs)} ms`, "Median local inference"],
+    ]
+      .map(
+        ([v, l]) =>
+          `<div class="metric"><strong>${v}</strong><span>${l}</span></div>`,
+      )
+      .join(
+        "",
+      )}</div><section class="panel panel-body"><h2>Baseline versus trained model</h2><div class="table-scroll"><table><thead><tr><th>Method</th><th>Validation macro-F1</th><th>Test macro-F1</th><th>Test accuracy</th></tr></thead><tbody><tr><th>Frozen feature prototypes</th><td>${pct(r.baseline.validation.macroF1)}</td><td>${pct(b.macroF1)}</td><td>${pct(b.accuracy)}</td></tr><tr><th>Trained specialist</th><td>${pct(r.trained.validation.macroF1)}</td><td>${pct(m.macroF1)}</td><td>${pct(m.accuracy)}</td></tr></tbody></table></div><p>Confidence threshold: ${pct(r.threshold)}. Precision among accepted test predictions: ${r.acceptedTestPrecision == null ? "No accepted predictions" : pct(r.acceptedTestPrecision)}. Model scores are not guarantees.</p><p>Training: ${num(r.counts.train)} · Validation: ${num(r.counts.validation)} · Held-out test: ${num(r.counts.test)} images. Seed ${r.seed}. Training took ${num(r.trainingSeconds)} seconds.</p></section><section class="panel panel-body"><h2>Class performance</h2><div class="table-scroll"><table><thead><tr><th>Class</th><th>Precision</th><th>Recall</th><th>F1</th><th>Test images</th></tr></thead><tbody>${m.classes.map((c) => `<tr><th>${esc(c.label)}</th><td>${pct(c.precision)}</td><td>${pct(c.recall)}</td><td>${pct(c.f1)}</td><td>${c.count}</td></tr>`).join("")}</tbody></table></div></section><section class="panel panel-body"><h2>Confusion matrix</h2><p>Rows: correct labels. Columns: predictions.</p><div class="table-scroll"><table><thead><tr><th>Actual / predicted</th>${r.classes.map((c) => `<th>${esc(c)}</th>`).join("")}</tr></thead><tbody>${m.confusionMatrix.map((row, i) => `<tr><th>${esc(r.classes[i])}</th>${row.map((n) => `<td>${n}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section><section class="panel panel-body"><h2>Where it makes mistakes</h2><p>Sample IDs identify local dataset images; no dataset photos are redistributed here.</p>${
+      r.mistakes
+        .slice(0, 15)
+        .map(
+          (e) =>
+            `<details><summary>${esc(e.expected)} → ${esc(e.predicted)} (${pct(e.confidence)})</summary><p class="sample-id">${esc(e.sampleId)}</p><p>${esc(e.source)} · Dataset-provided label, not expert-confirmed.</p></details>`,
+        )
+        .join("") || "<p>No test errors recorded.</p>"
+    }</section><section class="panel panel-body"><h2>Source and limits</h2><p><a class="text-link" href="https://huggingface.co/datasets/garythung/trashnet" target="_blank" rel="noopener noreferrer">TrashNet — Gary Thung and Mindy Yang</a> · ${esc(r.source.license)}</p><ul>${r.limitations.map((l) => `<li>${esc(l)}</li>`).join("")}</ul><p>TACO: candidate, pending image permissions and mapping. ZeroWaste: research only; excluded from this model.</p></section>`;
+  } catch (e) {
+    if (alive) root.innerHTML = `<p role="alert">${esc(e.message)}</p>`;
+  }
+  return () => {
+    alive = false;
+  };
 }

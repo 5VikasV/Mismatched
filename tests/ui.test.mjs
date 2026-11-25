@@ -7,6 +7,7 @@ import { createApp } from '../server/app.mjs';
 import { icon } from '../dist/icons.js';
 import { planPool } from '../dist/planner.js';
 import { mountFeature as mountAnalysis } from '../dist/features/analysis.js';
+import { mountFeature as mountPlanner } from '../dist/features/planner.js';
 import { mountFeature as mountResults } from '../dist/features/results.js';
 
 const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
@@ -34,7 +35,7 @@ async function boot(t, options={}) {
   window.scrollTo=()=>{};window.Element.prototype.scrollIntoView=()=>{};
   window.URL.createObjectURL=()=> 'blob:local-preview';window.URL.revokeObjectURL=()=>{};
   window.fetch=options.apiFailure ? async()=>({ok:false,status:503,json:async()=>({message:'Local database unavailable'})}) : (path,init)=>request(app,path,init);
-  window.__features={analysis:async()=>({mountFeature:mountAnalysis}),results:async()=>({mountFeature:mountResults})};
+  window.__features={planner:async()=>({mountFeature:mountPlanner}),analysis:async()=>({mountFeature:mountAnalysis}),results:async()=>({mountFeature:mountResults})};
   window.__icon=icon;window.__planPool=planPool;
   window.eval(`const icon=window.__icon;const planPool=window.__planPool;\n${source.replace(/^import .*;\s*$/gm,'')}`);
   t.after(()=>{window.close();assert.deepEqual(errors,[],'No application runtime errors');});
@@ -43,7 +44,7 @@ async function boot(t, options={}) {
   const click=s=>$(s).click();
   const change=(s,value)=>{const e=$(s);if(e.type==='checkbox')e.checked=Boolean(value);else e.value=String(value);e.dispatchEvent(new window.Event('input',{bubbles:true}));e.dispatchEvent(new window.Event('change',{bubbles:true}));};
   const submit=s=>$(s).dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
-  const route=async name=>{window.location.hash=name;await tick();if(name==='analysis')await until(()=>document.querySelector('#record-form'),'Analysis feature');};
+  const route=async name=>{window.location.hash=name;await tick();if(name==='analysis')await until(()=>document.querySelector('#record-form'),'Analysis feature');if(name==='planner')await until(()=>document.querySelector('#planner-form'),'Planner feature');};
   const api=async(path,method='GET',data)=>{const response=await request(app,path,{method,headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});return response.json();};
   const importData=async()=>{click('[data-action="import"]');await until(()=>document.querySelector('.metric strong')?.textContent==='40' || document.querySelector('.section-heading h2')?.textContent.includes('40') || document.querySelector('.data-totals strong')?.textContent==='40','Public import');};
   return{app,window,document,$,click,change,submit,route,api,importData};
@@ -121,4 +122,15 @@ test('saved search escapes markup and deletion requires an explicit second actio
 
 test('API failures show recovery without sample factories',async t=>{
  const ui=await boot(t,{apiFailure:true});assert.match(ui.$('#main').textContent,/Local database unavailable/);assert.ok(ui.document.querySelector('[data-action="refresh"]'));assert.equal(ui.document.querySelector('.facility-row'),null);
+});
+
+test('integrated planner uses saved records, selection and full costs',async t=>{
+ const ui=await boot(t);await ui.route('analysis');await saveManual(ui);await ui.route('planner');
+ for(const [key,value]of Object.entries({material:'PP',grade:'PP-H',quantityKg:100,comparisonPrice:75,transportCost:100,feePercent:0}))ui.change(`#planner-form [name="${key}"]`,value);
+ ui.submit('#planner-form');assert.match(ui.$('.planner-result').textContent,/Research Team/);assert.match(ui.$('.cost-row.total').textContent,/4,300/);assert.match(ui.$('.cost-row.saving').textContent,/3,200/);
+ ui.click('[data-plan-action="none"]');assert.match(ui.$('.planner-result').textContent,/100 kg shortfall/);assert.equal(ui.$('[data-plan-action="export"]').disabled,true);
+ ui.click('[data-plan-action="all"]');assert.equal(ui.$('[data-plan-action="export"]').disabled,false);
+});
+test('model results show real report metrics and explicit limitations',async t=>{
+ const ui=await boot(t);await ui.route('results');await until(()=>ui.document.querySelector('table'),'Report');assert.match(ui.$('#main').textContent,/Frozen feature prototypes/);assert.match(ui.$('#main').textContent,/expert-confirmed factory/);assert.match(ui.$('#main').textContent,/Confusion matrix/);
 });

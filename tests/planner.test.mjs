@@ -34,3 +34,23 @@ test('invalid assumptions fail with a useful reason',()=>{
   const p=planPool([record('supply',500,42)],need(change));assert.equal(p.viable,false);assert.ok(p.reason.length>0);
  }
 });
+
+test('selected IDs support explicit empty selection, deduplication and partial lots',()=>{
+ const rows=[record('a',300,40),record('b',300,45)];
+ assert.equal(planPool(rows,need({selectedRecordIds:[]})).quantityKg,0);
+ const p=planPool(rows,need({selectedRecordIds:['a','a','b','missing']}));assert.equal(p.complete,true);assert.equal(p.allocations.length,2);assert.equal(p.allocations[1].quantityKg,200);
+ assert.equal(planPool([rows[0],rows[0]],need()).quantityKg,300);
+ assert.equal(planPool(rows,need({selectedRecordIds:'a'})).complete,false);
+});
+test('selected incompatible or unreviewed fields remain excluded with reasons',()=>{
+ const rows=[record('a',500,30,{fieldReview:{material:'ai_suggestion'}}),record('b',500,30,{grade:'wrong'})];
+ const p=planPool(rows,need({selectedRecordIds:['a','b']}));assert.equal(p.quantityKg,0);assert.match(p.exclusions[0].reasons.join(','),/confirmation/);
+});
+test('a missing microgram-scale quantity is a shortage rather than assumed complete',()=>{
+ const p=planPool([record('a',.000001,42)],need({quantityKg:.000002,transportCost:0}));assert.equal(p.complete,false);assert.equal(p.shortfallKg,.000001);assert.equal(p.savings,null);
+ const complete=planPool([record('a',.000001,42),record('b',.000001,42)],need({quantityKg:.000002,transportCost:0}));assert.equal(complete.complete,true);assert.equal(complete.quantityKg,.000002);
+});
+test('large supported estimates remain finite and unsafe currency precision is rejected',()=>{
+ const p=planPool([record('a',1000000,50)],need({quantityKg:1000000}));assert.equal(p.complete,true);assert.equal(p.materialCost,50000000);
+ const unsafe=planPool([record('a',1e12,1e12)],need({quantityKg:1e12,comparisonPrice:1e12}));assert.equal(unsafe.complete,false);assert.match(unsafe.reason,/precision/);
+});

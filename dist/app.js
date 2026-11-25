@@ -9,7 +9,7 @@ const safeURL=v=>{try{const u=new URL(v);return ['https:','http:'].includes(u.pr
 const link=(url,label='Open source')=>safeURL(url)?`<a class="text-link" href="${esc(safeURL(url))}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`:'<span class="muted">Source unavailable</span>';
 const nav=[['overview','grid','Overview'],['directory','building','Facility directory'],['analysis','spark','Material analysis'],['planner','box','Pool planner'],['results','shield','Model results'],['sources','list','Sources & setup']];
 const state={status:{aiConfigured:false,model:'',facilityCount:0,recordCount:0,sourceCount:0},facilities:[],sources:[],records:[],loaded:false,error:'',search:'',region:'',industry:'',view:'list',importing:false,analysing:false,saving:false};
-const featureLoaders={analysis:()=>import('./features/analysis.js'),results:()=>import('./features/results.js')};
+const featureLoaders={planner:()=>import('./features/planner.js'),analysis:()=>import('./features/analysis.js'),results:()=>import('./features/results.js')};
 let featureCleanup=null,featureGeneration=0;
 function loadFeature(name,root){
  const generation=++featureGeneration;root.dataset.feature=name;const container=document.createElement('div');container.dataset.feature=name;container.innerHTML='<p role="status">Opening workspace…</p>';root.replaceChildren(container);
