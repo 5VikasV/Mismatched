@@ -127,8 +127,8 @@ test('API failures show recovery without sample factories',async t=>{
 
 test('integrated planner uses saved records, selection and full costs',async t=>{
  const ui=await boot(t);await ui.route('analysis');await saveManual(ui);await ui.route('planner');
- for(const [key,value]of Object.entries({material:'PP',grade:'PP-H',quantityKg:100,comparisonPrice:75,transportCost:100,feePercent:0}))ui.change(`#planner-form [name="${key}"]`,value);
- ui.submit('#planner-form');assert.match(ui.$('.planner-result').textContent,/Research Team/);assert.match(ui.$('.cost-row.total').textContent,/4,300/);assert.match(ui.$('.cost-row.saving').textContent,/3,200/);
+ for(const [key,value]of Object.entries({material:'PP',grade:'PP-H',quantityKg:100,comparisonPrice:75}))ui.change(`#planner-form [name="${key}"]`,value);
+ ui.submit('#planner-form');ui.change('[data-pickup-field=provider]','external');ui.change('[data-pickup-field=payer]','buyer');ui.change('[data-pickup-field=cost]','100');ui.click('[data-plan-action=apply]');assert.match(ui.$('.planner-result').textContent,/Research Team/);assert.match(ui.$('.cost-row.total').textContent,/4,447/);assert.match(ui.$('.cost-row.saving').textContent,/3,053/);
  ui.click('[data-plan-action="none"]');assert.match(ui.$('.planner-result').textContent,/100 kg shortfall/);assert.equal(ui.$('[data-plan-action="export"]').disabled,true);
  ui.click('[data-plan-action="all"]');assert.equal(ui.$('[data-plan-action="export"]').disabled,false);
 });

@@ -14,7 +14,7 @@ test("CSV exports exactly the displayed allocation, assumptions, timestamp and s
     quantityKg: 20,
     comparisonPrice: 70,
     transportCost: 100,
-    feePercent: 2,
+    pickups: [{recordId:"a",provider:"external",payer:"buyer",cost:100}],
     selectedRecordIds: ["a"],
   };
   const p = planPool(
@@ -41,6 +41,6 @@ test("CSV exports exactly the displayed allocation, assumptions, timestamp and s
   assert.match(csv, /A, ""Factory""/);
   assert.match(csv, /'=bad/);
   assert.match(csv, /"Shortfall \(kg\)","10"/);
-  assert.match(csv, /"Estimated delivered total INR","508"/);
+  assert.match(csv, /"Estimated delivered total INR","514"/);
   assert.match(csv, /Not compared: incomplete pool/);
 });

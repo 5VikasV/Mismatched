@@ -1596,3 +1596,144 @@ select:focus {
   height: 7px;
   margin: 18px 0;
 }
+/* Commercial terms and saved requests. */
+.band-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0;
+}
+.band-filter .btn {
+  font-size: 11px;
+  min-height: 36px;
+  padding: 8px 12px;
+}
+.band-filter [aria-pressed="true"] {
+  background: #e0e8d3;
+  border-color: #7a8c60;
+  color: #36492a;
+}
+.pickup-card {
+  border: 1px solid var(--line);
+  padding: 18px;
+  margin: 24px 0;
+  min-width: 0;
+}
+.pickup-card legend {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 0 8px;
+  overflow-wrap: anywhere;
+}
+.pickup-card > p {
+  font-size: 12px;
+  color: var(--muted);
+}
+.pickup-card .confirmation-label {
+  margin: 0;
+  align-self: end;
+}
+.booking-review {
+  border-top: 2px solid #7a8c60;
+  padding-top: 24px;
+  margin-top: 24px;
+}
+.booking-review > p {
+  font-size: 12px;
+}
+.planner-result [data-plan-action="review"] {
+  width: 100%;
+  margin-top: 12px;
+}
+.booking-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 28px;
+  margin-top: 24px;
+}
+.booking-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: 100%;
+  border: 1px solid var(--line);
+  background: white;
+  text-align: left;
+  padding: 22px;
+  margin-bottom: 12px;
+  overflow-wrap: anywhere;
+}
+.booking-list-item[aria-pressed="true"] {
+  background: #eaf0df;
+  border-left: 3px solid #7a8c60;
+}
+.booking-list-item strong {
+  font-weight: 500;
+}
+.booking-list-item span {
+  font-size: 12px;
+}
+.booking-list-item small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.booking-layout .allocation-row p {
+  font-size: 12px;
+  margin-block: 8px;
+}
+.booking-layout > .panel {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.allocation-row p {
+  overflow-wrap: anywhere;
+}
+.booking-review .btn {
+  margin: 8px 0;
+}
+.desk-navigation nav {
+  gap: 20px;
+}
+.nav-link {
+  font-size: 11px;
+}
+.desk-home {
+  font-size: 10px;
+}
+@media (max-width: 1180px) {
+  .desk-navigation nav {
+    gap: 14px;
+  }
+  .nav-number {
+    display: none;
+  }
+}
+@media (max-width: 900px) {
+  .desk-navigation nav {
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: start;
+  }
+  .nav-link {
+    min-height: 46px;
+    padding-block: 12px;
+  }
+  .booking-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 620px) {
+  .pickup-card {
+    padding: 14px;
+  }
+  .booking-layout {
+    gap: 18px;
+  }
+  .desk-navigation nav {
+    display: grid;
+    gap: 0 16px;
+  }
+  .nav-link .nav-number {
+    display: inline;
+  }
+}
