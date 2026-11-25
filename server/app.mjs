@@ -130,6 +130,28 @@ function validateSuggestions(value) {
   return clean;
 }
 
+const editableFields = ['title',...textFields,'notes','quantityKg','pricePerKg','latitude','longitude'];
+function reviewedRecord(value, original = null) {
+  if(value.confirmed!==true) fail(400,'confirmation_required','Review and confirm the research details before saving.');
+  const record={...(original||{}),title:string(value.title,'Title',{required:true,max:200}),confirmed:true};
+  for(const field of textFields) record[field]=string(value[field],field,{max:2000});
+  record.notes=string(value.notes,'Notes',{max:10000});
+  record.quantityKg=number(value.quantityKg,'Quantity',0,1e12);
+  record.pricePerKg=number(value.pricePerKg,'Price',0,1e12);
+  Object.assign(record,locationPair(value));
+  if(value.fieldReview!==undefined && !object(value.fieldReview)) fail(400,'validation_error','Field review must be an object.');
+  if(value.fieldReview && Object.keys(value.fieldReview).some(k=>!editableFields.includes(k))) fail(400,'validation_error','Unknown review field.');
+  record.fieldReview={};
+  for(const field of editableFields){
+    const state=value.fieldReview?.[field];
+    if(state!==undefined&&!['ai_suggestion','user_confirmed','unknown'].includes(state)) fail(400,'validation_error','Invalid field review status.');
+    const present=record[field]!==null&&record[field]!==undefined&&record[field]!=='';
+    if(present&&state==='unknown') fail(400,'validation_error','A populated field cannot be marked unknown.');
+    record.fieldReview[field]=present ? state||'user_confirmed' : 'unknown';
+  }
+  return record;
+}
+
 export function createApp(options = {}) {
   const dataDir = resolve(options.dataDir || resolve(projectDir, 'data'));
   const dbPath = options.dbPath || resolve(dataDir, 'research.sqlite');
@@ -195,15 +217,27 @@ export function createApp(options = {}) {
       if (req.method === 'GET' && pathname === '/api/records') return send(res, 200, { records: all('records').sort((a, b) => b.createdAt.localeCompare(a.createdAt)) });
       if (req.method === 'POST' && pathname === '/api/records') {
         const value = await body(req); if (value.confirmed !== true) fail(400, 'confirmation_required', 'Review and confirm the research details before saving.');
-        const record = { id: randomUUID(), title: string(value.title, 'Title', { required: true, max: 200 }), createdAt: new Date().toISOString(), confirmed: true };
-        for (const field of textFields) record[field] = string(value[field], field, { max: 2000 });
-        record.notes = string(value.notes, 'Notes', { max: 10000 }); record.quantityKg = number(value.quantityKg, 'Quantity', 0, 1e12); record.pricePerKg = number(value.pricePerKg, 'Price', 0, 1e12); Object.assign(record, locationPair(value));
+        const record = {...reviewedRecord(value), id:randomUUID(),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
         record.analysisId = string(value.analysisId, 'Analysis ID', { max: 100 });
         if (record.analysisId && !get('analyses', record.analysisId)) fail(400, 'analysis_not_found', 'The linked analysis could not be found.');
         db.prepare('INSERT INTO records (id,analysis_id,json) VALUES (?,?,?)').run(record.id, record.analysisId, JSON.stringify(record));
         return send(res, 201, { record });
       }
       const recordMatch = pathname.match(/^\/api\/records\/([a-zA-Z0-9-]+)$/);
+      if (req.method === 'PATCH' && recordMatch) {
+        const original=get('records',recordMatch[1]);
+        if(!original) fail(404,'record_not_found','This research record could not be found.');
+        const value=await body(req);
+        if(Object.keys(value).some(k=>![...editableFields,'confirmed','fieldReview'].includes(k))) fail(400,'validation_error','Only editable fields and confirmation may be updated.');
+        if(value.confirmed!==true) fail(400,'confirmation_required','Confirm the reviewed edits before saving.');
+        if(value.fieldReview!==undefined&&!object(value.fieldReview)) fail(400,'validation_error','Field review must be an object.');
+        const merged={...original,...value,fieldReview:{...(original.fieldReview||{}),...(value.fieldReview||{})}};
+        // A changed value without explicit metadata is confirmed by this request's confirmation.
+        for(const key of editableFields) if(Object.hasOwn(value,key)&&!Object.hasOwn(value.fieldReview||{},key)) merged.fieldReview[key]=value[key]==null||value[key]===''?'unknown':'user_confirmed';
+        const record={...reviewedRecord(merged,original),updatedAt:new Date().toISOString()};
+        db.prepare('UPDATE records SET json=? WHERE id=?').run(JSON.stringify(record),record.id);
+        return send(res,200,{record});
+      }
       if (req.method === 'DELETE' && recordMatch) { await body(req); const deleted = db.prepare('DELETE FROM records WHERE id = ?').run(recordMatch[1]); if (!deleted.changes) fail(404, 'record_not_found', 'This research record could not be found.'); return send(res, 200, { deleted: true }); }
       const analysisMatch = pathname.match(/^\/api\/analyses\/([a-zA-Z0-9-]+)$/);
       if (req.method === 'GET' && analysisMatch) { const analysis = get('analyses', analysisMatch[1]); if (!analysis) fail(404, 'analysis_not_found', 'This analysis could not be found.'); return send(res, 200, analysis); }

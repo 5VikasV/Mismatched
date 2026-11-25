@@ -211,3 +211,19 @@ test('model report starts honestly empty and local worker failures are actionabl
  const result=await call(app,'/api/classify',{method:'POST',data:{name:'image.jpg',mimeType:'image/jpeg',dataBase64:Buffer.from([255,216,255,1]).toString('base64')}});
  assert.equal(result.status,503);assert.match(result.json.message,/Install/);
 });
+
+test('partial record edits preserve evidence and identity and reject invalid changes atomically',async t=>{
+ const {app}=setup(t,{apiKey:'test',fetchImpl:async()=>({ok:true,json:async()=>({output_text:JSON.stringify(suggestions())})})});
+ const analysis=await call(app,'/api/analyze',{method:'POST',data:file()});
+ const saved=(await call(app,'/api/records',{method:'POST',data:{...record(),analysisId:analysis.json.id}})).json.record;
+ const patch=data=>call(app,`/api/records/${saved.id}`,{method:'PATCH',data});
+ const edited=await patch({quantityKg:12.5,confirmed:true});assert.equal(edited.status,200);assert.equal(edited.json.record.analysisId,saved.analysisId);assert.equal(edited.json.record.createdAt,saved.createdAt);assert.equal(edited.json.record.title,saved.title);assert.equal(edited.json.record.fieldReview.quantityKg,'user_confirmed');
+ for(const bad of [{quantityKg:-1,confirmed:true},{title:'',confirmed:true},{analysisId:null,confirmed:true},{quantityKg:1},{fieldReview:null,confirmed:true},{latitude:20,confirmed:true}])assert.equal((await patch(bad)).status,400);
+ assert.equal((await call(app,'/api/records')).json.records[0].quantityKg,12.5);
+ assert.deepEqual((await call(app,`/api/analyses/${saved.analysisId}`)).json,analysis.json);
+ assert.equal((await call(app,'/api/records/unknown',{method:'PATCH',data:{title:'x',confirmed:true}})).status,404);
+});
+test('legacy records without field metadata remain editable with unknowns preserved',async t=>{
+ const {app}=setup(t);const old={id:'legacy',...record(),createdAt:'2024-01-01T00:00:00Z',analysisId:null};app.db.prepare('INSERT INTO records(id,json) VALUES (?,?)').run(old.id,JSON.stringify(old));
+ const edit=await call(app,'/api/records/legacy',{method:'PATCH',data:{notes:'Reviewed again',confirmed:true}});assert.equal(edit.status,200);assert.equal(edit.json.record.createdAt,old.createdAt);assert.equal(edit.json.record.fieldReview.quantityKg,'unknown');assert.equal(edit.json.record.fieldReview.material,'user_confirmed');
+});
