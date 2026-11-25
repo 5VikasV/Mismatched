@@ -75,17 +75,33 @@ kbd {
   display: flex;
   flex-wrap: nowrap;
   justify-content: flex-start;
-  gap: 14px;
+  gap: clamp(8px, 0.75vw, 12px);
   min-width: 0;
   width: 100%;
-  overflow-x: auto;
-  overscroll-behavior-inline: contain;
-  scrollbar-width: thin;
 }
 .desk-navigation .nav-link {
   flex: 0 0 auto;
   white-space: nowrap;
-  font-size: clamp(15px, 1.05vw, 18px);
+  font-size: clamp(14px, 1.05vw, 16px);
+  gap: 4px;
+}
+.desk-navigation .nav-link .nav-number {
+  font-size: 11px;
+}
+@media (min-width: 1181px) {
+  .desk-navigation { padding-inline: 2.5vw; }
+}
+@media (max-width: 1180px) {
+  .desk-navigation nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 12px;
+  }
+  .desk-navigation .nav-link { font-size: 15px; }
+}
+@media (max-width: 620px) {
+  .desk-navigation nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .desk-navigation .nav-link { white-space: normal; }
 }
 .main-content,
 .main-content > *,
