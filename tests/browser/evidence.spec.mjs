@@ -8,6 +8,10 @@ test("evidence replaces setup, calculates bounded scenarios, exports sources and
   await page.goto("/workspace#sources");
   await expect(page).toHaveURL(/#evidence$/);
   await expect(page.locator(".evidence-case")).toHaveCount(4);
+  await expect(page.locator("#carbon-headline-percent")).toHaveText("27%");
+  await expect(page.locator("#carbon-headline-assumptions")).toContainText(
+    "Illustrative, not measured",
+  );
   await expect(page.locator("#main")).not.toContainText("OPENAI_API_KEY");
   await expect(page.locator("#main")).toContainText("703,466.12");
   await expect(page.locator("#main")).toContainText("ZAR 270,000");
@@ -25,6 +29,7 @@ test("evidence replaces setup, calculates bounded scenarios, exports sources and
     .getByRole("button", { name: "Calculate projection", exact: true })
     .click();
   await expect(page.locator("#emissions-result")).toContainText("Withheld");
+  await expect(page.locator("#carbon-headline-percent")).toHaveText("—");
   await page
     .locator("#emissions-form [name=condition]")
     .selectOption("hazardous");

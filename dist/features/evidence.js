@@ -1,12 +1,27 @@
 import { esc, money } from "./shared.js";
 import { PROFILES, CATEGORIES } from "../evidence-data.js";
-import { businessProjection, evidenceCSV } from "../evidence-calculator.js";
+import {
+  assessEmissions,
+  businessProjection,
+  evidenceCSV,
+} from "../evidence-calculator.js";
 const n = (v) =>
   Number(v).toLocaleString("en-IN", { maximumFractionDigits: 2 });
 const link = (url, label) =>
   `<a class="text-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
 const input = (name, label, value = "", extra = "") =>
   `<label class="field"><span class="field-label">${label}</span><input class="input" name="${name}" type="number" step="${name === "orders" ? "1" : "any"}" value="${value}" ${extra}></label>`;
+const headlinePreset = {
+  category: "plastic",
+  profileId: "pp",
+  condition: "clean",
+  baseline: "combustion",
+  alternative: "recycling",
+  mode: "direct-burning",
+  massTonnes: 100,
+  adoptionPercent: 30,
+  recoveryPercent: 90,
+};
 const options = (rows) =>
   rows
     .map(([id, label]) => `<option value="${id}">${esc(label)}</option>`)
@@ -30,7 +45,7 @@ export async function mountFeature(root, context) {
     return;
   }
   if (!alive) return;
-  root.innerHTML = `<header class="feature-intro"><div><div class="eyebrow">09 / EVIDENCE & NUMBERS</div><h1>Waste has a cost.<br>Show the alternative.</h1><p>Published industrial exchanges, measured model results and transparent projections. Each number has a boundary.</p></div><span class="desk-tag">REVIEWED ${esc(registry.reviewedAt)}</span></header>
+  root.innerHTML = `<header class="carbon-headline"><div class="eyebrow">09 / EVIDENCE & NUMBERS · ILLUSTRATIVE ESTIMATE</div><output id="carbon-headline-percent" aria-live="polite">${n(assessEmissions(headlinePreset).reductionPercent)}%</output><h1 id="carbon-headline-label">Estimated reduction in burning-point CO₂</h1><p id="carbon-headline-assumptions" class="help-text">Clean PP example: 30% adoption × 90% successful recovery. Direct CO₂ at the original burning point only; excludes recycling and transport. Not a measured project outcome.</p><button class="text-link" id="adjust-carbon-assumptions">Adjust assumptions ↓</button></header>
  <div class="evidence-toolbar"><button class="btn btn-secondary" id="evidence-export">Export pitch CSV</button><button class="btn btn-secondary" id="evidence-print">Print pitch</button></div>
  <section aria-labelledby="cases-title"><div class="section-heading"><div><div class="eyebrow">01 / PUBLISHED PRECEDENTS</div><h2 id="cases-title">Someone’s surplus. Someone else’s input.</h2></div></div><p>These sources show real reuse and demand. They do not establish that an identified company bought excess stock, burned that same stock, and had a ready buyer at the same time. We do not invent that link.</p>
  <div class="evidence-cases">${registry.cases.map((c) => `<article class="panel panel-body evidence-case"><div class="eyebrow">${esc(c.region)} · PUBLISHED CASE</div><h3>${esc(c.title)}</h3><p class="help-text">${esc(c.period)}</p><div class="evidence-flow"><strong>${esc(c.from)}</strong><span>↓ ${esc(c.material)} ↓</span><strong>${esc(c.to)}</strong></div><ul class="case-figures">${c.figures.map((f) => `<li>${esc(f)}</li>`).join("")}</ul><p>${esc(c.story)}</p><details><summary>Scope & limits</summary><p>${esc(c.limit)}</p></details>${link(c.source, c.publisher)}</article>`).join("")}</div></section>
@@ -88,7 +103,21 @@ export async function mountFeature(root, context) {
       );
   }
   syncProfiles();
+  const updateHeadline = (value, label, note) => {
+    root.querySelector("#carbon-headline-percent").textContent = value;
+    root.querySelector("#carbon-headline-label").textContent = label;
+    root.querySelector("#carbon-headline-assumptions").textContent = note;
+  };
+  root.querySelector("#adjust-carbon-assumptions").onclick = () => {
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+    form.elements.adoptionPercent.focus({ preventScroll: true });
+  };
   form.addEventListener("input", () => {
+    updateHeadline(
+      "—",
+      "Update the carbon estimate",
+      "Assumptions changed. Calculate below to update this percentage.",
+    );
     requestVersion++;
     assessment = null;
     root.querySelector("#emissions-result").innerHTML =
@@ -112,6 +141,19 @@ export async function mountFeature(root, context) {
   };
   function renderAssessment(r) {
     const out = root.querySelector("#emissions-result");
+    updateHeadline(
+      r.reductionPercent == null ? "—" : `${n(r.reductionPercent)}%`,
+      r.status !== "estimated"
+        ? "Insufficient published evidence"
+        : r.reductionPercent == null
+          ? "Use the absolute carbon estimate below"
+          : "Estimated reduction in burning-point CO₂",
+      r.status !== "estimated"
+        ? r.reason
+        : r.reductionPercent == null
+          ? r.percentageNote
+          : `${r.inputs.adoptionPercent}% adoption × ${r.inputs.recoveryPercent}% successful recovery · ${r.profile.label}. Direct CO₂ at the original burning point only; excludes recycling and transport. Illustrative, not measured.`,
+    );
     if (r.status !== "estimated") {
       out.innerHTML = `<div class="panel panel-body"><h3>Insufficient published evidence</h3><p>${esc(r.reason)}</p><p>No carbon or toxic-pollutant saving is asserted.</p></div>`;
       return;
@@ -145,6 +187,11 @@ export async function mountFeature(root, context) {
     e.preventDefault();
     const version = ++requestVersion;
     assessment = null;
+    updateHeadline(
+      "…",
+      "Calculating the carbon estimate",
+      "Using your selected assumptions and published factors.",
+    );
     const v = values(form);
     for (const k of ["massTonnes", "adoptionPercent", "recoveryPercent"])
       v[k] = Number(v[k]);
@@ -160,8 +207,10 @@ export async function mountFeature(root, context) {
       assessment = r;
       renderAssessment(r);
     } catch (err) {
-      if (alive && version === requestVersion)
+      if (alive && version === requestVersion) {
+        updateHeadline("—", "Estimate unavailable", err.message);
         out.innerHTML = `<p role="alert">${esc(err.message)}</p>`;
+      }
     }
   };
   bf.oninput = () => {
@@ -408,6 +457,13 @@ export async function mountFeature(root, context) {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
+  Object.entries(headlinePreset).forEach(([k, v]) => {
+    if (k !== "profileId") form.elements[k].value = v;
+  });
+  syncProfiles();
+  form.elements.profileId.value = headlinePreset.profileId;
+  assessment = assessEmissions(headlinePreset);
+  renderAssessment(assessment);
   return () => {
     alive = false;
     requestVersion++;

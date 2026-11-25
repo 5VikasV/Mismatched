@@ -89,7 +89,9 @@ kbd {
   font-size: 11px;
 }
 @media (min-width: 1181px) {
-  .desk-navigation { padding-inline: 2.5vw; }
+  .desk-navigation {
+    padding-inline: 2.5vw;
+  }
 }
 @media (max-width: 1180px) {
   .desk-navigation nav {
@@ -97,11 +99,17 @@ kbd {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0 12px;
   }
-  .desk-navigation .nav-link { font-size: 15px; }
+  .desk-navigation .nav-link {
+    font-size: 15px;
+  }
 }
 @media (max-width: 620px) {
-  .desk-navigation nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .desk-navigation .nav-link { white-space: normal; }
+  .desk-navigation nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .desk-navigation .nav-link {
+    white-space: normal;
+  }
 }
 .main-content,
 .main-content > *,
@@ -345,5 +353,41 @@ td {
   }
   table {
     table-layout: fixed;
+  }
+}
+
+.carbon-headline {
+  padding: 12px 0 36px;
+  border-bottom: 1px solid var(--line);
+}
+#carbon-headline-percent {
+  display: block;
+  color: #526548;
+  font: 500 clamp(100px, 12vw, 180px)/1 var(--font);
+  letter-spacing: -0.07em;
+  margin: 20px 0 16px;
+}
+.main-content .carbon-headline h1 {
+  font-size: clamp(26px, 3vw, 40px);
+  margin: 0 0 16px;
+  max-width: 850px;
+}
+.carbon-headline .help-text {
+  max-width: 900px;
+  margin-bottom: 16px;
+}
+.carbon-headline button {
+  border: 0;
+  background: none;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+}
+@media print {
+  .carbon-headline button {
+    display: none;
+  }
+  #carbon-headline-percent {
+    font-size: 90pt;
   }
 }
