@@ -4,11 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#F4F3EF">
-  <title>Create Account — Coming soon | ScrapLoop</title>
+  <meta name="description" content="Create your demo ScrapLoop material exchange account.">
+  <title>Create Account | ScrapLoop</title>
   <link rel="stylesheet" href="./landing.css">
+  <script src="./auth.js" defer></script>
 </head>
 <body>
-  <div class="coming-soon-shell">
+  <div class="auth-shell">
     <header class="site-header">
       <a class="wordmark" href="/landing/landing.html" aria-label="ScrapLoop landing page">
         <svg class="wordmark-mark" aria-hidden="true" viewBox="0 0 28 28">
@@ -17,11 +19,66 @@
         </svg>
         <span>SCRAPLOOP</span>
       </a>
+      <a class="auth-header-link" href="/landing/landing.html">BACK TO EXCHANGE</a>
     </header>
-    <main class="coming-soon-content">
-      <h1>Coming soon</h1>
-      <p>Account creation will be available soon.</p>
-      <a class="back-link" href="/landing/landing.html">BACK TO MATERIAL EXCHANGE</a>
+
+    <main class="auth-main">
+      <section class="auth-card" aria-labelledby="signup-title">
+        <div class="auth-card-header">
+          <span class="auth-eyebrow">ACCOUNT REGISTRATION / LOCAL DEMO</span>
+          <h1 id="signup-title">Create Account</h1>
+          <p class="auth-subtitle">Join the industrial material exchange and research workspace.</p>
+          <p class="auth-demo-note">Demo sign-in · Saves only your name and email on this device. No passwords are stored.</p>
+        </div>
+
+        <!-- Real authentication is future work; this demo form stores only name and email in localStorage and never stores passwords. -->
+        <form class="auth-form" id="signup-form" novalidate>
+          <div class="auth-field">
+            <label class="auth-label" for="signup-name">Full name</label>
+            <input class="auth-input" id="signup-name" name="name" type="text" autocomplete="name" placeholder="Aarav Mehta" required aria-describedby="signup-name-error">
+            <p class="auth-error" id="signup-name-error" role="alert" hidden></p>
+          </div>
+
+          <div class="auth-field">
+            <label class="auth-label" for="signup-email">Work email</label>
+            <input class="auth-input" id="signup-email" name="email" type="email" autocomplete="email" placeholder="aarav@facility.in" required aria-describedby="signup-email-error">
+            <p class="auth-error" id="signup-email-error" role="alert" hidden></p>
+          </div>
+
+          <div class="auth-field-row">
+            <div class="auth-field">
+              <label class="auth-label" for="signup-password">Password</label>
+              <div class="auth-input-wrap">
+                <input class="auth-input auth-input--password" id="signup-password" name="password" type="password" autocomplete="new-password" placeholder="At least 8 characters" required aria-describedby="signup-password-error">
+                <button class="auth-password-toggle" type="button" data-password-toggle="signup-password" data-show-label="Show password" data-hide-label="Hide password" aria-controls="signup-password" aria-pressed="false" aria-label="Show password">Show</button>
+              </div>
+              <p class="auth-error" id="signup-password-error" role="alert" hidden></p>
+            </div>
+
+            <div class="auth-field">
+              <label class="auth-label" for="signup-confirm">Confirm password</label>
+              <div class="auth-input-wrap">
+                <input class="auth-input auth-input--password" id="signup-confirm" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Re-enter password" required aria-describedby="signup-confirm-error">
+                <button class="auth-password-toggle" type="button" data-password-toggle="signup-confirm" data-show-label="Show confirm password" data-hide-label="Hide confirm password" aria-controls="signup-confirm" aria-pressed="false" aria-label="Show confirm password">Show</button>
+              </div>
+              <p class="auth-error" id="signup-confirm-error" role="alert" hidden></p>
+            </div>
+          </div>
+
+          <button class="action-button action-button--primary auth-submit" id="signup-submit" type="submit" data-loading-label="Creating account…">
+            <span class="auth-submit-spinner" aria-hidden="true"></span>
+            <span class="auth-submit-label">Create Account</span>
+          </button>
+        </form>
+
+        <footer class="auth-footer">
+          <div class="auth-footer-row">
+            <span>Already have an account?</span>
+            <a class="auth-switch-link" href="/landing/signin.html">Sign in</a>
+          </div>
+          <a class="auth-guest-link" href="/">Continue as guest</a>
+        </footer>
+      </section>
     </main>
   </div>
 </body>

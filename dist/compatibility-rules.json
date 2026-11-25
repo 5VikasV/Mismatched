@@ -1,0 +1,326 @@
+{
+  "label": "demo rules",
+  "title": "Industrial Scrap Compatibility Rules (Demo Rules)",
+  "isDemo": true,
+  "description": "Demo rules mapping waste material produced by factory A to raw materials accepted by factory B.",
+  "rules": [
+    {
+      "id": "rule-pp-runners",
+      "materialProduced": "PP Moulding Runners",
+      "materialsAccepted": [
+        "PP Moulding Runners",
+        "PP Runner Scrap",
+        "Injection Grade PP Scrap"
+      ],
+      "category": "Polymers",
+      "defaultQuantityKg": 500,
+      "pricePerKgInr": 72,
+      "estimatedValueInr": 36000
+    },
+    {
+      "id": "rule-washed-pp-flakes",
+      "materialProduced": "Washed PP Flakes",
+      "materialsAccepted": [
+        "Washed PP Flakes",
+        "Clean PP Flake",
+        "Extrusion PP Feedstock"
+      ],
+      "category": "Polymers",
+      "defaultQuantityKg": 550,
+      "pricePerKgInr": 68,
+      "estimatedValueInr": 37400
+    },
+    {
+      "id": "rule-thermoform-offcuts",
+      "materialProduced": "Thermoform Sheet Offcuts",
+      "materialsAccepted": [
+        "Thermoform Sheet Offcuts",
+        "PP Sheet Trim",
+        "Thermoforming Scrap"
+      ],
+      "category": "Polymers",
+      "defaultQuantityKg": 480,
+      "pricePerKgInr": 70,
+      "estimatedValueInr": 33600
+    },
+    {
+      "id": "rule-regrind-pp-compound",
+      "materialProduced": "Regrind PP Compound",
+      "materialsAccepted": [
+        "Regrind PP Compound",
+        "Recycled PP Granules",
+        "Compounded PP Resin"
+      ],
+      "category": "Polymers",
+      "defaultQuantityKg": 500,
+      "pricePerKgInr": 70,
+      "estimatedValueInr": 35000
+    },
+    {
+      "id": "rule-steel-swarf",
+      "materialProduced": "Steel Turning Swarf",
+      "materialsAccepted": [
+        "Steel Turning Swarf",
+        "CNC Steel Chips",
+        "Melting Steel Scrap"
+      ],
+      "category": "Metals",
+      "defaultQuantityKg": 600,
+      "pricePerKgInr": 50,
+      "estimatedValueInr": 30000
+    },
+    {
+      "id": "rule-steel-billet-scrap",
+      "materialProduced": "Refined Steel Billet Scrap",
+      "materialsAccepted": [
+        "Refined Steel Billet Scrap",
+        "Foundry Steel Charge",
+        "Low-Carbon Billet Ends"
+      ],
+      "category": "Metals",
+      "defaultQuantityKg": 550,
+      "pricePerKgInr": 60,
+      "estimatedValueInr": 33000
+    },
+    {
+      "id": "rule-cast-steel-blanks",
+      "materialProduced": "Cast Steel Blanks",
+      "materialsAccepted": [
+        "Cast Steel Blanks",
+        "Machining Steel Forgings",
+        "Foundry Castings"
+      ],
+      "category": "Metals",
+      "defaultQuantityKg": 500,
+      "pricePerKgInr": 66,
+      "estimatedValueInr": 33000
+    }
+  ],
+  "factories": [
+    {
+      "id": "fac-pune-moulders",
+      "name": "Pune Auto Moulders",
+      "location": "Pune, Maharashtra",
+      "industry": "Automotive Injection Moulding",
+      "materialProduced": "PP Moulding Runners",
+      "materialsAccepted": [
+        "Regrind PP Compound",
+        "Recycled PP Granules"
+      ],
+      "quantityKg": 500,
+      "pricePerKg": 72,
+      "valueInr": 36000,
+      "inputs": [
+        {
+          "material": "Regrind PP Compound",
+          "quantityKg": 500,
+          "pricePerKg": 70,
+          "valueInr": 35000
+        }
+      ],
+      "outputs": [
+        {
+          "material": "PP Moulding Runners",
+          "quantityKg": 500,
+          "pricePerKg": 72,
+          "valueInr": 36000
+        }
+      ],
+      "x": 140,
+      "y": 130
+    },
+    {
+      "id": "fac-chakan-granulators",
+      "name": "Chakan Polymer Granulators",
+      "location": "Chakan, Maharashtra",
+      "industry": "Polymer Granulation & Washing",
+      "materialProduced": "Washed PP Flakes",
+      "materialsAccepted": [
+        "PP Moulding Runners",
+        "Thermoform Sheet Offcuts"
+      ],
+      "quantityKg": 550,
+      "pricePerKg": 68,
+      "valueInr": 37400,
+      "inputs": [
+        {
+          "material": "PP Moulding Runners",
+          "quantityKg": 500,
+          "pricePerKg": 72,
+          "valueInr": 36000
+        },
+        {
+          "material": "Thermoform Sheet Offcuts",
+          "quantityKg": 480,
+          "pricePerKg": 70,
+          "valueInr": 33600
+        }
+      ],
+      "outputs": [
+        {
+          "material": "Washed PP Flakes",
+          "quantityKg": 550,
+          "pricePerKg": 68,
+          "valueInr": 37400
+        }
+      ],
+      "x": 420,
+      "y": 130
+    },
+    {
+      "id": "fac-thane-extruders",
+      "name": "Thane Packaging Extruders",
+      "location": "Thane, Maharashtra",
+      "industry": "Packaging Sheet Extrusion",
+      "materialProduced": "Thermoform Sheet Offcuts",
+      "materialsAccepted": [
+        "Washed PP Flakes"
+      ],
+      "quantityKg": 480,
+      "pricePerKg": 70,
+      "valueInr": 33600,
+      "inputs": [
+        {
+          "material": "Washed PP Flakes",
+          "quantityKg": 550,
+          "pricePerKg": 68,
+          "valueInr": 37400
+        }
+      ],
+      "outputs": [
+        {
+          "material": "Thermoform Sheet Offcuts",
+          "quantityKg": 480,
+          "pricePerKg": 70,
+          "valueInr": 33600
+        }
+      ],
+      "x": 420,
+      "y": 370
+    },
+    {
+      "id": "fac-nashik-compounding",
+      "name": "Nashik Compounding Works",
+      "location": "Nashik, Maharashtra",
+      "industry": "Polymer Compounding & Pelletising",
+      "materialProduced": "Regrind PP Compound",
+      "materialsAccepted": [
+        "Thermoform Sheet Offcuts"
+      ],
+      "quantityKg": 500,
+      "pricePerKg": 70,
+      "valueInr": 35000,
+      "inputs": [
+        {
+          "material": "Thermoform Sheet Offcuts",
+          "quantityKg": 480,
+          "pricePerKg": 70,
+          "valueInr": 33600
+        }
+      ],
+      "outputs": [
+        {
+          "material": "Regrind PP Compound",
+          "quantityKg": 500,
+          "pricePerKg": 70,
+          "valueInr": 35000
+        }
+      ],
+      "x": 140,
+      "y": 370
+    },
+    {
+      "id": "fac-faridabad-cnc",
+      "name": "Faridabad CNC Machining",
+      "location": "Faridabad, Haryana",
+      "industry": "Precision Metal Machining",
+      "materialProduced": "Steel Turning Swarf",
+      "materialsAccepted": [
+        "Cast Steel Blanks"
+      ],
+      "quantityKg": 600,
+      "pricePerKg": 50,
+      "valueInr": 30000,
+      "inputs": [
+        {
+          "material": "Cast Steel Blanks",
+          "quantityKg": 500,
+          "pricePerKg": 66,
+          "valueInr": 33000
+        }
+      ],
+      "outputs": [
+        {
+          "material": "Steel Turning Swarf",
+          "quantityKg": 600,
+          "pricePerKg": 50,
+          "valueInr": 30000
+        }
+      ],
+      "x": 690,
+      "y": 115
+    },
+    {
+      "id": "fac-gurgaon-melting",
+      "name": "Gurgaon Induction Melting",
+      "location": "Gurgaon, Haryana",
+      "industry": "Secondary Steel Melting",
+      "materialProduced": "Refined Steel Billet Scrap",
+      "materialsAccepted": [
+        "Steel Turning Swarf"
+      ],
+      "quantityKg": 550,
+      "pricePerKg": 60,
+      "valueInr": 33000,
+      "inputs": [
+        {
+          "material": "Steel Turning Swarf",
+          "quantityKg": 600,
+          "pricePerKg": 50,
+          "valueInr": 30000
+        }
+      ],
+      "outputs": [
+        {
+          "material": "Refined Steel Billet Scrap",
+          "quantityKg": 550,
+          "pricePerKg": 60,
+          "valueInr": 33000
+        }
+      ],
+      "x": 790,
+      "y": 295
+    },
+    {
+      "id": "fac-bhiwadi-foundry",
+      "name": "Bhiwadi Precision Foundry",
+      "location": "Bhiwadi, Rajasthan",
+      "industry": "Alloy Casting & Foundry",
+      "materialProduced": "Cast Steel Blanks",
+      "materialsAccepted": [
+        "Refined Steel Billet Scrap"
+      ],
+      "quantityKg": 500,
+      "pricePerKg": 66,
+      "valueInr": 33000,
+      "inputs": [
+        {
+          "material": "Refined Steel Billet Scrap",
+          "quantityKg": 550,
+          "pricePerKg": 60,
+          "valueInr": 33000
+        }
+      ],
+      "outputs": [
+        {
+          "material": "Cast Steel Blanks",
+          "quantityKg": 500,
+          "pricePerKg": 66,
+          "valueInr": 33000
+        }
+      ],
+      "x": 600,
+      "y": 385
+    }
+  ]
+}

@@ -22,10 +22,6 @@
         </svg>
         <span>SCRAPLOOP</span>
       </a>
-      <div class="drawing-tags" aria-label="Drawing identification">
-        <span>REV A</span>
-        <span>DWG 014</span>
-      </div>
     </header>
 
     <section class="page-intro" aria-labelledby="page-title">
@@ -38,58 +34,76 @@
     </section>
 
     <main class="material-explorer" aria-label="ScrapLoop material carousel">
-      <div class="carousel-viewport" tabindex="0" role="region" aria-label="Material carousel. Use left and right arrow keys to rotate. Drag or swipe to pause and move the ring.">
-        <div class="carousel-scene">
-          <div class="carousel-ring" id="carousel-ring">
-            <article class="ring-card" style="--card-angle: 0deg">
-              <button class="card-button" type="button" aria-label="Steel, Metal scrap">
-                <span class="card-image"><img src="./images/steel.jpg.jpg" alt="Steelworks and metal processing equipment at dusk" width="220" height="220"></span>
-                <span class="card-caption"><span class="card-title">Steel</span><span class="card-subtitle">Metal scrap</span></span>
-              </button>
-            </article>
-            <article class="ring-card" style="--card-angle: 45deg">
-              <button class="card-button" type="button" aria-label="Aluminium, Machining scrap">
-                <span class="card-image"><img src="./images/aluminium.jpg.jpg" alt="Stacked metal profiles at an industrial yard" width="220" height="220"></span>
-                <span class="card-caption"><span class="card-title">Aluminium</span><span class="card-subtitle">Machining scrap</span></span>
-              </button>
-            </article>
-            <article class="ring-card" style="--card-angle: 90deg">
-              <button class="card-button" type="button" aria-label="Plastic, Recycled polymer">
-                <span class="card-image"><img src="./images/plastic.jpg.jpg" alt="A conveyor sorting mixed recyclable materials" width="220" height="220"></span>
-                <span class="card-caption"><span class="card-title">Plastic</span><span class="card-subtitle">Recycled polymer</span></span>
-              </button>
-            </article>
-            <article class="ring-card" style="--card-angle: 135deg">
-              <button class="card-button" type="button" aria-label="E-waste, Electronics">
-                <span class="card-image"><img src="./images/ewaste.jpg.jpg" alt="Workers sorting discarded electronics at a recovery facility" width="220" height="220"></span>
-                <span class="card-caption"><span class="card-title">E-waste</span><span class="card-subtitle">Electronics</span></span>
-              </button>
-            </article>
-            <article class="ring-card" style="--card-angle: 180deg">
-              <button class="card-button" type="button" aria-label="Cardboard, Paper bales">
-                <span class="card-image"><img src="./images/cardboard.jpg.jpg" alt="Rows of cardboard boxes in a distribution warehouse" width="220" height="220"></span>
-                <span class="card-caption"><span class="card-title">Cardboard</span><span class="card-subtitle">Paper bales</span></span>
-              </button>
-            </article>
-            <article class="ring-card" style="--card-angle: 225deg">
-              <button class="card-button" type="button" aria-label="Glass, Cullet">
-                <span class="card-image"><img src="./images/glass.jpg.jpg" alt="Workers handling large glass sheets in a factory" width="220" height="220"></span>
-                <span class="card-caption"><span class="card-title">Glass</span><span class="card-subtitle">Cullet</span></span>
-              </button>
-            </article>
-            <article class="ring-card" style="--card-angle: 270deg">
-              <button class="card-button" type="button" aria-label="Textile, Offcuts">
-                <span class="card-image"><img src="./images/textile.jpg.jpg" alt="Fabric moving through textile production machinery" width="220" height="220"></span>
-                <span class="card-caption"><span class="card-title">Textile</span><span class="card-subtitle">Offcuts</span></span>
-              </button>
-            </article>
-            <article class="ring-card" style="--card-angle: 315deg">
-              <button class="card-button" type="button" aria-label="Rubber, Tyres">
-                <span class="card-image"><img src="./images/rubber.jpg.jpg" alt="Material recovery workers handling processed paper pulp; illustrative for rubber" width="220" height="220"></span>
-                <span class="card-caption"><span class="card-title">Rubber</span><span class="card-subtitle">Tyres</span></span>
-              </button>
-            </article>
+      <div class="carousel-stage">
+        <div class="carousel-viewport" tabindex="0" role="region" aria-label="Material carousel. Use left and right arrow keys to rotate. Drag or swipe to pause and move the ring.">
+          <div class="carousel-scene">
+            <div class="carousel-ring" id="carousel-ring">
+              <article class="ring-card" style="--card-angle: 0deg">
+                <button class="card-button" type="button" aria-label="Steel, Metal scrap">
+                  <span class="card-image"><img src="./images/steel.jpg.jpg" alt="Steelworks and metal processing equipment at dusk" width="220" height="220"></span>
+                  <span class="card-caption"><span class="card-title">Steel</span><span class="card-subtitle">Metal scrap</span></span>
+                </button>
+              </article>
+              <article class="ring-card" style="--card-angle: 45deg">
+                <button class="card-button" type="button" aria-label="Aluminium, Machining scrap">
+                  <span class="card-image"><img src="./images/aluminium.jpg.jpg" alt="Stacked metal profiles at an industrial yard" width="220" height="220"></span>
+                  <span class="card-caption"><span class="card-title">Aluminium</span><span class="card-subtitle">Machining scrap</span></span>
+                </button>
+              </article>
+              <article class="ring-card" style="--card-angle: 90deg">
+                <button class="card-button" type="button" aria-label="Plastic, Recycled polymer">
+                  <span class="card-image"><img src="./images/plastic.jpg.jpg" alt="A conveyor sorting mixed recyclable materials" width="220" height="220"></span>
+                  <span class="card-caption"><span class="card-title">Plastic</span><span class="card-subtitle">Recycled polymer</span></span>
+                </button>
+              </article>
+              <article class="ring-card" style="--card-angle: 135deg">
+                <button class="card-button" type="button" aria-label="E-waste, Electronics">
+                  <span class="card-image"><img src="./images/ewaste.jpg.jpg" alt="Workers sorting discarded electronics at a recovery facility" width="220" height="220"></span>
+                  <span class="card-caption"><span class="card-title">E-waste</span><span class="card-subtitle">Electronics</span></span>
+                </button>
+              </article>
+              <article class="ring-card" style="--card-angle: 180deg">
+                <button class="card-button" type="button" aria-label="Cardboard, Paper bales">
+                  <span class="card-image"><img src="./images/cardboard.jpg.jpg" alt="Rows of cardboard boxes in a distribution warehouse" width="220" height="220"></span>
+                  <span class="card-caption"><span class="card-title">Cardboard</span><span class="card-subtitle">Paper bales</span></span>
+                </button>
+              </article>
+              <article class="ring-card" style="--card-angle: 225deg">
+                <button class="card-button" type="button" aria-label="Glass, Cullet">
+                  <span class="card-image"><img src="./images/glass.jpg.jpg" alt="Workers handling large glass sheets in a factory" width="220" height="220"></span>
+                  <span class="card-caption"><span class="card-title">Glass</span><span class="card-subtitle">Cullet</span></span>
+                </button>
+              </article>
+              <article class="ring-card" style="--card-angle: 270deg">
+                <button class="card-button" type="button" aria-label="Textile, Offcuts">
+                  <span class="card-image"><img src="./images/textile.jpg.jpg" alt="Fabric moving through textile production machinery" width="220" height="220"></span>
+                  <span class="card-caption"><span class="card-title">Textile</span><span class="card-subtitle">Offcuts</span></span>
+                </button>
+              </article>
+              <article class="ring-card" style="--card-angle: 315deg">
+                <button class="card-button" type="button" aria-label="Rubber, Tyres">
+                  <span class="card-image"><img src="./images/rubber.jpg.jpg" alt="Material recovery workers handling processed paper pulp; illustrative for rubber" width="220" height="220"></span>
+                  <span class="card-caption"><span class="card-title">Rubber</span><span class="card-subtitle">Tyres</span></span>
+                </button>
+              </article>
+            </div>
           </div>
+        </div>
+
+        <div class="side-actions" aria-label="Quick tools">
+          <button class="side-button side-button--left" id="how-it-works-trigger" type="button" aria-haspopup="dialog" aria-controls="how-it-works-modal" aria-expanded="false">
+            <svg class="side-button-icon" aria-hidden="true" viewBox="0 0 20 20">
+              <circle cx="10" cy="10" r="7.5"></circle>
+              <path d="M10 9v4.5M10 6.5h.01"></path>
+            </svg>
+            <span>How it works</span>
+          </button>
+          <a class="side-button side-button--right" href="/#directory">
+            <svg class="side-button-icon" aria-hidden="true" viewBox="0 0 20 20">
+              <path d="M3 17V7h6V3h8v14M2 17h16M6 10h.01M6 13h.01M12 7h2M12 10h2M12 13h2"></path>
+            </svg>
+            <span>Explore directory</span>
+          </a>
         </div>
       </div>
 
@@ -120,6 +134,25 @@
         </ul>
       </div>
     </footer>
+
+    <div class="how-modal-backdrop" id="how-it-works-modal" hidden>
+      <section class="how-modal" role="dialog" aria-modal="true" aria-labelledby="how-modal-title">
+        <header class="how-modal-header">
+          <div>
+            <span class="how-modal-eyebrow">PROCESS / 5 STEPS</span>
+            <h2 id="how-modal-title">How ScrapLoop works</h2>
+          </div>
+          <button class="how-modal-close" id="how-modal-close" type="button" aria-label="Close How it works">Close</button>
+        </header>
+        <ol class="how-steps">
+          <li><strong>Scan</strong><span>Upload a material photo or invoice to extract evidence-backed specs.</span></li>
+          <li><strong>Match</strong><span>Locate documented recyclers and processors across the facility directory.</span></li>
+          <li><strong>Pool</strong><span>Combine compatible small lots to reach viable industrial shipment quantities.</span></li>
+          <li><strong>Ship</strong><span>Compare estimated pickup and handling costs against baseline material prices.</span></li>
+          <li><strong>Loop</strong><span>Move verified industrial scrap into its next manufacturing shift.</span></li>
+        </ol>
+      </section>
+    </div>
   </div>
 </body>
 </html>

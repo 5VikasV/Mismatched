@@ -4,6 +4,9 @@ const cards = [...document.querySelectorAll('.ring-card')];
 const playButton = document.querySelector('#play-carousel');
 const nowShowing = document.querySelector('#now-showing');
 const rotatingWord = document.querySelector('#rotating-word');
+const howTrigger = document.querySelector('#how-it-works-trigger');
+const howModalBackdrop = document.querySelector('#how-it-works-modal');
+const howModalClose = document.querySelector('#how-modal-close');
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 const rotateSpeed = 14;
@@ -158,6 +161,53 @@ playButton.addEventListener('click', () => {
   playButton.hidden = true;
   startRotation();
 });
+
+let modalPreviousFocus = null;
+
+function openHowModal() {
+  if (!howModalBackdrop) return;
+  modalPreviousFocus = document.activeElement;
+  howModalBackdrop.hidden = false;
+  if (howTrigger) howTrigger.setAttribute('aria-expanded', 'true');
+  if (howModalClose) howModalClose.focus();
+}
+
+function closeHowModal() {
+  if (!howModalBackdrop || howModalBackdrop.hidden) return;
+  howModalBackdrop.hidden = true;
+  if (howTrigger) howTrigger.setAttribute('aria-expanded', 'false');
+  const target = modalPreviousFocus && modalPreviousFocus.isConnected ? modalPreviousFocus : howTrigger;
+  if (target && typeof target.focus === 'function') target.focus();
+}
+
+if (howTrigger && howModalBackdrop && howModalClose) {
+  howTrigger.addEventListener('click', openHowModal);
+  howModalClose.addEventListener('click', closeHowModal);
+  howModalBackdrop.addEventListener('click', event => {
+    if (event.target === howModalBackdrop) closeHowModal();
+  });
+  document.addEventListener('keydown', event => {
+    if (howModalBackdrop.hidden) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      closeHowModal();
+      return;
+    }
+    if (event.key === 'Tab') {
+      const focusables = [...howModalBackdrop.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(el => !el.disabled && !el.hidden);
+      if (!focusables.length) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  });
+}
 
 function cycleRotatingWord() {
   if (reducedMotion.matches) return;

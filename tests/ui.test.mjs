@@ -5,7 +5,7 @@ import { Readable } from 'node:stream';
 import { JSDOM, VirtualConsole } from 'jsdom';
 import { createApp } from '../server/app.mjs';
 import { icon } from '../dist/icons.js';
-import { planPool } from '../dist/planner.js';
+import { planPool, scoreMatch } from '../dist/planner.js';
 
 const html = await readFile(new URL('../dist/index.html', import.meta.url), 'utf8');
 const source = await readFile(new URL('../dist/app.js', import.meta.url), 'utf8');
@@ -32,8 +32,8 @@ async function boot(t, options={}) {
   window.scrollTo=()=>{};window.Element.prototype.scrollIntoView=()=>{};
   window.URL.createObjectURL=()=> 'blob:local-preview';window.URL.revokeObjectURL=()=>{};
   window.fetch=options.apiFailure ? async()=>({ok:false,status:503,json:async()=>({message:'Local database unavailable'})}) : (path,init)=>request(app,path,init);
-  window.__icon=icon;window.__planPool=planPool;
-  window.eval(`const icon=window.__icon;const planPool=window.__planPool;\n${source.replace(/^import .*;\s*$/gm,'')}`);
+  window.__icon=icon;window.__planPool=planPool;window.__scoreMatch=scoreMatch;
+  window.eval(`const icon=window.__icon;const planPool=window.__planPool;const scoreMatch=window.__scoreMatch;\n${source.replace(/^import .*;\s*$/gm,'')}`);
   t.after(()=>{window.close();assert.deepEqual(errors,[],'No application runtime errors');});
   await until(()=>document.body.dataset.ready==='true','Initial API loading');
   const $=s=>{const e=document.querySelector(s);assert.ok(e,`Missing element: ${s}`);return e;};
@@ -155,4 +155,328 @@ test('user-provided titles and notes remain text rather than executable markup',
 
 test('API failures show a recovery path rather than falling back to sample factories',async t=>{
   const ui=await boot(t,{apiFailure:true});assert.match(ui.$('#main').textContent,/Local database unavailable/);assert.ok(ui.document.querySelector('[data-action="refresh"]'));assert.equal(ui.document.querySelector('.facility-row'),null);
+});
+
+test('pool planner renders map with 3 selected factories and buyer, draws route on Pool click, and shows side panel transport shares and net profit',async t=>{
+  const ui=await boot(t);await ui.route('analysis');
+  await saveManual(ui,{title:'Lot A',company:'Alpha Factory',quantityKg:150,pricePerKg:40,latitude:18.52,longitude:73.85});
+  await saveManual(ui,{title:'Lot B',company:'Beta Factory',quantityKg:175,pricePerKg:42,latitude:23.02,longitude:72.57});
+  await saveManual(ui,{title:'Lot C',company:'Gamma Factory',quantityKg:175,pricePerKg:44,latitude:26.91,longitude:75.78});
+  await ui.route('planner');
+  assert.equal(ui.document.querySelectorAll('[data-marker="factory"]').length,3);
+  assert.equal(ui.document.querySelectorAll('[data-marker="buyer"]').length,1);
+  assert.equal(ui.document.querySelector('[data-route="pool"]'),null);
+  for(const [key,value]of Object.entries({material:'PP',grade:'PP-H',quantityKg:500,comparisonPrice:75,transportCost:1200,feePercent:0}))ui.change(`#planner-form [name="${key}"]`,value);
+  ui.click('[data-action="pool"]');
+  assert.ok(ui.document.querySelector('[data-route="pool"]'),'Pool button draws the route');
+  assert.equal(ui.document.querySelectorAll('.pool-route-segment').length,3);
+  assert.match(ui.$('[data-route-summary]').textContent,/Alpha Factory → Beta Factory → Gamma Factory → Buyer destination/);
+  const panel=ui.$('.planner-result');
+  assert.match(panel.textContent,/500 kg/);
+  assert.match(panel.textContent,/₹1,200\.00/);
+  assert.match(panel.textContent,/₹15,250\.00/);
+  assert.match(panel.textContent,/₹360\.00/);
+  assert.match(panel.textContent,/₹420\.00/);
+  assert.equal(ui.document.querySelector('[data-gap-card]'),null);
+});
+
+test('pool planner shows gap card with missing kg and nearby compatible factories when minimum order is missed or profit is negative',async t=>{
+  const ui=await boot(t);await ui.route('analysis');
+  await saveManual(ui,{title:'Lot 1',company:'Pune Alpha',quantityKg:180,pricePerKg:40,location:'Pune',latitude:18.52,longitude:73.85});
+  await saveManual(ui,{title:'Lot 2',company:'Thane Beta',quantityKg:200,pricePerKg:42,location:'Thane',latitude:19.21,longitude:72.97});
+  await saveManual(ui,{title:'Lot 3',company:'Jaipur Gamma',quantityKg:250,pricePerKg:65,location:'Jaipur',latitude:26.91,longitude:75.78});
+  await ui.route('planner');
+  const checkboxes=ui.document.querySelectorAll('[data-action="toggle-pool-record"]');
+  assert.equal(checkboxes.length,3);
+  // Exclude Thane Beta and Jaipur Gamma so only Pune Alpha (180 kg) is in the pool
+  for(const box of checkboxes){
+    const label=box.closest('label').textContent;
+    if(label.includes('Thane Beta')||label.includes('Jaipur Gamma')){
+      ui.change(`[data-action="toggle-pool-record"][data-id="${box.dataset.id}"]`,false);
+    }
+  }
+  for(const [key,value]of Object.entries({material:'PP',grade:'PP-H',quantityKg:350,comparisonPrice:75,transportCost:1000,feePercent:0}))ui.change(`#planner-form [name="${key}"]`,value);
+  ui.click('[data-action="pool"]');
+
+  const missingCard=ui.$('[data-gap-card="missing_minimum"]');
+  assert.match(missingCard.textContent,/170 kg missing/);
+  assert.match(missingCard.textContent,/Thane Beta/);
+  assert.match(missingCard.textContent,/200 kg available/);
+  assert.match(missingCard.textContent,/Contributes 170 kg toward gap/);
+
+  // Click "Add to pool" on Thane Beta inside the gap card to close the minimum order gap
+  const addThaneBtn=missingCard.querySelector('[data-action="include-pool-record"]');
+  assert.ok(addThaneBtn);
+  addThaneBtn.click();
+  assert.equal(ui.document.querySelector('[data-gap-card]'),null,'Gap card disappears once minimum order is met with positive profit');
+
+  // Now set a high transport cost so the pool has negative profit while still meeting the 350 kg minimum
+  ui.change('#planner-form [name="transportCost"]',15000);
+  ui.click('[data-action="pool"]');
+  const negProfitCard=ui.$('[data-gap-card="negative_profit"]');
+  assert.match(negProfitCard.textContent,/Negative net profit/);
+  assert.match(negProfitCard.textContent,/0 kg missing/);
+  assert.match(negProfitCard.textContent,/Jaipur Gamma/);
+});
+
+test('AI analysis displays per-field confidence bars, shows "Needs lab test" when confidence is below 0.7, keeps unknowns blank, preserves Analyse button label, and requires human review',async t=>{
+  const mockedSuggestions={
+    material:'PP',
+    grade:'PP-H',
+    quantityKg:120.5,
+    pricePerKg:null,
+    company:null,
+    location:null,
+    condition:null,
+    confidence:{material:0.92,quantityKg:0.75,grade:0.58,pricePerKg:0.45},
+    evidence:[
+      {field:'material',quote:'Polypropylene scrap',page:1},
+      {field:'quantityKg',quote:'Net wt 120.5 kg',page:1},
+      {field:'grade',quote:'Possible PP-H stamp',page:1},
+    ],
+    warnings:['Grade stamp is worn; price not listed on packing slip.'],
+  };
+  const ui=await boot(t,{apiKey:'mock-test-key',fetchImpl:async()=>({ok:true,json:async()=>({status:'completed',output_text:JSON.stringify(mockedSuggestions)})})});
+  await ui.route('analysis');
+  assert.equal(ui.$('[data-action="analyse"]').textContent.trim(),'Analyse');
+  const file=new ui.window.File(['%PDF-1.4\nSlip'],'slip.pdf',{type:'application/pdf'});
+  const input=ui.$('#analysis-file');
+  Object.defineProperty(input,'files',{configurable:true,value:[file]});
+  input.dispatchEvent(new ui.window.Event('change',{bubbles:true}));
+  assert.equal(ui.$('[data-action="analyse"]').textContent.trim(),'Analyse');
+  ui.click('[data-action="analyse"]');
+  await until(()=>ui.document.querySelector('.analysis-status'),'AI confidence analysis');
+
+  // Extracted fields populate; unknown fields remain blank (not guessed)
+  assert.equal(ui.$('[name="material"]').value,'PP');
+  assert.equal(ui.$('[name="quantityKg"]').value,'120.5');
+  assert.equal(ui.$('[name="grade"]').value,'PP-H');
+  assert.equal(ui.$('[name="pricePerKg"]').value,'');
+  assert.equal(ui.$('[name="company"]').value,'');
+
+  // All 4 extracted-field confidence bars are shown
+  assert.equal(ui.document.querySelectorAll('.confidence-bar').length,4);
+  assert.equal(ui.$('[data-confidence-for="material"]').dataset.confidence,'0.92');
+  assert.equal(ui.$('[data-confidence-for="quantityKg"]').dataset.confidence,'0.75');
+  assert.equal(ui.$('[data-confidence-for="grade"]').dataset.confidence,'0.58');
+  assert.equal(ui.$('[data-confidence-for="pricePerKg"]').dataset.confidence,'0.45');
+
+  // Only fields with confidence < 0.7 (grade at 0.58 and pricePerKg at 0.45) show "Needs lab test"
+  assert.equal(ui.document.querySelector('[data-needs-lab-test="material"]'),null);
+  assert.equal(ui.document.querySelector('[data-needs-lab-test="quantityKg"]'),null);
+  assert.equal(ui.$('[data-needs-lab-test="grade"]').textContent,'Needs lab test');
+  assert.equal(ui.$('[data-needs-lab-test="pricePerKg"]').textContent,'Needs lab test');
+  assert.equal(ui.document.querySelectorAll('[data-needs-lab-test]').length,2);
+
+  // Human review step is still required before saving
+  assert.equal(ui.$('[name="confirmed"]').checked,false);
+  ui.submit('#record-form');
+  assert.match(ui.$('#record-error').textContent,/confirm/);
+  assert.equal((await ui.api('/api/records')).records.length,0);
+  ui.change('[name="confirmed"]',true);
+  ui.submit('#record-form');
+  await until(()=>ui.document.querySelectorAll('.record-card').length===1,'Confirmed save after confidence review');
+  const saved=(await ui.api('/api/records')).records[0];
+  assert.equal(saved.pricePerKg,null);
+  assert.equal(saved.company,null);
+});
+
+test('every match shows an expandable "Why this buyer?" card with factor bars, plain sentences, total score as sum of factors, and "Unknown" for missing values',async t=>{
+  const ui=await boot(t);await ui.route('analysis');
+  // Lot 1: known coordinates ~15 km from buyer (Thane), Lot 2: unknown coordinates
+  await saveManual(ui,{title:'Thane PP Lot',company:'Thane Polymers',material:'PP',grade:'PP-H',condition:'Clean',quantityKg:300,pricePerKg:40,latitude:19.18,longitude:72.97});
+  await saveManual(ui,{title:'Unlocated PP Lot',company:'Unlocated Works',material:'PP',grade:'PP-H',condition:'Clean',quantityKg:200,pricePerKg:42,latitude:'',longitude:''});
+  await ui.route('planner');
+  for(const [key,value]of Object.entries({material:'PP',grade:'PP-H',quantityKg:500,comparisonPrice:75,transportCost:1000,feePercent:0}))ui.change(`#planner-form [name="${key}"]`,value);
+  ui.click('[data-action="pool"]');
+
+  const cards=ui.document.querySelectorAll('[data-why-buyer-card]');
+  assert.equal(cards.length,2,'Each matched lot renders a Why this buyer? card');
+
+  const firstCard=cards[0];
+  const summary=firstCard.querySelector('.why-buyer-summary');
+  assert.match(summary.textContent,/Why this buyer\?/);
+  assert.equal(firstCard.open,false);
+  summary.click();
+  assert.equal(firstCard.open,true,'Clicking Why this buyer? expands the score breakdown card');
+
+  const factorKeys=['materialFit','distance','minimumOrderFit','gradeFit','priceFit'];
+  let computedSum=0;
+  for(const key of factorKeys){
+    assert.ok(firstCard.querySelector(`[data-why-factor="${key}"]`),`Factor ${key} is listed`);
+    assert.ok(firstCard.querySelector(`[data-why-bar="${key}"]`),`Factor ${key} has a small score bar`);
+    assert.ok(firstCard.querySelector(`[data-factor-sentence="${key}"]`)?.textContent.trim().length>0,`Factor ${key} has a plain sentence`);
+    const scoreText=firstCard.querySelector(`[data-factor-score="${key}"]`).textContent;
+    computedSum+=Number(scoreText.split('/')[0].trim());
+  }
+  assert.match(firstCard.querySelector('[data-factor-sentence="distance"]').textContent,/km away, within your 50 km limit/);
+  assert.equal(computedSum,88);
+  assert.equal(firstCard.querySelector('[data-why-total]').dataset.whyTotal,String(computedSum));
+  assert.match(firstCard.querySelector('.why-buyer-footer').textContent,/88 \/ 100/);
+
+  // Second card has unknown coordinates -> Distance is "Unknown" and not counted as good or bad
+  const secondCard=cards[1];
+  secondCard.querySelector('.why-buyer-summary').click();
+  assert.equal(secondCard.open,true);
+  const unknownDistanceRow=secondCard.querySelector('[data-why-factor="distance"]');
+  assert.equal(unknownDistanceRow.dataset.factorKnown,'false');
+  assert.equal(unknownDistanceRow.dataset.factorStatus,'unknown');
+  assert.equal(secondCard.querySelector('[data-factor-score="distance"]').textContent,'Unknown');
+  assert.match(secondCard.querySelector('[data-factor-sentence="distance"]').textContent,/Unknown/);
+  // Known factors for second lot: materialFit (20) + minimumOrderFit (200/500 -> 8) + gradeFit (20) + priceFit (19) = 67 / 80
+  assert.equal(secondCard.querySelector('[data-why-total]').dataset.whyTotal,'67');
+  assert.match(secondCard.querySelector('.why-buyer-footer').textContent,/67 \/ 80/);
+});
+
+test('Impact dashboard calculates seller earnings, buyer savings, scrap diverted, and CO2 avoided only from saved pool plans, shows chart and animated counters respecting prefers-reduced-motion, and shows "Not enough data" when a material CO2 factor is missing',async t=>{
+  const ui=await boot(t);
+  let reducedMotion=false;
+  ui.window.matchMedia=query=>({matches:query.includes('reduce')&&reducedMotion});
+
+  // Public imports and unsaved material records do not inflate impact metrics
+  await ui.importData();
+  await ui.route('analysis');
+  await saveManual(ui,{title:'PP Lot 1',company:'Pune Polymers',material:'PP',grade:'PP-H',condition:'Clean',quantityKg:200,pricePerKg:40});
+  await saveManual(ui,{title:'PP Lot 2',company:'Thane Recyclers',material:'PP',grade:'PP-H',condition:'Clean',quantityKg:300,pricePerKg:44});
+  await saveManual(ui,{title:'E-waste Lot',company:'Nashik E-Waste',material:'E-waste',grade:'EW-1',condition:'Clean',quantityKg:150,pricePerKg:50});
+
+  await ui.route('impact');
+  assert.equal(ui.$('[data-impact-value="seller-earnings"]').dataset.counterTarget,'0');
+  assert.equal(ui.$('[data-impact-value="buyer-savings"]').dataset.counterTarget,'0');
+  assert.equal(ui.$('[data-impact-value="scrap-diverted"]').dataset.counterTarget,'0');
+  assert.equal(ui.$('[data-impact-value="co2-avoided"]').dataset.counterTarget,'0');
+  // Separate CO2 config table shows sourced factors with estimate notes and "Not enough data" for TODO placeholders
+  assert.ok(ui.document.querySelector('[data-co2-factors-panel]'));
+  assert.match(ui.$('[data-co2-factor-card="PP"]').textContent,/PlasticsEurope/);
+  assert.match(ui.$('[data-co2-factor-card="PP"]').textContent,/Estimate/i);
+  assert.match(ui.$('[data-co2-factor-card="E-waste"]').textContent,/Not enough data/);
+  assert.match(ui.$('[data-co2-factor-card="E-waste"]').textContent,/TODO:/);
+
+  // Previewing a plan in the planner without saving does not count toward impact
+  await ui.route('planner');
+  for(const [key,value]of Object.entries({material:'PP',grade:'PP-H',quantityKg:500,comparisonPrice:75,transportCost:1200,feePercent:2}))ui.change(`#planner-form [name="${key}"]`,value);
+  ui.click('[data-action="pool"]');
+  await ui.route('impact');
+  assert.equal(ui.$('[data-impact-value="seller-earnings"]').dataset.counterTarget,'0');
+
+  // Now save the completed PP pool plan
+  await ui.route('planner');
+  ui.click('[data-action="save-plan"]');
+  await until(async()=>(await ui.api('/api/plans')).plans.length===1,'Saved PP pool plan');
+
+  // Navigate to Impact dashboard with prefers-reduced-motion: false -> counters animate to target
+  await ui.route('impact');
+  const earnedCounter=ui.$('[data-impact-value="seller-earnings"]');
+  const savedCounter=ui.$('[data-impact-value="buyer-savings"]');
+  const divertedCounter=ui.$('[data-impact-value="scrap-diverted"]');
+  const co2Counter=ui.$('[data-impact-value="co2-avoided"]');
+  assert.equal(earnedCounter.dataset.counterTarget,'21200');
+  assert.equal(savedCounter.dataset.counterTarget,'14676');
+  assert.equal(divertedCounter.dataset.counterTarget,'500');
+  assert.equal(co2Counter.dataset.counterTarget,'675');
+  assert.equal(earnedCounter.dataset.reducedMotion,'false');
+  assert.equal(earnedCounter.dataset.counterAnimated,'true');
+  await until(()=>earnedCounter.dataset.counterState==='complete','Animated counter completion');
+  assert.match(earnedCounter.textContent,/21,200\.00/);
+  assert.match(savedCounter.textContent,/14,676\.00/);
+  assert.equal(divertedCounter.textContent,'500 kg');
+  assert.equal(co2Counter.textContent,'675 kg CO2e');
+
+  // Chart renders SVG bars for PP scrap diverted and CO2 avoided
+  const chart=ui.$('[data-impact-chart]');
+  assert.ok(chart.querySelector('svg.impact-chart-svg'));
+  assert.ok(chart.querySelector('[data-chart-material="PP"] [data-chart-bar="scrap"]'));
+  assert.ok(chart.querySelector('[data-chart-material="PP"] [data-chart-bar="co2"]'));
+
+  // With prefers-reduced-motion: reduce enabled, counters skip animation and set final values immediately
+  reducedMotion=true;
+  await ui.route('overview');
+  const overviewEarned=ui.$('[data-impact-value="seller-earnings"]');
+  assert.equal(overviewEarned.dataset.reducedMotion,'true');
+  assert.equal(overviewEarned.dataset.counterAnimated,'false');
+  assert.equal(overviewEarned.dataset.counterState,'complete');
+  assert.match(overviewEarned.textContent,/21,200\.00/);
+
+  // Delete the PP plan and save an E-waste plan (which has a missing CO2 factor -> "Not enough data")
+  ui.click('[data-action="delete-plan"]');
+  await until(async()=>(await ui.api('/api/plans')).plans.length===0,'Delete PP plan');
+  await ui.route('planner');
+  for(const [key,value]of Object.entries({material:'E-waste',grade:'EW-1',quantityKg:150,comparisonPrice:80,transportCost:500,feePercent:0}))ui.change(`#planner-form [name="${key}"]`,value);
+  ui.click('[data-action="pool"]');
+  assert.match(ui.$('[data-field="co2-preview"]').textContent,/Not enough data/);
+  ui.click('[data-action="save-plan"]');
+  await until(async()=>(await ui.api('/api/plans')).plans.length===1,'Saved E-waste pool plan');
+
+  await ui.route('impact');
+  assert.equal(ui.$('[data-impact-value="seller-earnings"]').dataset.counterTarget,'7500');
+  assert.equal(ui.$('[data-impact-value="buyer-savings"]').dataset.counterTarget,'4000');
+  assert.equal(ui.$('[data-impact-value="scrap-diverted"]').dataset.counterTarget,'150');
+  assert.equal(ui.$('[data-impact-value="co2-avoided"]').textContent,'Not enough data');
+  assert.equal(ui.$('[data-impact-value="co2-avoided"]').dataset.co2Status,'not_enough_data');
+  assert.ok(ui.document.querySelector('[data-chart-material="E-waste"] [data-chart-bar="co2-missing"]'));
+});
+
+test('Loop graph page renders SVG factory nodes and directed edges, labels compatibility rules as "demo rules", finds chains of length 2 to 4, highlights best loop by total value, makes nodes keyboard focusable, and shows inputs and outputs when a node is clicked',async t=>{
+  const ui=await boot(t);
+  await ui.route('loop');
+
+  // Compatibility rules are labeled "demo rules" in the UI
+  assert.equal(ui.$('[data-demo-rules-badge]').textContent.trim(),'demo rules');
+  assert.equal(ui.$('[data-compatibility-rules]').dataset.rulesLabel,'demo rules');
+  assert.equal(ui.$('[data-demo-rules-label]').textContent.trim(),'demo rules');
+  assert.ok(ui.document.querySelectorAll('[data-compatibility-rule]').length>=7);
+
+  // Drawn with SVG: factory nodes and directed waste-to-raw-material edges
+  const svg=ui.$('svg.loop-graph-svg[data-loop-graph-svg]');
+  assert.ok(svg);
+  const nodes=ui.document.querySelectorAll('[data-loop-node]');
+  const edges=ui.document.querySelectorAll('[data-loop-edge]');
+  assert.equal(nodes.length,7);
+  assert.equal(edges.length,8);
+
+  // Chains of length 2 to 4 are found and best loop by total value is highlighted
+  const chainCards=ui.document.querySelectorAll('[data-loop-chain]');
+  assert.equal(chainCards.length,3);
+  for(const card of chainCards){
+    const len=Number(card.dataset.chainLength);
+    assert.ok(len>=2&&len<=4,`Chain length ${len} is within 2..4`);
+  }
+  const bestBanner=ui.$('[data-best-loop]');
+  assert.equal(bestBanner.dataset.bestLoopLength,'4');
+  assert.equal(bestBanner.dataset.bestLoopValue,'142000');
+  assert.match(bestBanner.textContent,/Pune Auto Moulders → Chakan Polymer Granulators → Thane Packaging Extruders → Nashik Compounding Works → Pune Auto Moulders/);
+  assert.equal(ui.document.querySelectorAll('[data-best-loop-node="true"]').length,4);
+  assert.equal(ui.document.querySelectorAll('[data-best-loop-edge="true"]').length,4);
+  assert.equal(chainCards[0].dataset.isBestLoop,'true');
+  assert.equal(chainCards[0].dataset.chainValue,'142000');
+
+  // All SVG factory nodes are keyboard focusable (tabindex="0")
+  for(const node of nodes){
+    assert.equal(node.getAttribute('tabindex'),'0');
+    assert.equal(node.getAttribute('role'),'button');
+  }
+
+  // Clicking a node shows its inputs and outputs
+  assert.equal(ui.document.querySelector('[data-node-details]'),null);
+  ui.click('[data-loop-node="fac-chakan-granulators"]');
+  const chakanDetails=ui.$('[data-node-details="fac-chakan-granulators"]');
+  assert.match(ui.$('[data-node-inspector]').textContent,/Chakan Polymer Granulators/);
+  const chakanInputs=chakanDetails.querySelector('[data-node-inputs]');
+  const chakanOutputs=chakanDetails.querySelector('[data-node-outputs]');
+  assert.ok(chakanInputs);
+  assert.ok(chakanOutputs);
+  assert.match(chakanInputs.textContent,/PP Moulding Runners/);
+  assert.match(chakanInputs.textContent,/Thermoform Sheet Offcuts/);
+  assert.match(chakanOutputs.textContent,/Washed PP Flakes/);
+  assert.match(chakanOutputs.textContent,/550 kg/);
+
+  // Keyboard focus and Enter key activation on another node updates inputs and outputs
+  const faridabadNode=ui.$('[data-loop-node="fac-faridabad-cnc"]');
+  faridabadNode.focus();
+  assert.equal(ui.document.activeElement,faridabadNode);
+  faridabadNode.dispatchEvent(new ui.window.KeyboardEvent('keydown',{key:'Enter',bubbles:true,cancelable:true}));
+  const faridabadDetails=ui.$('[data-node-details="fac-faridabad-cnc"]');
+  assert.match(faridabadDetails.querySelector('[data-node-inputs]').textContent,/Cast Steel Blanks/);
+  assert.match(faridabadDetails.querySelector('[data-node-outputs]').textContent,/Steel Turning Swarf/);
+  assert.match(faridabadDetails.querySelector('[data-node-outputs]').textContent,/600 kg/);
 });

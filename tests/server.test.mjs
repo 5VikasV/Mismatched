@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable } from 'node:stream';
-import { createApp } from '../server/app.mjs';
+import { createApp, extractionSchema } from '../server/app.mjs';
 
 const source = { id: 'test-source', title: 'Public facility directory', publisher: 'Test publisher', url: 'https://example.org/facilities', publicationDate: '2025-01-01', retrievedAt: '2026-11-24', coverage: 'Fixture state', terms: 'Fixture source attribution', notes: 'Test fixture only.' };
 const facility = { id: 'test-facility', name: 'Test Plastics Facility', industry: 'Plastic recycling', materials: ['PP'], state: 'Maharashtra', district: 'Pune', address: 'Test Industrial Estate', latitude: 18.5, longitude: 73.8, sourceId: source.id, sourceUrl: source.url, sourcePublishedAt: source.publicationDate, checkedAt: source.retrievedAt };
@@ -180,6 +180,37 @@ test('unsupported AI output fails safely and evidence-free facts stay unknown', 
   assert.match(response.json.suggestions.warnings.join(' '), /left unknown/);
 });
 
+test('extractionSchema defines 0..1 confidence for material, grade, quantityKg and pricePerKg and validates mocked AI confidence', async t => {
+  assert.ok(extractionSchema.required.includes('confidence'));
+  const confProps = extractionSchema.properties.confidence.properties;
+  for (const field of ['material', 'grade', 'quantityKg', 'pricePerKg']) {
+    assert.equal(confProps[field].minimum, 0);
+    assert.equal(confProps[field].maximum, 1);
+  }
+  const mocked = {
+    ...suggestions(),
+    grade: 'PP-H',
+    evidence: [
+      { field: 'material', quote: 'PP trimmings', page: 1 },
+      { field: 'quantityKg', quote: '120 kg', page: 1 },
+      { field: 'grade', quote: 'Homopolymer grade faintly legible', page: 1 },
+    ],
+    confidence: { material: 0.92, quantityKg: 0.85, grade: 0.55, pricePerKg: null },
+  };
+  const { app } = setup(t, { apiKey: 'key', fetchImpl: async () => ({ ok: true, json: async () => ({ output_text: JSON.stringify(mocked) }) }) });
+  const res = await call(app, '/api/analyze', { method: 'POST', data: file() });
+  assert.equal(res.status, 200);
+  assert.deepEqual(res.json.suggestions.confidence, { material: 0.92, grade: 0.55, quantityKg: 0.85, pricePerKg: null });
+  assert.equal(res.json.suggestions.pricePerKg, null);
+
+  for (const badConfidence of [{ material: 1.2 }, { grade: -0.1 }, { quantityKg: 'high' }]) {
+    const badApp = setup(t, { apiKey: 'key', fetchImpl: async () => ({ ok: true, json: async () => ({ output_text: JSON.stringify({ ...mocked, confidence: { ...mocked.confidence, ...badConfidence } }) }) }) });
+    const badRes = await call(badApp.app, '/api/analyze', { method: 'POST', data: file() });
+    assert.equal(badRes.status, 502);
+    assert.equal(badRes.json.error, 'invalid_ai_output');
+  }
+});
+
 test('loopback host and same-origin checks protect local endpoints and reject non-JSON writes', async t => {
   const { app } = setup(t);
   assert.equal((await call(app, '/api/status', { headers: { host: 'evil.example' } })).status, 403);
@@ -204,4 +235,38 @@ test('static server serves application assets but never local settings or path e
   assert.equal(landingRedirect.status, 308);
   assert.equal(landingRedirect.headers.location, '/landing/');
   for (const path of ['/server/app.mjs', '/.env', '/%2e%2e/%2e%2e/etc/passwd', '/api/unknown']) assert.equal((await call(app, path)).status, 404);
+});
+
+test('saved pool plans require confirmed material records, persist in SQLite, and calculate impact', async t => {
+  const { app, dir } = setup(t);
+  // Cannot save a plan when no confirmed records meet the requirement
+  const rejected = await call(app, '/api/plans', { method: 'POST', data: { material: 'PP', grade: 'PP-H', quantityKg: 100, comparisonPrice: 75, transportCost: 200, feePercent: 0 } });
+  assert.equal(rejected.status, 400);
+  assert.equal(rejected.json.error, 'incomplete_plan');
+
+  // Save confirmed records and then save the pool plan
+  await call(app, '/api/records', { method: 'POST', data: { ...record(), material: 'PP', grade: 'PP-H', condition: 'Clean', quantityKg: 120, pricePerKg: 42 } });
+  const created = await call(app, '/api/plans', { method: 'POST', data: { material: 'PP', grade: 'PP-H', quantityKg: 100, comparisonPrice: 75, transportCost: 200, feePercent: 0 } });
+  assert.equal(created.status, 201);
+  assert.equal(created.json.plan.quantityKg, 100);
+  assert.equal(created.json.plan.materialCost, 4200);
+  assert.equal(created.json.plan.savings, 3100);
+
+  // Reopen database and verify persistence and impact endpoint
+  const second = createApp({ dbPath: join(dir, 'research.sqlite') });
+  try {
+    const plansRes = await call(second, '/api/plans');
+    assert.equal(plansRes.status, 200);
+    assert.equal(plansRes.json.plans.length, 1);
+    const impactRes = await call(second, '/api/impact');
+    assert.equal(impactRes.status, 200);
+    assert.equal(impactRes.json.sellerEarningsInr, 4200);
+    assert.equal(impactRes.json.buyerSavingsInr, 3100);
+    assert.equal(impactRes.json.scrapDivertedKg, 100);
+    assert.equal(impactRes.json.estimatedCo2AvoidedKg, 135);
+    assert.equal((await call(second, `/api/plans/${created.json.plan.id}`, { method: 'DELETE', data: {} })).status, 200);
+    assert.equal((await call(second, '/api/plans')).json.plans.length, 0);
+  } finally {
+    second.close();
+  }
 });
