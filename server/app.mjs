@@ -1,3 +1,4 @@
+import {createBookings} from "./bookings.mjs";
 import { createVision } from './vision.mjs';
 import http from 'node:http';
 import { DatabaseSync } from 'node:sqlite';
@@ -169,6 +170,7 @@ export function createApp(options = {}) {
   const all = table => db.prepare(`SELECT json FROM ${table}`).all().map(r => JSON.parse(r.json));
   const get = (table, id) => { const row = db.prepare(`SELECT json FROM ${table} WHERE id = ?`).get(id); return row ? JSON.parse(row.json) : null; };
   const count = table => db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).get().count;
+  const bookings = createBookings({db,body,send,fail,all});
   async function handle(req, res) {
     res.setHeader('Cache-Control', 'no-store'); res.setHeader('X-Content-Type-Options', 'nosniff'); res.setHeader('Referrer-Policy', 'same-origin');
     const landingPaths = ['/', '/workspace', '/workspace/', '/index.html', '/landing', '/landing/', '/landing/landing.html'];
@@ -177,7 +179,7 @@ export function createApp(options = {}) {
     try {
       guard(req);
       const parsed = new URL(req.url, 'http://localhost'); const pathname = parsed.pathname;
-      if (req.method === 'GET' && pathname === '/api/status') return send(res, 200, { aiConfigured: !!apiKey.trim(), model, vision: vision.status(), facilityCount: count('facilities'), sourceCount: count('sources'), recordCount: count('records') });
+      if (req.method === 'GET' && pathname === '/api/status') return send(res, 200, { aiConfigured: !!apiKey.trim(), model, vision: vision.status(), facilityCount: count('facilities'), sourceCount: count('sources'), recordCount: count('records'), bookingRequestCount: count('booking_requests') });
       if (req.method === 'GET' && pathname === '/api/model-report') {
         return send(res, 200, { report: existsSync(reportPath) ? JSON.parse(readFileSync(reportPath, 'utf8')) : null, status: vision.status() });
       }
@@ -274,6 +276,7 @@ export function createApp(options = {}) {
         } catch (error) { if (error instanceof AppError) throw error; fail(502, 'ai_service_error', 'The AI service could not be reached or timed out. Your file has not been saved.'); }
         finally { analyzing = false; }
       }
+      if (await bookings(req,res,pathname)) return;
       if (pathname.startsWith('/api/')) fail(404, 'not_found', 'This API endpoint could not be found.');
       if (!['GET', 'HEAD'].includes(req.method)) fail(405, 'method_not_allowed', 'This method is not available.');
       const aliases = {

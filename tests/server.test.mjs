@@ -38,7 +38,7 @@ test('new database is empty, persists research across reopen, and never exposes 
   const { app, dir } = setup(t, { apiKey: 'super-secret-test-key' });
   const status = await call(app, '/api/status');
   const {vision,...existing}=status.json; assert.equal(typeof vision.available,'boolean');
-  assert.deepEqual(existing, { aiConfigured: true, model: 'gpt-4.1-mini', facilityCount: 0, sourceCount: 0, recordCount: 0 });
+  assert.deepEqual(existing, { aiConfigured: true, model: 'gpt-4.1-mini', facilityCount: 0, sourceCount: 0, recordCount: 0, bookingRequestCount: 0 });
   assert.equal(status.text.includes('super-secret'), false);
   const saved = await call(app, '/api/records', { method: 'POST', data: record() });
   assert.equal(saved.status, 201); assert.equal(saved.json.record.quantityKg, null);

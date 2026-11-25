@@ -1,3 +1,4 @@
+import { settleAllocations, quantityBand } from "./trade-policy.js";
 const norm = (v) =>
   String(v ?? "")
     .trim()
@@ -51,8 +52,7 @@ export function planPool(records, requirements = {}) {
     grade,
     quantityKg,
     comparisonPrice,
-    transportCost = 0,
-    feePercent = 0,
+    pickups = [],
     selectedRecordIds,
   } = requirements;
   const p = {
@@ -63,8 +63,11 @@ export function planPool(records, requirements = {}) {
     quantityKg: 0,
     requiredKg: finite(quantityKg) ? quantityKg : 0,
     materialCost: 0,
-    transportCost,
-    feePercent,
+    transportCost: 0,
+    feePercent: 0,
+    transportComplete: false,
+    transportErrors: [],
+    quantityBand: quantityBand(quantityKg)?.label || null,
     fee: 0,
     totalCost: 0,
     baselineCost: 0,
@@ -83,17 +86,12 @@ export function planPool(records, requirements = {}) {
     ![quantityKg, comparisonPrice].every(
       (v) => finite(v) && v > 0 && v <= 1e12,
     ) ||
-    !finite(transportCost) ||
-    transportCost < 0 ||
-    !finite(feePercent) ||
-    feePercent < 0 ||
-    feePercent > 100 ||
     units(quantityKg) <= 0n
   )
     return {
       ...p,
       reason:
-        "Enter positive required quantity and comparison price, a non-negative pickup estimate, and a fee from 0 to 100%. Quantity precision is six decimals.",
+        "Enter positive required quantity and comparison price. Quantity precision is six decimals.",
     };
   if (
     selectedRecordIds !== undefined &&
@@ -152,8 +150,11 @@ export function planPool(records, requirements = {}) {
   p.quantityKg = kg(required - needed);
   p.shortfallKg = kg(needed);
   p.materialCost = round(p.allocations.reduce((s, a) => s + a.payout, 0));
-  p.fee = round((p.materialCost * feePercent) / 100);
-  p.totalCost = round(p.materialCost + transportCost + p.fee);
+  try {
+    Object.assign(p, settleAllocations(p.allocations, pickups));
+  } catch (error) {
+    return { ...p, complete: false, viable: false, reason: error.message };
+  }
   p.baselineCost = round(p.requiredKg * comparisonPrice);
   if (![p.materialCost, p.fee, p.totalCost, p.baselineCost].every(moneySafe))
     return {
@@ -169,6 +170,13 @@ export function planPool(records, requirements = {}) {
     return {
       ...p,
       reason: `${p.quantityKg} kg of compatible material recorded; ${p.shortfallKg} kg still needed. Complete the pool before comparing savings.`,
+    };
+  if (!p.transportComplete)
+    return {
+      ...p,
+      reason:
+        p.transportErrors.join(" ") ||
+        "Choose transport responsibilities for each pickup.",
     };
   p.savings = round(p.baselineCost - p.totalCost);
   p.viable = p.savings > 0;

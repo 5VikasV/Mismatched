@@ -16,7 +16,7 @@ export async function mountFeature(root, context) {
     const m = r.trained.test,
       b = r.baseline.test,
       pct = (v) => `${(100 * v).toFixed(1)}%`;
-    root.innerHTML = `<header class="feature-intro"><div><div class="eyebrow">05 / MODEL RESULTS</div><h1>Measured. Not assumed.</h1><p>${esc(r.modelVersion)} · ${esc(r.status)} · ${esc(r.createdAt)}</p></div><span class="desk-tag">HELD-OUT TEST DATA</span></header><div class="metric-strip">${[
+    root.innerHTML = `<header class="feature-intro"><div><div class="eyebrow">06 / MODEL RESULTS</div><h1>Measured. Not assumed.</h1><p>${esc(r.modelVersion)} · ${esc(r.status)} · ${esc(r.createdAt)}</p></div><span class="desk-tag">HELD-OUT TEST DATA</span></header><div class="metric-strip">${[
       [pct(m.accuracy), "Test accuracy"],
       [pct(m.macroF1), "Test macro-F1"],
       [pct(r.testCoverage), "Accepted prediction coverage"],

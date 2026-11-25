@@ -19,7 +19,7 @@ Import the public bundle explicitly using **Import public records**. It currentl
 
 The workspace uses a horizontal material desk with numbered navigation, a responsive mobile menu and a transparent Blender exhibit on Overview. The landing page keeps its existing carousel design.
 
-- **Find anything** (Ctrl+K / Cmd+K) searches pages, imported facilities and saved material records. Opening a result applies its search to the real feature page. Closing the finder preserves the current form draft.
+- **Find anything** (Ctrl+K / Cmd+K) searches pages, imported facilities, saved material records and booking requests. Opening a result applies its search to the real feature page. Closing the finder preserves the current form draft.
 - **Overview** shows actual counts, recent reviewed records, source coverage and workflow entry points.
 - **Material analysis** separates capture, evidence and review, groups fields by purpose, and displays the original classification score with its review limitations.
 - **Pool planner** shows quantity fulfilment, eligible/excluded lots and an estimate summary alongside the inputs. Estimates and CSV exports use the same calculations.
@@ -60,11 +60,13 @@ PDFs can be selected for manual review. The existing optional paid document extr
 
 ## Pool planner
 
-Enter material, confirmed grade, required kg, comparison rate, pickup estimate and fee. Choose individual records or **Select eligible**. Only confirmed clean records with matching material/grade and positive known quantities/prices contribute; exclusions are explained. An ML prediction of `plastic` does not establish PP or HDPE compatibility.
+Enter material, confirmed grade, exact required quantity in kg or metric tonnes, and a comparison rate. Commission is fixed at 5%, 4% or 3% by total material value, split 70:30 between buyer and sellers. Set a vehicle provider, payer and proposed cost for every contributing pickup. Choose individual records or **Select eligible**. Only confirmed clean records with matching material/grade and positive known quantities/prices contribute; exclusions are explained. An ML prediction of `plastic` does not establish PP or HDPE compatibility.
 
-The planner uses cheapest-first allocation, partial final lots, six-decimal kg precision and two-decimal currency rounding. It shows shortages and delivered costs; savings appear only for a complete requirement. Currency values outside supported precision are rejected. **Export estimate CSV** downloads the exact displayed selection, allocations, costs, calculation timestamp and assumptions, with proper CSV escaping and spreadsheet-formula protection.
+The planner uses cheapest-first allocation, partial final lots, six-decimal kg precision and two-decimal currency rounding. It shows shortages and delivered costs; savings appear only for a complete requirement and complete transport decisions. Currency values outside supported precision are rejected. **Export estimate CSV** downloads the exact displayed selection, allocations, costs, calculation timestamp and assumptions, with proper CSV escaping and spreadsheet-formula protection.
 
-The result is a planning estimate. It creates no transaction, inventory reservation, transport booking, government submission or certified environmental claim. Pickup costs and comparison prices are user inputs, not live market quotes or price predictions.
+The result starts as a planning estimate. Complete pools can be saved as local **Pending agreement** booking requests, with immutable commercial and pickup snapshots. Booking requests can be viewed, exported and cancelled. They create no payment, inventory reservation, carrier dispatch, government submission or certified environmental claim. Pickup costs and comparison prices are user inputs, not live market quotes or price predictions.
+
+See [commission, quantity and transport rules](docs/ORDER_COMMISSION_QUANTITY_TRANSPORT.md) for the exact tiers, examples, categories, request workflow and APIs. Restart the server after this update to load the new endpoints and additive SQLite table.
 
 ## Verification
 

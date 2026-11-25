@@ -74,18 +74,20 @@ test("reviewed records, planning, CSV, sources and measured model results", asyn
     grade: "PP-H",
     quantityKg: 100,
     comparisonPrice: 75,
-    transportCost: 100,
-    feePercent: 0,
   }))
     await page.locator(`#planner-form [name="${n}"]`).fill(String(v));
   await page.getByRole("button", { name: "Calculate a pool" }).click();
-  await expect(page.locator(".cost-row.total")).toContainText("4,300");
-  await expect(page.locator(".cost-row.saving")).toContainText("3,200");
+  await page.locator('[data-pickup-field="provider"]').selectOption("external");
+  await page.locator('[data-pickup-field="payer"]').selectOption("buyer");
+  await page.locator('[data-pickup-field="cost"]').fill("100");
+  await page.getByRole("button", { name: "Update transport totals" }).click();
+  await expect(page.locator(".cost-row.total")).toContainText("4,447");
+  await expect(page.locator(".cost-row.saving")).toContainText("3,053");
   const downloadPromise = page.waitForEvent("download");
   await page.getByRole("button", { name: "Export estimate CSV" }).click();
   const download = await downloadPromise;
   const csv = readFileSync(await download.path(), "utf8");
-  expect(csv).toContain('"Estimated delivered total INR","4300"');
+  expect(csv).toContain('"Estimated delivered total INR","4447"');
   expect(csv).toContain("Browser Factory");
   await page.getByRole("button", { name: "Clear selection" }).click();
   await expect(page.locator(".planner-result")).toContainText(
@@ -102,8 +104,9 @@ test("reviewed records, planning, CSV, sources and measured model results", asyn
   );
   await expect(page.locator(".cost-row.saving")).toHaveCount(0);
   await page.locator('[name="quantityKg"]').fill("100");
-  await page.locator('[name="transportCost"]').fill("10000");
   await page.getByRole("button", { name: "Calculate a pool" }).click();
+  await page.locator('[data-pickup-field="cost"]').fill("10000");
+  await page.getByRole("button", { name: "Update transport totals" }).click();
   await expect(page.locator(".planner-result")).toContainText(
     "meets or exceeds",
   );
