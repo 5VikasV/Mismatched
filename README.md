@@ -77,8 +77,10 @@ The Overview includes an original Blender-built factory and circular conveyor ca
 
 The GLB and locally hosted viewer work without Blender installed. The editable scene is [design/blender/material-loop.blend](design/blender/material-loop.blend); the generator and rebuild instructions are in [design/blender/README.md](design/blender/README.md). This is an illustrative sculpture, not live facility or inventory data.
 
-## Root HTML planning desk
+## Root HTML layout refresh
 
-`index.html` at the repository root is a separate, file-openable planning desk. Open that exact file in a browser for the simplified overview, attributed public directory, browser-local reviewed material notes and pool-cost estimates. It starts with no available stock or invented transactions. Its notes are separate from the server's SQLite records; the visible analysis link opens the existing application at localhost:4173.
+The root `index.html` is the user's original standalone industrial exchange interface, restyled for readability. Its original figures, suppliers, material specifications, prices, waybills, calculations and application scripts are preserved. This presentation-only pass does not replace the source data or validate its claims.
 
-The standalone file embeds the public snapshot and the project's shared planner/CSV functions so it works without a server. Rebuild it after changing shared logic or the source snapshot with `npm run build:standalone`. Edit `design/standalone/index.template.html` for layout/content changes. Browser checks cover the file directly at phone, tablet and laptop widths. This entry point does not run image inference, book transport, track vehicles or issue regulatory documents.
+Open that exact file directly in a browser. Navigation, role/stream switching, radius selection, pooling, transport comparison, ledger and waybill controls remain available. Pooling details and the detailed transport table expand on demand; tables scroll inside their containers on smaller screens.
+
+`design/standalone/original.html` preserves the downloaded source. Edit `design/standalone/layout.css` for presentation changes, then run `npm run build:standalone`. The build script changes wrappers/classes only and asserts that the original scripts are unchanged. Browser checks compare all original scripts, text and datasets, then exercise the original controls at phone, tablet and laptop widths. The separate `dist/` application opened by `npm run dev` remains a different entry point.
