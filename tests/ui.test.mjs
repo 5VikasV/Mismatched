@@ -161,6 +161,28 @@ test('model results show real report metrics and explicit limitations',async t=>
  const ui=await boot(t);await ui.route('results');await until(()=>ui.document.querySelector('table'),'Report');assert.match(ui.$('#main').textContent,/Frozen feature prototypes/);assert.match(ui.$('#main').textContent,/expert-confirmed factory/);assert.match(ui.$('#main').textContent,/Confusion matrix/);
 });
 
+test('paper auto-fills saved quantity and price, explains unknown condition and offers a separate reviewed paper sample',async t=>{
+ const ui=await boot(t);await ui.route('analysis');
+ await saveManual(ui,{title:'Paper supplier lot',material:'paper',grade:'Not verified',condition:'Unknown — manual review required',quantityKg:800,pricePerKg:10});
+ const original=(await ui.api('/api/records')).records[0];
+ await ui.route('planner');ui.change('#planner-form [name=material]','paper');
+ assert.equal(ui.$('#planner-form [name=quantityKg]').value,'800');
+ assert.equal(ui.$('#planner-form [name=comparisonPrice]').value,'10');
+ assert.match(ui.$('#planner-autofill-note').textContent,/asking price is a starting comparison only/);
+ ui.submit('#planner-form');assert.match(ui.$('#planner-feedback').textContent,/Condition is unknown/);
+ ui.click('[data-plan-action="sample-open"]');assert.match(ui.$('.planner-sample').textContent,/Sample Paper packaging lot/);
+ assert.equal((await ui.api('/api/records')).records.length,1);
+ ui.change('#confirm-planner-sample',true);ui.click('[data-plan-action="sample-add"]');
+ await until(()=>ui.document.querySelector('[data-pickup]'),'Paper sample allocation');
+ assert.match(ui.$('.planner-result').textContent,/800 \/ 800 kg/);
+ assert.equal(ui.$('#planner-form [name=comparisonPrice]').value,'15');
+ const records=(await ui.api('/api/records')).records;
+ assert.equal(records.length,2);
+ assert.equal(records.find(r=>r.id===original.id).condition,'Unknown — manual review required');
+ assert.equal(records.find(r=>r.id!==original.id).material,'paper');
+ assert.match(records.find(r=>r.id!==original.id).notes,/SAMPLE TEST DATA/);
+});
+
 test('model comparison shows previous metrics and a decrease honestly without claiming a new benchmark',async t=>{
  const report=JSON.parse(await readFile(new URL('../reports/model/latest.json',import.meta.url),'utf8'));
  report.previousModel={trained:structuredClone(report.trained)};

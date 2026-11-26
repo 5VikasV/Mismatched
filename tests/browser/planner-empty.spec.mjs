@@ -1,4 +1,34 @@
 import { test, expect } from "@playwright/test";
+test('paper selection autofills saved data, preserves manual edits and offers a ready sample without changing supplier quality',async({page,request})=>{
+  const created=await request.post('/api/records',{data:{title:'Paper autofill test',company:'Test supplier',material:'paper',grade:'Not verified',condition:'Unknown',quantityKg:800,pricePerKg:10,confirmed:true}});
+  const {record}=await created.json();
+  let sampleId;
+  try {
+    await page.goto('/workspace#planner');
+    await page.locator('#planner-form [name=material]').fill('paper');
+    await expect(page.locator('#planner-form [name=quantityKg]')).toHaveValue('800');
+    await expect(page.locator('#planner-form [name=comparisonPrice]')).toHaveValue('10');
+    await page.locator('#planner-form [name=quantityKg]').fill('100');
+    await page.locator('#planner-form [name=comparisonPrice]').fill('5');
+    await page.getByRole('button',{name:'Calculate a pool',exact:true}).click();
+    await expect(page.locator('#planner-form [name=quantityKg]')).toHaveValue('100');
+    await expect(page.locator('#planner-feedback')).toContainText('Condition is unknown');
+    await page.getByRole('button',{name:'Use a sample lot',exact:true}).click();
+    await expect(page.locator('.planner-sample')).toContainText('Sample Paper packaging lot');
+    await page.locator('#confirm-planner-sample').check();
+    await page.getByRole('button',{name:'Add test lot and calculate',exact:true}).click();
+    await expect(page.locator('.planner-result')).toContainText('100 / 100 kg');
+    await expect(page.locator('#planner-form [name=comparisonPrice]')).toHaveValue('15');
+    const {records}=await (await request.get('/api/records')).json();
+    expect(records.find(r=>r.id===record.id).condition).toBe('Unknown');
+    sampleId=records.find(r=>r.material==='paper'&&r.title==='SAMPLE — Paper packaging').id;
+    expect(records.find(r=>r.id===sampleId).condition).toBe('Clean');
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  } finally {
+    await request.delete(`/api/records/${record.id}`,{data:{}});
+    if(sampleId)await request.delete(`/api/records/${sampleId}`,{data:{}});
+  }
+});
 test("empty planner gives actionable feedback and explicit test lot completes calculation, transport and booking", async ({
   page,
   request,

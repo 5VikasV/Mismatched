@@ -26,7 +26,7 @@ export function eligibilityReasons(record, requirements = {}) {
   if (!norm(record.material)) reasons.push("Material unknown");
   else if (norm(record.material) !== norm(requirements.material))
     reasons.push("Material does not match");
-  if (!norm(record.grade)) reasons.push("Grade unknown");
+  if (!norm(record.grade) || ["UNKNOWN", "NOT VERIFIED", "UNVERIFIED", "N/A"].includes(norm(record.grade))) reasons.push("Grade unknown");
   else if (norm(record.grade) !== norm(requirements.grade))
     reasons.push("Grade does not match");
   if (norm(record.condition) !== "CLEAN")

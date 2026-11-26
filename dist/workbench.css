@@ -253,6 +253,9 @@ summary { font-size: 16px; }
 .cost-row.total { color: #133c2a; font-size: 19px; border-color: #6c927d; }
 .lot-option { border-radius: 7px; border-color: var(--line); padding: 18px; }
 .quantity-bands { gap: 8px; }
+.planner-autofill { padding: 18px; margin-bottom: 24px; background: #f0f6f3; border: 1px solid #d1e1d8; border-radius: 8px; }
+.planner-autofill .planner-empty-actions { margin-block: 12px; }
+#planner-autofill-note:empty { display: none; }
 .quantity-bands .btn { min-height: 40px; padding: 8px 12px; font-size: 14px; }
 .transport-plan, .pickup-card, .allocation-row { border-radius: 7px; }
 .booking-list-item { border-radius: 8px; margin-bottom: 10px; padding: 22px; background: #fff; }

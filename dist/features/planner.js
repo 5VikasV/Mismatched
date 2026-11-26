@@ -7,6 +7,7 @@ import { planPool, eligibilityReasons } from "../planner.js";
 import { BANDS, quantityBand, toKg } from "../trade-policy.js";
 import { exportEstimate } from "../estimate.js";
 import { esc, field, num, money } from "./shared.js";
+import { savedMaterialDefaults, sampleMaterialDefaults } from "../planner-autofill.js";
 import { commercialSummary, allocationSummary } from "./commercial.js";
 export async function mountFeature(root, ctx) {
   const w = root.ownerDocument.defaultView;
@@ -24,7 +25,11 @@ export async function mountFeature(root, ctx) {
     feedback = "",
     sampleOpen = false,
     sampleConfirmed = false,
-    sampleSavedId = null;
+    sampleSavedId = null,
+    sampleDraft = null,
+    autofillNote = "",
+    lastAutoMaterial = null;
+  const automaticFields = new Set();
   const inputs = {
     material: "",
     grade: "",
@@ -39,6 +44,34 @@ export async function mountFeature(root, ctx) {
     String(value ?? "")
       .trim()
       .toUpperCase();
+  function fillSaved(force = false) {
+    if (!force && lastAutoMaterial === norm(inputs.material)) return;
+    lastAutoMaterial = norm(inputs.material);
+    const defaults = savedMaterialDefaults(ctx.getData().records, inputs.material);
+    for (const key of ["quantityKg", "comparisonPrice"]) {
+      if (!force && root.querySelector(`#planner-form [name="${key}"]`) === root.ownerDocument.activeElement) continue;
+      if (force || inputs[key] === "" || automaticFields.has(key)) {
+        const value = key === "quantityKg" ? defaults?.quantityKg : defaults?.pricePerKg;
+        inputs[key] = value == null ? "" : String(key === "quantityKg" && unit === "t" ? value / 1000 : value);
+        automaticFields.add(key);
+      }
+    }
+    autofillNote = defaults
+      ? `Saved lot: ${defaults.title}. Available quantity and asking price are copied where fields are empty or were auto-filled. The asking price is a starting comparison only; replace it with your actual alternative purchase quote. ${defaults.blockers.length ? "This lot is blocked: " + defaults.blockers.join("; ") + ". Review it in Material analysis, or use a separate sample lot to test." : "You can change the quantity you want to buy."}`
+      : `No saved lots match “${inputs.material || "this material"}”. Add supplier stock in Material analysis, or choose Use a sample lot to test.`;
+    invalidate();
+    for (const key of ["quantityKg", "comparisonPrice"]) {
+      const field = root.querySelector(`#planner-form [name="${key}"]`);
+      if (field && (force || field !== root.ownerDocument.activeElement)) field.value = inputs[key];
+    }
+    const note = root.querySelector("#planner-autofill-note");
+    if (note) note.textContent = autofillNote;
+  }
+  function samplePanel() {
+    const sample = sampleDraft;
+    if (!sampleOpen || !sample) return "";
+    return `<section class="planner-sample" aria-label="Review sample test material"><h3>Sample ${esc(sample.title)} lot</h3><p>${num(sample.quantityKg)} kg · ${esc(sample.material)} / ${esc(sample.grade)} · Clean · ₹${num(sample.pricePerKg)}/kg.<br>ScrapLoop Test Factory, Pune.</p><p class="help-text">Sample data for testing only. Grade and clean condition are test assumptions; not verified stock. Sample comparison price: ₹${num(sample.comparisonPrice)}/kg, not a market quote. No payment or transport is booked. Existing supplier records are not changed.</p><label class="confirmation-label"><input id="confirm-planner-sample" type="checkbox" ${sampleConfirmed ? "checked" : ""}> I have reviewed this sample test lot and want to add it for testing.</label><div class="planner-empty-actions"><button class="btn btn-primary" data-plan-action="sample-add" ${sampleConfirmed ? "" : "disabled"}>${sampleSavedId ? "Reload saved test lot" : "Add test lot and calculate"}</button><button class="text-link" data-plan-action="sample-cancel">Cancel</button></div></section>`;
+  }
   function requirements() {
     const base = {
       buyerLatitude:
@@ -139,7 +172,7 @@ export async function mountFeature(root, ctx) {
     if (!p.allocations.length)
       return inputs.grade
         ? "No lots selected for this pool. Select eligible lots, then calculate again."
-        : "No eligible lots for this material. Check each saved lot’s material, confirmation, condition, grade, quantity and price.";
+        : (() => {const details = savedMaterialDefaults(ctx.getData().records, inputs.material); return details ? `${details.title}: ${details.blockers.join("; ")}. Review this lot in Material analysis, or use a sample lot to test.` : "No saved lots match this material. Add a material record or use a sample lot.";})();
     return p.shortfallKg > 0
       ? `${num(p.quantityKg)} kg allocated; ${num(p.shortfallKg)} kg still needed. Add compatible lots to complete the pool.`
       : `${num(p.quantityKg)} kg allocated from ${p.allocations.length} lot(s). Choose each pickup’s vehicle, payer and cost, then update transport totals.`;
@@ -147,7 +180,7 @@ export async function mountFeature(root, ctx) {
   function emptyLots() {
     if (ctx.getData().records.length)
       return `<div class="planner-empty"><p>No saved lots in this quantity band.</p><button class="btn btn-secondary" data-plan-action="band" data-band="">Show all sizes</button></div>`;
-    return `<div class="planner-empty"><h3>No saved material lots yet.</h3><p>Your requirement describes what you want to buy. The planner needs saved supplier material records before it can allocate quantities or calculate pickups.</p><div class="planner-empty-actions"><a class="btn btn-primary" href="#analysis">Add and save material</a><button class="btn btn-secondary" data-plan-action="sample-open">Try a sample lot</button></div><p class="help-text">In Material analysis, fill or extract the details, review them, and click Save reviewed record. Public facility listings do not contain available stock.</p>${sampleOpen ? `<section class="planner-sample" aria-label="Review sample test material"><h3>Sample PP test lot</h3><p>1,200 kg · PP / PP-H · Clean · ₹42/kg.<br>ScrapLoop Test Factory, Pune.</p><p class="help-text">This creates a clearly labelled test record, not real available stock. No payment or transport is booked. You can delete it later in Material analysis.</p><label class="confirmation-label"><input id="confirm-planner-sample" type="checkbox" ${sampleConfirmed ? "checked" : ""}> I have reviewed this sample test lot and want to add it for testing.</label><div class="planner-empty-actions"><button class="btn btn-primary" data-plan-action="sample-add" ${sampleConfirmed ? "" : "disabled"}>${sampleSavedId ? "Reload saved test lot" : "Add test lot and calculate"}</button><button class="text-link" data-plan-action="sample-cancel">Cancel</button></div></section>` : ""}</div>`;
+    return `<div class="planner-empty"><h3>No saved material lots yet.</h3><p>Your requirement describes what you want to buy. The planner needs saved supplier material records before it can allocate quantities or calculate pickups.</p><div class="planner-empty-actions"><a class="btn btn-primary" href="#analysis">Add and save material</a><button class="btn btn-secondary" data-plan-action="sample-open">Try a sample lot</button></div><p class="help-text">In Material analysis, fill or extract the details, review them, and click Save reviewed record. Public facility listings do not contain available stock.</p></div>`;
   }
   function matchDetails(record, r) {
     const match = scoreMatch(record, r);
@@ -177,18 +210,19 @@ export async function mountFeature(root, ctx) {
     const records = ctx
       .getData()
       .records.filter((r) => !band || quantityBand(r.quantityKg)?.id === band);
-    root.innerHTML = `<header class="feature-intro"><div><div class="eyebrow">04 / POOL PLANNER</div><h1>Plan the deal.</h1><p>Choose your material, see the commission, and decide who handles every pickup.</p><p><a class="btn btn-secondary" href="/assets/ScrapLoop_Material_Analysis_Sample.pdf" download>Download sample material analysis (PDF)</a></p></div><a class="btn btn-secondary" href="#bookings">Booking requests ↗</a></header><div class="notice">Estimates and local booking requests only. Saving a request does not reserve stock, collect payment or dispatch transport.</div><div class="review-layout"><section><section class="panel panel-body"><div class="card-kicker">DEFINE / 01</div><h2>Your requirement</h2><form id="planner-form"><div class="form-grid">${field("material", "Material", inputs.material).replace("<input ", '<input list="planner-materials" ')}<datalist id="planner-materials">${[
-      ...new Set(
-        ctx
+    root.innerHTML = `<header class="feature-intro"><div><div class="eyebrow">04 / POOL PLANNER</div><h1>Plan the deal.</h1><p>Choose your material, see the commission, and decide who handles every pickup.</p><p><a class="btn btn-secondary" href="/assets/ScrapLoop_Material_Analysis_Sample.pdf" download>Download sample material analysis (PDF)</a></p></div><a class="btn btn-secondary" href="#bookings">Booking requests ↗</a></header><div class="notice">Estimates and local booking requests only. Saving a request does not reserve stock, collect payment or dispatch transport.</div><div class="review-layout"><section><section class="panel panel-body"><div class="card-kicker">DEFINE / 01</div><h2>Your requirement</h2><div class="planner-autofill"><p class="help-text">Choose a material to fill saved quantity and asking-price details automatically. Your own edits are kept.</p><div class="planner-empty-actions"><button class="btn btn-secondary" data-plan-action="autofill">Fill from saved lots</button><button class="btn btn-secondary" data-plan-action="sample-open">Use a sample lot</button></div><p id="planner-autofill-note" class="help-text" role="status">${esc(autofillNote)}</p>${samplePanel()}</div><form id="planner-form"><div class="form-grid">${field("material", "Material", inputs.material).replace("<input ", '<input list="planner-materials" ')}<datalist id="planner-materials">${[
+      ...new Set([
+        "paper", "cardboard", "glass", "metal", "plastic", "PP", "PET", "HDPE",
+        ...ctx
           .getData()
           .records.map((record) => record.material)
           .filter(Boolean),
-      ),
+      ]),
     ]
       .map((material) => `<option value="${esc(material)}"></option>`)
       .join(
         "",
-      )}</datalist>${field("quantityKg", unit === "t" ? "Required quantity (metric tonnes)" : "Required quantity (kg)", inputs.quantityKg, "number")}<label class="field"><span class="field-label">Quantity unit</span><select class="select" name="quantityUnit"><option value="kg" ${unit === "kg" ? "selected" : ""}>Kilograms (kg)</option><option value="t" ${unit === "t" ? "selected" : ""}>Metric tonnes (t)</option></select></label>${field("comparisonPrice", "Comparison material price (₹ / kg)", inputs.comparisonPrice, "number")}${field("buyerLatitude", "Buyer latitude (optional)", inputs.buyerLatitude, "number")}${field("buyerLongitude", "Buyer longitude (optional)", inputs.buyerLongitude, "number")}</div><p class="help-text" id="quantity-category">${r.quantityKg ? `${num(r.quantityKg)} kg / ${num(r.quantityKg / 1000)} t · ${quantityBand(r.quantityKg)?.label || ""}` : "Enter an exact quantity; 1 metric tonne = 1,000 kg."}</p><p class="help-text">With both buyer and lot coordinates, the matching limit is 50 km straight-line. Leave unknown coordinates blank; no map locations are invented.</p><p class="help-text">Fixed commission: below ₹1 lakh 5% · ₹1–10 lakh inclusive 4% · above ₹10 lakh 3%. Buyer pays 70% of commission; sellers pay 30%.</p><button class="btn btn-primary" type="submit">Calculate a pool</button><p id="planner-feedback" class="planner-feedback" role="status" aria-live="polite">${esc(feedback)}</p></form></section><section class="panel panel-body"><div class="card-kicker">COMBINE / 02</div><div class="feature-toolbar"><h2>Choose material lots</h2><button type="button" class="text-link" data-plan-action="all" ${!r.grade ? "disabled" : ""}>Select eligible</button><button type="button" class="text-link" data-plan-action="none" ${!r.selectedRecordIds.length ? "disabled" : ""}>Clear selection</button></div><div class="band-filter" role="group" aria-label="Filter lots by available quantity"><button class="btn btn-secondary" data-plan-action="band" data-band="" aria-pressed="${!band}">All sizes</button>${BANDS.map((b) => `<button class="btn btn-secondary" data-plan-action="band" data-band="${b.id}" aria-pressed="${band === b.id}">${b.label}</button>`).join("")}</div><p class="help-text">Bands filter each lot’s available quantity. Filtering does not change your requirement or selected lots. ${r.selectedRecordIds.length} selected IDs.</p>${
+      )}</datalist>${field("quantityKg", unit === "t" ? "Required quantity (metric tonnes)" : "Required quantity (kg)", inputs.quantityKg, "number")}<label class="field"><span class="field-label">Quantity unit</span><select class="select" name="quantityUnit"><option value="kg" ${unit === "kg" ? "selected" : ""}>Kilograms (kg)</option><option value="t" ${unit === "t" ? "selected" : ""}>Metric tonnes (t)</option></select></label>${field("comparisonPrice", "Your usual buying price (₹ / kg)", inputs.comparisonPrice, "number")}${field("buyerLatitude", "Buyer latitude (optional)", inputs.buyerLatitude, "number")}${field("buyerLongitude", "Buyer longitude (optional)", inputs.buyerLongitude, "number")}</div><p class="help-text" id="quantity-category">${r.quantityKg ? `${num(r.quantityKg)} kg / ${num(r.quantityKg / 1000)} t · ${quantityBand(r.quantityKg)?.label || ""}` : "Enter an exact quantity; 1 metric tonne = 1,000 kg."}</p><p class="help-text">With both buyer and lot coordinates, the matching limit is 50 km straight-line. Leave unknown coordinates blank; no map locations are invented.</p><p class="help-text">Fixed commission: below ₹1 lakh 5% · ₹1–10 lakh inclusive 4% · above ₹10 lakh 3%. Buyer pays 70% of commission; sellers pay 30%.</p><button class="btn btn-primary" type="submit">Calculate a pool</button><p id="planner-feedback" class="planner-feedback" role="status" aria-live="polite">${esc(feedback)}</p></form></section><section class="panel panel-body"><div class="card-kicker">COMBINE / 02</div><div class="feature-toolbar"><h2>Choose material lots</h2><button type="button" class="text-link" data-plan-action="all" ${!r.grade ? "disabled" : ""}>Select eligible</button><button type="button" class="text-link" data-plan-action="none" ${!r.selectedRecordIds.length ? "disabled" : ""}>Clear selection</button></div><div class="band-filter" role="group" aria-label="Filter lots by available quantity"><button class="btn btn-secondary" data-plan-action="band" data-band="" aria-pressed="${!band}">All sizes</button>${BANDS.map((b) => `<button class="btn btn-secondary" data-plan-action="band" data-band="${b.id}" aria-pressed="${band === b.id}">${b.label}</button>`).join("")}</div><p class="help-text">Bands filter each lot’s available quantity. Filtering does not change your requirement or selected lots. ${r.selectedRecordIds.length} selected IDs.</p>${
       records
         .map((record) => {
           const reasons = eligibilityReasons(record, {
@@ -225,11 +259,13 @@ export async function mountFeature(root, ctx) {
     (e) => {
       if (e.target.closest("#planner-form") && e.target.name in inputs) {
         inputs[e.target.name] = e.target.value;
+        automaticFields.delete(e.target.name);
         if (e.target.name === "material") {
           inputs.grade = "";
           selection = null;
         }
         invalidate();
+        if (e.target.name === "material" && savedMaterialDefaults(ctx.getData().records, inputs.material)) fillSaved();
       }
       if (e.target.dataset.shared) {
         shared[e.target.dataset.shared] =
@@ -276,6 +312,7 @@ export async function mountFeature(root, ctx) {
   root.addEventListener(
     "change",
     (e) => {
+      if (e.target.name === "material" && e.target.closest("#planner-form")) fillSaved();
       if (e.target.id === "confirm-planner-sample") {
         sampleConfirmed = e.target.checked;
         root.querySelector('[data-plan-action="sample-add"]').disabled =
@@ -319,7 +356,14 @@ export async function mountFeature(root, ctx) {
       const button = e.target.closest("[data-plan-action]");
       if (!button || busy) return;
       const action = button.dataset.planAction;
+      if (action === "autofill") {
+        fillSaved(true);
+        render();
+      }
       if (action === "sample-open") {
+        const profile = sampleMaterialDefaults(inputs.material);
+        if (!profile) { ctx.toast("Choose paper, cardboard, glass, metal, plastic, PP, PET or HDPE for a sample. Other materials can use saved supplier lots.", true); return; }
+        if (!sampleSavedId) sampleDraft = profile;
         sampleOpen = true;
         sampleConfirmed = false;
         render();
@@ -339,13 +383,13 @@ export async function mountFeature(root, ctx) {
             const { record } = await ctx.api("/api/records", {
               method: "POST",
               body: JSON.stringify({
-                title: "SAMPLE — PP manufacturing trimmings",
+                title: `SAMPLE — ${sampleDraft.title}`,
                 company: "ScrapLoop Test Factory",
-                material: "PP",
-                grade: "PP-H",
+                material: sampleDraft.material,
+                grade: sampleDraft.grade,
                 condition: "Clean",
-                quantityKg: 1200,
-                pricePerKg: 42,
+                quantityKg: sampleDraft.quantityKg,
+                pricePerKg: sampleDraft.pricePerKg,
                 location: "Pune, Maharashtra, India (example location)",
                 latitude: null,
                 longitude: null,
@@ -364,23 +408,27 @@ export async function mountFeature(root, ctx) {
             throw new Error(
               "The saved test lot is not visible yet. Refresh material data and retry.",
             );
-          inputs.material = "PP";
-          inputs.grade = "PP-H";
+          inputs.material = sampleDraft.material;
+          inputs.grade = sampleDraft.grade;
           if (!toKg(Number(inputs.quantityKg), unit)) {
             unit = "kg";
-            inputs.quantityKg = "500";
+            inputs.quantityKg = String(sampleDraft.material === "PP" ? 500 : sampleDraft.quantityKg);
           }
           if (
             !Number.isFinite(Number(inputs.comparisonPrice)) ||
             Number(inputs.comparisonPrice) <= 0
           )
-            inputs.comparisonPrice = "75";
+            inputs.comparisonPrice = String(sampleDraft.comparisonPrice);
+          // The explicitly reviewed sample includes its own illustrative comparison price.
+          inputs.comparisonPrice = String(sampleDraft.comparisonPrice);
+          autofillNote = `Sample ${sampleDraft.material} lot selected. Comparison ₹${inputs.comparisonPrice}/kg is an illustrative test input, not a verified market quote.`;
           selection = new Set([sampleSavedId]);
           band = "";
           sampleOpen = false;
           sampleConfirmed = false;
           invalidate();
           feedback = poolFeedback();
+          sampleSavedId = null;
           ctx.toast(
             "Test lot added and allocated. Choose the pickup provider, payer and cost to finish the estimate.",
           );
