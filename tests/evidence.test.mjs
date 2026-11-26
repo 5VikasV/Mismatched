@@ -1,5 +1,25 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { SETUP_COSTS, MONTHLY_COSTS, IMPLEMENTATION_BUDGET, FUNDING_TARGETS } from "../dist/implementation-data.js";
+
+test("implementation budget reconciles setup, technical upkeep, pilot operations and three-month allowance", () => {
+  const b = IMPLEMENTATION_BUDGET;
+  assert.deepEqual(b.setup, {low:160000, high:355000});
+  assert.deepEqual(b.monthly, {low:67000, high:118000});
+  assert.deepEqual(b.technical, {low:24000, high:44000});
+  assert.equal(b.transactionAllowance,45000);
+  assert.deepEqual(b.initial, {low:406000, high:754000});
+  for (const side of ["low","high"])
+    assert.equal(b.initial[side],b.setup[side]+3*b.monthly[side]+30*1500);
+  for (const cost of [...SETUP_COSTS,...MONTHLY_COSTS]) {
+    assert.ok(cost.label && cost.low>0 && cost.high>=cost.low);
+  }
+  assert.equal(FUNDING_TARGETS.length,5);
+  for (const target of FUNDING_TARGETS) {
+    assert.ok(target.name && target.stage && target.description);
+    if(target.url) assert.equal(new URL(target.url).protocol,"https:");
+  }
+});
 import {
   assessEmissions,
   businessProjection,

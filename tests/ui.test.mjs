@@ -48,7 +48,7 @@ async function boot(t, options={}) {
   const click=s=>$(s).click();
   const change=(s,value)=>{const e=$(s);if(e.type==='checkbox')e.checked=Boolean(value);else e.value=String(value);e.dispatchEvent(new window.Event('input',{bubbles:true}));e.dispatchEvent(new window.Event('change',{bubbles:true}));};
   const submit=s=>$(s).dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true}));
-  const route=async name=>{window.location.hash=name;await tick();if(name==='sources'||name==='evidence')await until(()=>document.querySelector('#emissions-form'),'Evidence feature');if(name==='directory')await until(()=>document.querySelector('[data-feature="directory"] .directory-view'),'Directory feature');if(name==='analysis')await until(()=>document.querySelector('#record-form'),'Analysis feature');if(name==='planner')await until(()=>document.querySelector('#planner-form'),'Planner feature');};
+  const route=async name=>{window.location.hash=name;await tick();if(name==='sources'||name==='evidence')await until(()=>document.querySelector('#implementation'),'Evidence feature');if(name==='directory')await until(()=>document.querySelector('[data-feature="directory"] .directory-view'),'Directory feature');if(name==='analysis')await until(()=>document.querySelector('#record-form'),'Analysis feature');if(name==='planner')await until(()=>document.querySelector('#planner-form'),'Planner feature');};
   const api=async(path,method='GET',data)=>{const response=await request(app,path,{method,headers:data===undefined?{}:{'Content-Type':'application/json'},body:data===undefined?undefined:JSON.stringify(data)});return response.json();};
   const importData=async()=>{click('[data-action="import"]');await until(()=>document.querySelector('.workflow-links')?.textContent.includes('40 records to explore') || document.querySelector('.section-heading h2')?.textContent.includes('40') || document.querySelector('.data-totals strong')?.textContent==='40','Public import');};
   return{app,window,document,$,click,change,submit,route,api,importData};
@@ -131,6 +131,23 @@ test('saved search escapes markup and deletion requires an explicit second actio
 
 test('API failures show recovery without sample factories',async t=>{
  const ui=await boot(t,{apiFailure:true});assert.match(ui.$('#main').textContent,/Local database unavailable/);assert.ok(ui.document.querySelector('[data-action="refresh"]'));assert.equal(ui.document.querySelector('.facility-row'),null);
+});
+
+test('a disconnected server explains PDF retry and preserves the selected file and draft',async t=>{
+ const ui=await boot(t,{apiKey:'test-configured-key'});await ui.route('analysis');
+ ui.change('[name="title"]','Keep my material draft');
+ const input=ui.$('#analysis-file');
+ Object.defineProperty(input,'files',{configurable:true,value:[new ui.window.File(['%PDF-1.4 test'],'material.pdf',{type:'application/pdf'})]});
+ input.dispatchEvent(new ui.window.Event('change',{bubbles:true}));
+ const originalFetch=ui.window.fetch;
+ ui.window.fetch=async(path,init)=>{if(path==='/api/analyze')throw new TypeError('Failed to fetch');return originalFetch(path,init);};
+ ui.click('[data-feature-action="analyse"]');
+ await until(()=>ui.$('#toast').textContent.includes('Cannot reach the ScrapLoop server'),'Connection recovery message');
+ assert.match(ui.$('#toast').textContent,/npm run dev/);
+ assert.equal(ui.$('[name="title"]').value,'Keep my material draft');
+ assert.match(ui.$('#upload-zone').textContent,/material.pdf/);
+ assert.equal(ui.$('[data-feature-action="analyse"]').disabled,false);
+ assert.equal((await ui.api('/api/records')).records.length,0);
 });
 
 test('integrated planner uses saved records, selection and full costs',async t=>{
@@ -260,7 +277,7 @@ test('empty planner explains missing supply and reviewed test lot unlocks transp
  assert.equal((await ui.api('/api/records')).records.length,0);
  ui.change('#confirm-planner-sample',true);ui.click('[data-plan-action="sample-add"]');
  await until(()=>ui.document.querySelector('[data-pickup]'),'Allocated test material');
- assert.equal((await ui.api('/api/records')).records.length,1);assert.match((await ui.api('/api/records')).records[0].notes,/FICTIONAL TEST DATA/);
+ assert.equal((await ui.api('/api/records')).records.length,1);assert.match((await ui.api('/api/records')).records[0].notes,/SAMPLE TEST DATA/);
  assert.match(ui.$('.planner-result').textContent,/500 \/ 500 kg/);
  ui.click('[data-plan-action="apply"]');assert.match(ui.$('#planner-feedback').textContent,/incomplete/);
  ui.change('[data-pickup-field="provider"]','external');ui.change('[data-pickup-field="payer"]','buyer');ui.change('[data-pickup-field="cost"]',1000);ui.click('[data-plan-action="apply"]');

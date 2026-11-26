@@ -52,13 +52,20 @@ let cleanup = null,
 const main = () => document.getElementById("main");
 
 async function api(path, options = {}) {
-  const response = await fetch(path, {
-    ...options,
-    headers: {
-      ...(options.body ? { "Content-Type": "application/json" } : {}),
-      ...options.headers,
-    },
-  });
+  let response;
+  try {
+    response = await fetch(path, {
+      ...options,
+      headers: {
+        ...(options.body ? { "Content-Type": "application/json" } : {}),
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new Error(
+      "Cannot reach the ScrapLoop server. Run npm run dev in the project folder, keep that terminal open, and retry. Your form entries are still here.",
+    );
+  }
   let data;
   try {
     data = await response.json();

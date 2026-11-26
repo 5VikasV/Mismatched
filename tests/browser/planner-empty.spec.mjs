@@ -44,7 +44,7 @@ test("empty planner gives actionable feedback and explicit test lot completes ca
     ).toBeDisabled();
     expect(posts).toBe(0);
     await page
-      .getByRole("button", { name: "Try a fictional test lot" })
+      .getByRole("button", { name: "Try a sample lot" })
       .click();
     await expect(
       page.getByRole("button", { name: "Add test lot and calculate" }),

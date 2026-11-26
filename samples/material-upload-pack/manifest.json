@@ -9,8 +9,8 @@
       "description": "White moulded plastic packaging insert. Polymer identity is not established by the photograph.",
       "visible": "A light-coloured moulded packaging piece on a plain surface.",
       "reference": "SAMPLE-PLASTIC-001",
-      "company": "ScrapLoop Plastic Test Supplier (fictional)",
-      "location": "Pune, Maharashtra, India (fictional lot location)",
+      "company": "ScrapLoop Plastic Test Supplier",
+      "location": "Pune, Maharashtra, India (sample lot location)",
       "grade": null,
       "condition": null,
       "subtotal": 42000,
@@ -30,7 +30,7 @@
         "expertConfirmed": false,
         "license": "MIT"
       },
-      "fictionalCommercialData": true
+      "sampleCommercialData": true
     },
     {
       "material": "metal",
@@ -40,8 +40,8 @@
       "description": "Crumpled metallic foil packaging. Alloy, coating and contamination are unverified.",
       "visible": "Reflective, crumpled foil with coloured areas; composition and cleanliness need review.",
       "reference": "SAMPLE-METAL-002",
-      "company": "ScrapLoop Metal Test Supplier (fictional)",
-      "location": "Pune, Maharashtra, India (fictional lot location)",
+      "company": "ScrapLoop Metal Test Supplier",
+      "location": "Pune, Maharashtra, India (sample lot location)",
       "grade": null,
       "condition": null,
       "subtotal": 63750,
@@ -61,7 +61,7 @@
         "expertConfirmed": false,
         "license": "MIT"
       },
-      "fictionalCommercialData": true
+      "sampleCommercialData": true
     },
     {
       "material": "glass",
@@ -71,8 +71,8 @@
       "description": "Used glass container with a label. Glass composition and suitability for a buyer are unverified.",
       "visible": "A transparent jar lying on its side, with label residue visible.",
       "reference": "SAMPLE-GLASS-003",
-      "company": "ScrapLoop Glass Test Supplier (fictional)",
-      "location": "Pune, Maharashtra, India (fictional lot location)",
+      "company": "ScrapLoop Glass Test Supplier",
+      "location": "Pune, Maharashtra, India (sample lot location)",
       "grade": null,
       "condition": null,
       "subtotal": 12000,
@@ -92,7 +92,7 @@
         "expertConfirmed": false,
         "license": "MIT"
       },
-      "fictionalCommercialData": true
+      "sampleCommercialData": true
     },
     {
       "material": "cardboard",
@@ -102,8 +102,8 @@
       "description": "Brown cardboard packaging with printing. Board specification and moisture content are unverified.",
       "visible": "Brown packaging board with a printed mark and visible folds.",
       "reference": "SAMPLE-CARDBOARD-004",
-      "company": "ScrapLoop Cardboard Test Supplier (fictional)",
-      "location": "Pune, Maharashtra, India (fictional lot location)",
+      "company": "ScrapLoop Cardboard Test Supplier",
+      "location": "Pune, Maharashtra, India (sample lot location)",
       "grade": null,
       "condition": null,
       "subtotal": 12000,
@@ -123,7 +123,7 @@
         "expertConfirmed": false,
         "license": "MIT"
       },
-      "fictionalCommercialData": true
+      "sampleCommercialData": true
     },
     {
       "material": "paper",
@@ -133,8 +133,8 @@
       "description": "Moulded fibre packaging, labelled paper in the source dataset. Fibre composition and additives are unverified.",
       "visible": "A coloured moulded packaging tray with rounded compartments.",
       "reference": "SAMPLE-PAPER-005",
-      "company": "ScrapLoop Paper Test Supplier (fictional)",
-      "location": "Pune, Maharashtra, India (fictional lot location)",
+      "company": "ScrapLoop Paper Test Supplier",
+      "location": "Pune, Maharashtra, India (sample lot location)",
       "grade": null,
       "condition": null,
       "subtotal": 8000,
@@ -154,7 +154,7 @@
         "expertConfirmed": false,
         "license": "MIT"
       },
-      "fictionalCommercialData": true
+      "sampleCommercialData": true
     },
     {
       "material": "plastic",
@@ -166,8 +166,8 @@
       "description": "Transparent beverage bottle with a cap and label. Exact polymer and suitability for recycling are not established by this photograph.",
       "visible": "A transparent, ribbed beverage bottle with a red label and cap. Added as a visually clearer bottle example, before running inference on it.",
       "reference": "SAMPLE-PLASTIC-006",
-      "company": "ScrapLoop Plastic Test Supplier (fictional)",
-      "location": "Pune, Maharashtra, India (fictional lot location)",
+      "company": "ScrapLoop Plastic Test Supplier",
+      "location": "Pune, Maharashtra, India (sample lot location)",
       "grade": null,
       "condition": null,
       "subtotal": 16800,
@@ -187,7 +187,7 @@
         "expertConfirmed": false,
         "license": "MIT"
       },
-      "fictionalCommercialData": true
+      "sampleCommercialData": true
     }
   ]
 }

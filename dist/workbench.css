@@ -268,6 +268,40 @@ meter::-moz-meter-bar { background: #4e806a; }
 .carbon-headline { padding: 26px 30px 32px; border: 1px solid #c9dacf; border-radius: 12px; background: #e5efe7; margin-bottom: 32px; }
 #carbon-headline-percent { color: #235b43; font-size: clamp(90px, 11vw, 155px); }
 .emissions-bars meter { height: 14px; }
+.implementation-summary { margin-block: 28px; }
+.implementation-summary .metric strong { font-size: clamp(24px, 2.3vw, 34px); line-height: 1.3; letter-spacing: -.04em; }
+.implementation-costs, .implementation-funders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.implementation-costs > .panel, .implementation-funders > .panel { margin-bottom: 0; }
+.implementation-total { margin-top: 24px !important; }
+.implementation-cost-table caption { text-align: left; padding: 14px; font-size: 14px; color: var(--muted); }
+[data-feature] .implementation-cost-table th, [data-feature] .implementation-cost-table td { white-space: normal; padding: 12px; font-size: 15px; }
+.implementation-cost-table th { width: auto; }
+.implementation-cost-table tbody th { background: #fff; font-weight: 400; color: var(--ink); }
+.implementation-cost-table td { font-variant-numeric: tabular-nums; }
+.implementation-cost-table tfoot td { background: #eaf0ee; font-weight: 600; }
+.implementation-breakdown { margin: 22px 0; }
+.implementation-breakdown > div { display: flex; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); padding: 16px 0; }
+.implementation-breakdown dt, .implementation-breakdown dd { font-size: 18px; }
+.implementation-breakdown dd { margin: 0; font-weight: 600; text-align: right; }
+.implementation-grand-total { color: #245c43; border-bottom: 2px solid #53836c !important; }
+.implementation-funding { margin-top: 42px; }
+.implementation-funders { margin-block: 24px; }
+.implementation-funders .panel { display: flex; flex-direction: column; align-items: flex-start; }
+.implementation-funders .text-link { margin-top: auto; }
+.implementation-funders .panel:last-child { grid-column: 1 / -1; }
+@media (max-width: 1050px) {
+  .implementation-costs { grid-template-columns: 1fr; }
+  .implementation-summary { grid-template-columns: 1fr; }
+  .implementation-summary .metric { border-right: 0; border-bottom: 1px solid var(--line); }
+  .implementation-summary .metric:last-child { border-bottom: 0; }
+}
+@media (max-width: 640px) {
+  .implementation-funders { grid-template-columns: 1fr; }
+  .implementation-breakdown > div { flex-direction: column; gap: 7px; }
+  .implementation-breakdown dd { text-align: left; }
+  .implementation-breakdown dt, .implementation-breakdown dd { font-size: 16px; }
+  [data-feature] .implementation-cost-table th, [data-feature] .implementation-cost-table td { padding: 10px 8px; font-size: 14px; }
+}
 .loop-network { border-radius: 10px; }
 .finder-dialog { border-radius: 14px; border: 1px solid #c5d6d1; box-shadow: 0 24px 100px #14242b55; padding: 24px; }
 .finder-dialog::backdrop { background: #10222999; backdrop-filter: blur(5px); }

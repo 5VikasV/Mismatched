@@ -9,9 +9,9 @@ Open index.html to browse all six PDF / JPG pairs.
 5. Moulded paper pulp packaging: 800 kg at INR 10/kg (INR 8,000).
 6. Used plastic bottles: 600 kg at INR 28/kg (INR 16,800).
 
-All prices, quantities, companies and lot locations are fictional test data.
+All prices, quantities, companies and lot locations are sample test data.
 No records are created in ScrapLoop by opening these files.
-The original ScrapLoop_Material_Analysis_Sample.pdf remains unchanged outside this folder.
+The original PP sample PDF outside this folder is also rebuilt with the updated sample labels.
 
 HOW TO USE
 
@@ -26,7 +26,7 @@ Open Workspace > Material analysis and start a new record for each upload.
   automatically. Do not save them as two records for the same lot.
 - Unknown grade and condition are deliberate. The planner requires confirmed
   grade and clean condition; these documents do not certify either. Use the
-  planner's explicit fictional test-lot option to test a ready-to-plan example.
+  planner's explicit sample test-lot option to test a ready-to-plan example.
 
 WHAT THE PHOTOS ARE
 

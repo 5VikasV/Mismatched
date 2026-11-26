@@ -135,7 +135,7 @@ export async function mountFeature(root, ctx) {
     if (invalid) return invalid;
     const { p } = calculation();
     if (!ctx.getData().records.length)
-      return "No saved material lots yet. A buying requirement does not create supply. Add and save a material, or explicitly add the fictional test lot below.";
+      return "No saved material lots yet. A buying requirement does not create supply. Add and save a material, or explicitly add the sample test lot below.";
     if (!p.allocations.length)
       return inputs.grade
         ? "No lots selected for this pool. Select eligible lots, then calculate again."
@@ -147,7 +147,7 @@ export async function mountFeature(root, ctx) {
   function emptyLots() {
     if (ctx.getData().records.length)
       return `<div class="planner-empty"><p>No saved lots in this quantity band.</p><button class="btn btn-secondary" data-plan-action="band" data-band="">Show all sizes</button></div>`;
-    return `<div class="planner-empty"><h3>No saved material lots yet.</h3><p>Your requirement describes what you want to buy. The planner needs saved supplier material records before it can allocate quantities or calculate pickups.</p><div class="planner-empty-actions"><a class="btn btn-primary" href="#analysis">Add and save material</a><button class="btn btn-secondary" data-plan-action="sample-open">Try a fictional test lot</button></div><p class="help-text">In Material analysis, fill or extract the details, review them, and click Save reviewed record. Public facility listings do not contain available stock.</p>${sampleOpen ? `<section class="planner-sample" aria-label="Review fictional test material"><h3>Fictional PP test lot</h3><p>1,200 kg · PP / PP-H · Clean · ₹42/kg.<br>ScrapLoop Test Factory (fictional), Pune.</p><p class="help-text">This creates a clearly labelled test record, not real available stock. No payment or transport is booked. You can delete it later in Material analysis.</p><label class="confirmation-label"><input id="confirm-planner-sample" type="checkbox" ${sampleConfirmed ? "checked" : ""}> I have reviewed this fictional test lot and want to add it for testing.</label><div class="planner-empty-actions"><button class="btn btn-primary" data-plan-action="sample-add" ${sampleConfirmed ? "" : "disabled"}>${sampleSavedId ? "Reload saved test lot" : "Add test lot and calculate"}</button><button class="text-link" data-plan-action="sample-cancel">Cancel</button></div></section>` : ""}</div>`;
+    return `<div class="planner-empty"><h3>No saved material lots yet.</h3><p>Your requirement describes what you want to buy. The planner needs saved supplier material records before it can allocate quantities or calculate pickups.</p><div class="planner-empty-actions"><a class="btn btn-primary" href="#analysis">Add and save material</a><button class="btn btn-secondary" data-plan-action="sample-open">Try a sample lot</button></div><p class="help-text">In Material analysis, fill or extract the details, review them, and click Save reviewed record. Public facility listings do not contain available stock.</p>${sampleOpen ? `<section class="planner-sample" aria-label="Review sample test material"><h3>Sample PP test lot</h3><p>1,200 kg · PP / PP-H · Clean · ₹42/kg.<br>ScrapLoop Test Factory, Pune.</p><p class="help-text">This creates a clearly labelled test record, not real available stock. No payment or transport is booked. You can delete it later in Material analysis.</p><label class="confirmation-label"><input id="confirm-planner-sample" type="checkbox" ${sampleConfirmed ? "checked" : ""}> I have reviewed this sample test lot and want to add it for testing.</label><div class="planner-empty-actions"><button class="btn btn-primary" data-plan-action="sample-add" ${sampleConfirmed ? "" : "disabled"}>${sampleSavedId ? "Reload saved test lot" : "Add test lot and calculate"}</button><button class="text-link" data-plan-action="sample-cancel">Cancel</button></div></section>` : ""}</div>`;
   }
   function matchDetails(record, r) {
     const match = scoreMatch(record, r);
@@ -340,7 +340,7 @@ export async function mountFeature(root, ctx) {
               method: "POST",
               body: JSON.stringify({
                 title: "SAMPLE — PP manufacturing trimmings",
-                company: "ScrapLoop Test Factory (fictional)",
+                company: "ScrapLoop Test Factory",
                 material: "PP",
                 grade: "PP-H",
                 condition: "Clean",
@@ -350,7 +350,7 @@ export async function mountFeature(root, ctx) {
                 latitude: null,
                 longitude: null,
                 notes:
-                  "FICTIONAL TEST DATA. Added explicitly from the planner for testing; not real available stock or a live price quote.",
+                  "SAMPLE TEST DATA. Added explicitly from the planner for testing; not real available stock or a live price quote.",
                 confirmed: true,
               }),
             });

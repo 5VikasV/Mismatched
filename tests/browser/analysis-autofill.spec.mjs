@@ -33,7 +33,7 @@ test("PDF Analyse autofills fields and sample fill remains explicit and unsaved"
           evidence: [
             { field: "quantityKg", quote: "Quantity 1200 kg", page: 1 },
           ],
-          warnings: ["Fictional browser fixture."],
+          warnings: ["Sample browser fixture."],
         },
       },
     });
@@ -45,7 +45,7 @@ test("PDF Analyse autofills fields and sample fill remains explicit and unsaved"
     .setInputFiles({
       name: "material.pdf",
       mimeType: "application/pdf",
-      buffer: Buffer.from("%PDF-1.4\nfictional test fixture"),
+      buffer: Buffer.from("%PDF-1.4\nsample test fixture"),
     });
   await expect(page.locator("#analysis-engine")).toContainText(
     "PDF → AI document extraction ready",
@@ -74,7 +74,7 @@ test("PDF Analyse autofills fields and sample fill remains explicit and unsaved"
     .click();
   await expect(page.locator("#record-form [name=title]")).toHaveValue(/SAMPLE/);
   await expect(page.locator(".lab-evidence-note")).toContainText(
-    "Fictional sample",
+    "Sample",
   );
   await expect(page.locator("[data-review=material]")).toContainText(
     "Sample value",

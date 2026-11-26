@@ -1,244 +1,61 @@
-import { esc, money } from "./shared.js";
-import { PROFILES, CATEGORIES } from "../evidence-data.js";
-import { assessEmissions, businessProjection } from "../evidence-calculator.js";
-const n = (v) =>
-  Number(v).toLocaleString("en-IN", { maximumFractionDigits: 2 });
-const link = (url, label) =>
-  `<a class="text-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
-const input = (name, label, value = "", extra = "") =>
-  `<label class="field"><span class="field-label">${label}</span><input class="input" name="${name}" type="number" step="${name === "orders" ? "1" : "any"}" value="${value}" ${extra}></label>`;
-const headlinePreset = {
-  category: "plastic",
-  profileId: "pp",
-  condition: "clean",
-  baseline: "combustion",
-  alternative: "recycling",
-  mode: "direct-burning",
-  massTonnes: 100,
-  adoptionPercent: 30,
-  recoveryPercent: 90,
-};
-const options = (rows) =>
-  rows
-    .map(([id, label]) => `<option value="${id}">${esc(label)}</option>`)
-    .join("");
+import { esc } from "./shared.js";
+import { PROFILES } from "../evidence-data.js";
+import { assessEmissions } from "../evidence-calculator.js";
+import { SETUP_COSTS, MONTHLY_COSTS, IMPLEMENTATION_BUDGET as budget, FUNDING_TARGETS } from "../implementation-data.js";
+const n = (value) => Number(value).toLocaleString("en-IN", { maximumFractionDigits: 2 });
+const rupees = (value) => new Intl.NumberFormat("en-IN", {style: "currency", currency: "INR", maximumFractionDigits: 0}).format(value);
+const range = (value) => `${rupees(value.low)}–${rupees(value.high)}`;
+const lakh = (value) => `₹${n(value.low / 100000)}–${n(value.high / 100000)} lakh`;
+const link = (url, label) => `<a class="text-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`;
+const headlinePreset = { category: "plastic", profileId: "pp", condition: "clean", baseline: "combustion", alternative: "recycling", mode: "direct-burning", massTonnes: 100, adoptionPercent: 30, recoveryPercent: 90 };
+function costTable(rows, totals, caption) {
+  return `<div class="table-scroll"><table class="implementation-cost-table"><caption>${caption}</caption><thead><tr><th>Cost item</th><th>Low estimate</th><th>High estimate</th></tr></thead><tbody>${rows.map(row => `<tr><th scope="row">${esc(row.label)}</th><td>${rupees(row.low)}</td><td>${rupees(row.high)}</td></tr>`).join("")}</tbody><tfoot><tr><th scope="row">Total</th><td>${rupees(totals.low)}</td><td>${rupees(totals.high)}</td></tr></tfoot></table></div>`;
+}
+function implementation() {
+  return `<section class="evidence-section implementation-section" aria-labelledby="implementation-title" id="implementation">
+    <header class="section-heading"><div><div class="eyebrow">03 / IMPLEMENTATION</div><h2 id="implementation-title">Implementation</h2></div><span class="desk-tag">PLANNING ESTIMATES · INR</span></header>
+    <p>Start in one Indian industrial cluster, validate material quality with suppliers and buyers, and use existing transport partners. These estimates describe the proposed next step; they are not expenditure already incurred or supplier quotations.</p>
+    <div class="metric-strip implementation-summary">
+      <div class="metric"><strong>${lakh(budget.initial)}</strong><span>First three months · setup + operations + transaction allowance</span></div>
+      <div class="metric"><strong>${range(budget.technical)}</strong><span>Technical maintenance per month · included in operating costs</span></div>
+      <div class="metric"><strong>${range(budget.monthly)}</strong><span>Full pilot operations per month · excluding per-order costs</span></div>
+    </div>
+    <div class="implementation-costs">
+      <article class="panel panel-body"><div class="card-kicker">BEFORE LAUNCH</div><h3>Initial setup &amp; deployment</h3><p class="help-text">Production preparation builds on the existing application: business accounts and permissions, secure deployment, backups, operational controls and testing.</p>${costTable(SETUP_COSTS, budget.setup, "One-time setup budget")}</article>
+      <article class="panel panel-body"><div class="card-kicker">EACH MONTH</div><h3>Maintenance &amp; pilot operations</h3><p class="help-text">One paid field coordinator and part-time technical maintenance; founders handle management and sales without salaries in this estimate.</p>${costTable(MONTHLY_COSTS, budget.monthly, "Monthly operating budget")}</article>
+    </div>
+    <article class="panel panel-body implementation-total"><div class="card-kicker">THE FIRST 90 DAYS</div><h3>How the three-month budget adds up</h3><dl class="implementation-breakdown"><div><dt>One-time setup</dt><dd>${range(budget.setup)}</dd></div><div><dt>Three months of operations</dt><dd>${range({low: budget.months * budget.monthly.low, high: budget.months * budget.monthly.high})}</dd></div><div><dt>Transaction-cost allowance</dt><dd>${rupees(budget.transactionAllowance)}</dd></div><div class="implementation-grand-total"><dt>Estimated first-three-month requirement</dt><dd>${range(budget.initial)}</dd></div></dl>
+    <p class="help-text">The transaction allowance assumes ${budget.orderAllowance} completed orders across the entire pilot at ${rupees(budget.directCostPerOrder)} of additional external verification, commission collection and issue-handling costs per order. This is a budget allowance, not an order forecast. Technical maintenance is already included in operations and must not be added twice.</p>
+    <p class="help-text">Assumptions: existing laptops; no office, warehouse, owned vehicles or scrap inventory; no founder salaries or financing of buyers’ purchases. Taxes, material purchases and actual freight are additional. Freight is quoted separately and paid by the buyer or seller agreed for each pickup. These figures require local quotations and do not guarantee profitability.</p>
+    <p class="help-text">Hosting reference: DigitalOcean lists a basic 4 GiB / 2-vCPU server at US$24 per month, before extras and taxes. The hosting allowance above also budgets for storage, backups and monitoring. Local photo ML has no per-photo provider fee; document AI is usage-based. ${link("https://www.digitalocean.com/pricing/droplets", "Provider pricing reference")}</p></article>
+    <section class="implementation-funding" aria-labelledby="funding-title"><div class="section-heading"><div><div class="eyebrow">FUNDING APPROACH</div><h3 id="funding-title">Who we would approach</h3></div><span class="desk-tag">PILOT FUNDING TARGET: ${lakh(budget.fundingTarget)}</span></div>
+    <p>Prioritise incubation, grants and paid industrial pilots. Approach equity investors with evidence of completed transactions, repeat buyers and collected commission. No named organisation has committed funding; programme intake and eligibility must be confirmed.</p>
+    <div class="implementation-funders">${FUNDING_TARGETS.map(target => `<article class="panel panel-body"><div class="card-kicker">${esc(target.stage)}</div><h3>${esc(target.name)}</h3><p>${esc(target.description)}</p>${target.url ? link(target.url, target.source) : ""}</article>`).join("")}</div>
+    <div class="notice"><strong>Illustrative funding mix:</strong> ₹4 lakh in grant support + ₹3 lakh in paid pilot contracts = a ₹7 lakh target. This is a fundraising proposal, not money raised. Customer pilot fees are revenue; equity investment involves ownership.</div></section>
+  </section>`;
+}
 export async function mountFeature(root, context) {
   const window = root.ownerDocument.defaultView;
-  const { FormData } = window;
-  let alive = true,
-    requestVersion = 0,
-    assessment = null,
-    business = null;
   let registry, report;
   try {
-    [registry, { report }] = await Promise.all([
-      context.api("/api/evidence"),
-      context.api("/api/model-report"),
-    ]);
-  } catch (e) {
-    root.innerHTML = `<p role="alert">${esc(e.message)}</p><button class="btn" data-action="refresh" data-shell-action>Retry</button>`;
+    [registry, { report }] = await Promise.all([context.api("/api/evidence"), context.api("/api/model-report")]);
+  } catch (error) {
+    root.innerHTML = `<p role="alert">${esc(error.message)}</p><button class="btn" data-action="refresh" data-shell-action>Retry</button>`;
     return;
   }
-  if (!alive) return;
-  root.innerHTML = `<header class="carbon-headline"><div class="eyebrow">09 / EVIDENCE & NUMBERS · ILLUSTRATIVE ESTIMATE</div><output id="carbon-headline-percent" aria-live="polite">${n(assessEmissions(headlinePreset).reductionPercent)}%</output><h1 id="carbon-headline-label">Estimated reduction in burning-point CO₂</h1><p id="carbon-headline-assumptions" class="help-text">Clean PP example: 30% adoption × 90% successful recovery. Direct CO₂ at the original burning point only; excludes recycling and transport. Not a measured project outcome.</p><button class="text-link" id="adjust-carbon-assumptions">Adjust assumptions ↓</button></header>
+  const profile = PROFILES.find(profile => profile.id === "pp");
+  root.innerHTML = `<header class="carbon-headline"><div class="eyebrow">09 / EVIDENCE &amp; NUMBERS · ILLUSTRATIVE ESTIMATE</div><output id="carbon-headline-percent">${n(assessEmissions(headlinePreset).reductionPercent)}%</output><h1 id="carbon-headline-label">Estimated reduction in burning-point CO₂</h1><p id="carbon-headline-assumptions" class="help-text">Clean PP example: 30% adoption × 90% successful recovery. Direct CO₂ at the original burning point only; excludes recycling and transport. Illustrative, not measured. This is not a net climate saving or an emission test.</p>${link(profile.source, "Published benchmark source")}</header>
  <section aria-labelledby="cases-title"><div class="section-heading"><div><div class="eyebrow">01 / PUBLISHED PRECEDENTS</div><h2 id="cases-title">Real Indian industrial exchanges.</h2></div></div><p>Indian examples from your research document, alongside the earlier Indian cases: who supplies the by-product, who uses it, and how they connected. Historical figures and missing buyer details are marked.</p>
  <div class="evidence-cases">${registry.cases.map((c) => `<article class="panel panel-body evidence-case" data-case="${esc(c.id)}"><div class="eyebrow">${esc(c.region)} · PUBLISHED CASE</div><h3>${esc(c.title)}</h3><p class="help-text">${esc(c.period)}</p><div class="evidence-flow"><strong>${esc(c.from)}</strong><span>↓ ${esc(c.material)} ↓</span><strong>${esc(c.to)}</strong></div><ul class="case-figures">${c.figures.map((f) => `<li>${esc(f)}</li>`).join("")}</ul><p>${esc(c.story)}</p>${c.connection ? `<p><strong>How they got connected</strong><br>${esc(c.connection)}</p>` : ""}<details><summary>Scope & limits</summary><p>${esc(c.limit)}</p></details><div class="case-sources">${link(c.source, c.publisher)}${(c.references || []).map((r) => link(r.url, r.label)).join("")}</div></article>`).join("")}</div></section>
  <section class="panel panel-body evidence-section"><div class="eyebrow">02 / PROJECT MEASUREMENT</div><h2>What our classifier has actually proved.</h2>${report ? `<div class="metric-strip"><div class="metric"><strong>${n(report.trained.test.accuracy * 100)}%</strong><span>Held-out TrashNet accuracy</span></div><div class="metric"><strong>${n(report.trained.test.macroF1 * 100)}%</strong><span>Macro-F1</span></div><div class="metric"><strong>${n(report.counts.test)}</strong><span>Test images</span></div></div><p>MobileNetV3 Small, fine-tuned on TrashNet. ${n(report.counts.train)} training / ${n(report.counts.validation)} validation images. Six broad categories, mostly isolated household objects.</p>` : "<p>No evaluation report available. Accuracy is unknown.</p>"}<p>Industrial-pile performance, purity, alloy, hazardous status, mass and price are not validated by this test. Classification accuracy is never an emissions multiplier.</p><a class="text-link" href="#results">Inspect measured results ↗</a></section>
- <section class="evidence-section" aria-labelledby="carbon-title"><div class="eyebrow">03 / CONDITIONAL PROJECTION</div><h2 id="carbon-title">What could be avoided?</h2><p>Select a documented material and compare pathways. All categories can be assessed for evidence availability; only matching published profiles produce a number. Hazardous classification needs separate evidence.</p>
- <form id="emissions-form" class="panel panel-body"><div class="form-grid"><label class="field"><span class="field-label">Material category</span><select class="input" name="category">${options(CATEGORIES.map((c) => [c, c]))}</select></label><label class="field"><span class="field-label">Verified subtype / published profile</span><select class="input" name="profileId"></select></label>
- <label class="field"><span class="field-label">Documented condition</span><select class="input" name="condition">${options(
-   [
-     ["unknown", "Unknown"],
-     ["clean", "Confirmed clean / within profile scope"],
-     ["contaminated", "Contaminated"],
-     ["hazardous", "Hazardous"],
-   ],
- )}</select></label>
- <label class="field"><span class="field-label">Baseline disposal</span><select class="input" name="baseline">${options(
-   [
-     ["landfill", "Landfill"],
-     ["combustion", "Controlled combustion / energy recovery"],
-     ["open-burning", "Open burning (no configured factor)"],
-   ],
- )}</select></label>
- <label class="field"><span class="field-label">Alternative treatment</span><select class="input" name="alternative"><option value="recycling">Closed-loop recycling within profile scope</option></select></label>
- <label class="field"><span class="field-label">Assessment boundary</span><select class="input" name="mode">${options(
-   [
-     ["lifecycle", "Net lifecycle CO₂e comparison"],
-     ["direct-burning", "Direct burning-point CO₂ benchmark"],
-   ],
- )}</select></label>
- ${input("massTonnes", "Baseline waste (metric tonnes)", "", 'min="0.000001" max="1000000" required')}${input("adoptionPercent", "Share routed via platform (%)", "", 'min="0" max="100" required')}${input("recoveryPercent", "Successfully recovered share of routed waste (%)", "", 'min="0" max="100" required')}</div><p class="help-text">Remaining waste stays on the baseline pathway. Adoption and recovery are explicit assumptions, unrelated to classifier accuracy. Factor overrides are not accepted.</p><div class="evidence-toolbar"><button class="btn btn-primary" type="submit">Calculate projection</button><button class="btn btn-secondary" type="button" id="load-benchmark">Load illustrative 100 t PP example</button></div></form><div id="emissions-result" aria-live="polite"><p>Enter assumptions to calculate. No emission test has been performed.</p></div>
- <div class="panel panel-body"><h3>Carbon is only one part of pollution.</h3><p>PM2.5, NOx, SO₂, dioxins and heavy-metal releases: insufficient published evidence for the selected waste and process. A CO₂ factor cannot quantify their reduction. Rubber, mixed e-waste, contaminated materials and hazardous mixtures have no configured assessment profiles.</p><details><summary>Published factors, units & boundaries</summary><p>EPA WARM v16, December 2023. US average scenarios, not local Indian measurements. Recycling values include negative avoided-production credits. Glass profiles cover bottles and jars, not flat or electronic glass. Can profiles are not generic industrial metal scrap.</p><div class="table-scroll"><table><thead><tr><th>Profile</th><th>Landfill</th><th>Controlled combustion</th><th>Recycling</th><th>Direct CO₂</th><th>Source</th></tr></thead><tbody>${PROFILES.map((p) => `<tr><th>${esc(p.label)}</th><td>${p.landfill}</td><td>${p.combustion}</td><td>${p.recycling}</td><td>${p.directBurn ?? "Not applicable"}</td><td>${link(p.source, p.exhibit)}</td></tr>`).join("")}</tbody></table></div><p>All factors: metric tonnes CO₂(e) per US short ton; 1 US short ton = 907.18474 kg. Direct burning figures represent CO₂ only. Negative values represent net credits, not negative stack emissions.</p></details></div></section>
- <section class="evidence-section"><div class="eyebrow">04 / BUSINESS PROJECTION</div><h2>Make the unit economics visible.</h2><p>Material subtotal below ₹1 lakh: 5%; ₹1–10 lakh inclusive: 4%; above ₹10 lakh: 3%. Commission is split 70% buyer / 30% seller, and excludes transport. Applied per order.</p><form id="business-form" class="panel panel-body"><div class="form-grid">${input("orders", "Hypothetical monthly orders", "", 'min="0" max="1000000" required')}${input("materialValue", "Material value per hypothetical order (₹)", "", 'min="0.01" max="10000000000" required')}${input("fixedCosts", "Monthly fixed operating costs (₹, optional)", "", 'min="0" max="10000000000"')}${input("variableCosts", "Variable operating cost per order (₹, optional)", "", 'min="0" max="10000000000"')}</div><button class="btn btn-primary" type="submit">Calculate business scenario</button></form><div id="business-result" aria-live="polite"><p>No revenue projection until you enter assumptions. Taxes, refunds and unentered costs are not included.</p></div></section>`;
-  const form = root.querySelector("#emissions-form"),
-    bf = root.querySelector("#business-form");
-  const values = (f) => Object.fromEntries(new FormData(f));
-  function syncProfiles() {
-    form.elements.profileId.innerHTML =
-      '<option value="">Choose a verified subtype</option>' +
-      options(
-        PROFILES.filter((p) => p.category === form.elements.category.value).map(
-          (p) => [p.id, p.label],
-        ),
-      );
-  }
-  syncProfiles();
-  const updateHeadline = (value, label, note) => {
-    root.querySelector("#carbon-headline-percent").textContent = value;
-    root.querySelector("#carbon-headline-label").textContent = label;
-    root.querySelector("#carbon-headline-assumptions").textContent = note;
-  };
-  root.querySelector("#adjust-carbon-assumptions").onclick = () => {
-    form.scrollIntoView({ behavior: "smooth", block: "start" });
-    form.elements.adoptionPercent.focus({ preventScroll: true });
-  };
-  form.addEventListener("input", () => {
-    updateHeadline(
-      "—",
-      "Update the carbon estimate",
-      "Assumptions changed. Calculate below to update this percentage.",
-    );
-    requestVersion++;
-    assessment = null;
-    root.querySelector("#emissions-result").innerHTML =
-      "<p>Assumptions changed. Calculate to update the projection.</p>";
-  });
-  form.elements.category.addEventListener("change", syncProfiles);
-  root.querySelector("#load-benchmark").onclick = () => {
-    form.elements.category.value = "plastic";
-    syncProfiles();
-    Object.entries({
-      profileId: "pp",
-      condition: "clean",
-      baseline: "combustion",
-      alternative: "recycling",
-      mode: "direct-burning",
-      massTonnes: 100,
-      adoptionPercent: 30,
-      recoveryPercent: 90,
-    }).forEach(([k, v]) => (form.elements[k].value = v));
-    form.requestSubmit();
-  };
-  function renderAssessment(r) {
-    const out = root.querySelector("#emissions-result");
-    updateHeadline(
-      r.reductionPercent == null ? "—" : `${n(r.reductionPercent)}%`,
-      r.status !== "estimated"
-        ? "Insufficient published evidence"
-        : r.reductionPercent == null
-          ? "Use the absolute carbon estimate below"
-          : "Estimated reduction in burning-point CO₂",
-      r.status !== "estimated"
-        ? r.reason
-        : r.reductionPercent == null
-          ? r.percentageNote
-          : `${r.inputs.adoptionPercent}% adoption × ${r.inputs.recoveryPercent}% successful recovery · ${r.profile.label}. Direct CO₂ at the original burning point only; excludes recycling and transport. Illustrative, not measured.`,
-    );
-    if (r.status !== "estimated") {
-      out.innerHTML = `<div class="panel panel-body"><h3>Insufficient published evidence</h3><p>${esc(r.reason)}</p><p>No carbon or toxic-pollutant saving is asserted.</p></div>`;
-      return;
-    }
-    const max = Math.max(Math.abs(r.beforeTonnes), Math.abs(r.afterTonnes), 1);
-    out.innerHTML = `<section class="panel panel-body"><div class="eyebrow">ILLUSTRATIVE PROJECTION · NOT A SCRAPLOOP OUTCOME</div><div class="metric-strip"><div class="metric"><strong>${n(r.divertedTonnes)} t</strong><span>Successfully diverted</span></div><div class="metric"><strong>${n(r.avoidedTonnes)} t</strong><span>${esc(r.units)} avoided</span></div><div class="metric"><strong>${r.reductionPercent == null ? "Withheld" : n(r.reductionPercent) + "%"}</strong><span>${r.inputs.mode === "direct-burning" ? "Burning-point CO₂ reduction" : "Comparable reduction"}</span></div></div><p>${esc(r.boundary)}</p>${r.percentageNote ? `<p>${esc(r.percentageNote)}</p>` : ""}<div class="emissions-bars">${[
-      ["Baseline", r.beforeTonnes],
-      ["With assumed adoption", r.afterTonnes],
-    ]
-      .map(
-        ([label, v]) =>
-          `<div><span>${label}: ${n(v)} ${esc(r.units)}</span><meter min="0" max="${max}" value="${Math.abs(v)}" aria-label="${label}, ${n(v)} ${esc(r.units)}; bar shows magnitude"></meter>${v < 0 ? "<small>Negative net lifecycle credit</small>" : ""}</div>`,
-      )
-      .join(
-        "",
-      )}</div><p>Mass ${n(r.inputs.massTonnes)} t × adoption ${r.inputs.adoptionPercent}% × recovery ${r.inputs.recoveryPercent}% = ${n(r.divertedTonnes)} t diverted.</p><p>${link(r.profile.source, `${r.profile.version} · ${r.profile.exhibit}`)}</p><h3>Adoption sensitivity</h3><p>Recovery held at ${r.inputs.recoveryPercent}%. Successful diversion varies with adoption.</p><div class="table-scroll"><table><thead><tr><th>Adoption</th><th>Diverted mass (t)</th><th>Avoided ${r.inputs.mode === "direct-burning" ? "direct CO₂" : "net CO₂e"} (t)</th></tr></thead><tbody>${[
-      10, 30, 50, 100,
-    ]
-      .map((a) => {
-        const diverted =
-          (((r.inputs.massTonnes * a) / 100) * r.inputs.recoveryPercent) / 100;
-        const f =
-          r.inputs.mode === "direct-burning"
-            ? r.profile.directBurn
-            : r.profile[r.inputs.baseline] - r.profile.recycling;
-        return `<tr><th>${a}%</th><td>${n(diverted)}</td><td>${n(((diverted * 1000) / 907.18474) * f)}</td></tr>`;
-      })
-      .join("")}</tbody></table></div></section>`;
-  }
-  form.onsubmit = async (e) => {
-    e.preventDefault();
-    const version = ++requestVersion;
-    assessment = null;
-    updateHeadline(
-      "…",
-      "Calculating the carbon estimate",
-      "Using your selected assumptions and published factors.",
-    );
-    const v = values(form);
-    for (const k of ["massTonnes", "adoptionPercent", "recoveryPercent"])
-      v[k] = Number(v[k]);
-    const out = root.querySelector("#emissions-result");
-    out.innerHTML =
-      '<p role="status">Calculating published-factor scenario…</p>';
-    try {
-      const r = await context.api("/api/emissions-assessment", {
-        method: "POST",
-        body: JSON.stringify(v),
-      });
-      if (!alive || version !== requestVersion) return;
-      assessment = r;
-      renderAssessment(r);
-    } catch (err) {
-      if (alive && version === requestVersion) {
-        updateHeadline("—", "Estimate unavailable", err.message);
-        out.innerHTML = `<p role="alert">${esc(err.message)}</p>`;
-      }
-    }
-  };
-  bf.oninput = () => {
-    business = null;
-    root.querySelector("#business-result").innerHTML =
-      "<p>Assumptions changed. Calculate to update the projection.</p>";
-  };
-  bf.onsubmit = (e) => {
-    e.preventDefault();
-    const v = values(bf);
-    for (const k in v) v[k] = v[k] === "" ? null : Number(v[k]);
-    try {
-      business = businessProjection(v);
-      const b = business;
-      root.querySelector("#business-result").innerHTML =
-        `<section class="panel panel-body"><div class="eyebrow">HYPOTHETICAL MONTH · NOT COLLECTED REVENUE</div><div class="metric-strip"><div class="metric"><strong>${money(b.gmv)}</strong><span>Projected GMV</span></div><div class="metric"><strong>${money(b.revenue)}</strong><span>Projected commission</span></div><div class="metric"><strong>${b.feePercent}%</strong><span>Per-order rate</span></div></div><p>${n(b.orders)} orders × ${money(b.materialValue)} material subtotal; commission ${money(b.fee)} per order (${money(b.buyerFee)} buyer / ${money(b.sellerFee)} seller).</p><p>Contribution per order: ${b.contributionPerOrder == null ? "Unknown — enter variable costs" : money(b.contributionPerOrder)}. Monthly operating result: ${b.operatingResult == null ? "Unknown — enter fixed and variable costs" : money(b.operatingResult)}. Break-even: ${b.breakEvenOrders == null ? "Not established" : n(b.breakEvenOrders) + " orders / month"}.</p><p>No assumed market price, customer count or guaranteed margin. Taxes, refunds and omitted costs excluded.</p></section>`;
-    } catch (err) {
-      business = null;
-      root.querySelector("#business-result").innerHTML =
-        `<p role="alert">${esc(err.message)}</p>`;
-    }
-  };
+${implementation()}`;
   const printDetails = () => {
-    root.querySelectorAll("details").forEach((d) => {
-      d.dataset.printWasOpen = String(d.open);
-      d.open = true;
-    });
+    root.querySelectorAll("details").forEach(detail => { detail.dataset.printWasOpen = String(detail.open); detail.open = true; });
   };
   const restoreDetails = () => {
-    root.querySelectorAll("details[data-print-was-open]").forEach((d) => {
-      d.open = d.dataset.printWasOpen === "true";
-      delete d.dataset.printWasOpen;
-    });
+    root.querySelectorAll("details[data-print-was-open]").forEach(detail => { detail.open = detail.dataset.printWasOpen === "true"; delete detail.dataset.printWasOpen; });
   };
   window.addEventListener("beforeprint", printDetails);
   window.addEventListener("afterprint", restoreDetails);
-  Object.entries(headlinePreset).forEach(([k, v]) => {
-    if (k !== "profileId") form.elements[k].value = v;
-  });
-  syncProfiles();
-  form.elements.profileId.value = headlinePreset.profileId;
-  assessment = assessEmissions(headlinePreset);
-  renderAssessment(assessment);
-  return () => {
-    alive = false;
-    requestVersion++;
-    window.removeEventListener("beforeprint", printDetails);
-    window.removeEventListener("afterprint", restoreDetails);
-  };
+  return () => { window.removeEventListener("beforeprint", printDetails); window.removeEventListener("afterprint", restoreDetails); };
 }

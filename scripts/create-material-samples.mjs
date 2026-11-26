@@ -53,11 +53,11 @@ try {
     await copyFile(path.join(root, 'ml', source.path), path.join(output, `${stem}.jpg`));
     const subtotal = item.quantityKg * item.pricePerKg;
     const reference = `SAMPLE-${item.material.toUpperCase()}-${String(index + 1).padStart(3, '0')}`;
-    const location = 'Pune, Maharashtra, India (fictional lot location)';
-    const company = `ScrapLoop ${item.material[0].toUpperCase() + item.material.slice(1)} Test Supplier (fictional)`;
+    const location = 'Pune, Maharashtra, India (sample lot location)';
+    const company = `ScrapLoop ${item.material[0].toUpperCase() + item.material.slice(1)} Test Supplier`;
     const document = html(item.title, `
       <header><span class="brand">SCRAPLOOP</span><span class="eyebrow">Material declaration / ${reference}</span></header>
-      <div class="badge">FICTIONAL SAMPLE · FOR UPLOAD TESTING ONLY</div>
+      <div class="badge">SAMPLE DATA · FOR UPLOAD TESTING ONLY</div>
       <h1>${item.title}</h1><p class="intro">${item.description}</p>
       <div class="identity"><div><dl><dt>Company</dt><dd>${company}</dd><dt>Material / family</dt><dd>${item.material}</dd><dt>Grade</dt><dd>Not verified</dd><dt>Condition</dt><dd>Unknown — manual review required</dd></dl></div>
       <figure><img alt="Real illustrative ${item.material} photograph" src="data:image/jpeg;base64,${bytes.toString('base64')}"><figcaption>REAL ILLUSTRATIVE PHOTO · TrashNet, Gary Thung &amp; Mindy Yang. Not a photograph of the invented commercial lot.</figcaption></figure></div>
@@ -68,14 +68,35 @@ try {
     await page.setContent(document);
     await page.evaluate(async () => { await Promise.all([...document.images].map(image => image.decode())); await document.fonts.ready; });
     await page.pdf({path: path.join(output, `${stem}.pdf`), format: 'A4', printBackground: true, preferCSSPageSize: true});
-    files.push({...item, reference, company, location, grade: null, condition: null, subtotal, pdf: `${stem}.pdf`, photo: `${stem}.jpg`, photoSource: {authors: ['Gary Thung', 'Mindy Yang'], dataset: 'TrashNet', url: 'https://huggingface.co/datasets/garythung/trashnet', originalPath: source.originalPath, sha256, split: source.split, labelProvenance: source.labelProvenance, expertConfirmed: false, license: 'MIT'}, fictionalCommercialData: true});
+    files.push({...item, reference, company, location, grade: null, condition: null, subtotal, pdf: `${stem}.pdf`, photo: `${stem}.jpg`, photoSource: {authors: ['Gary Thung', 'Mindy Yang'], dataset: 'TrashNet', url: 'https://huggingface.co/datasets/garythung/trashnet', originalPath: source.originalPath, sha256, split: source.split, labelProvenance: source.labelProvenance, expertConfirmed: false, license: 'MIT'}, sampleCommercialData: true});
   }
+  const original = html('ScrapLoop material analysis sample', `
+    <header><span class="brand">SCRAPLOOP</span><span class="eyebrow">Material declaration / SAMPLE-PP-001</span></header>
+    <div class="badge">SAMPLE DATA · FOR UPLOAD TESTING ONLY</div>
+    <h1>Polypropylene manufacturing trimmings</h1>
+    <p class="intro">Single-material lot declaration for testing document extraction.</p>
+    <table><tbody>${[
+      ['Company', 'ScrapLoop Test Factory'], ['Material', 'PP'],
+      ['Material description', 'Polypropylene pre-consumer manufacturing trimmings'],
+      ['Grade', 'PP-H'], ['Condition', 'Clean'], ['Quantity (kg)', '1,200 kg'],
+      ['Price per kg (INR)', 'INR 42.00 / kg'], ['Material subtotal (INR)', 'INR 50,400.00'],
+      ['Location', 'Pune, Maharashtra, India (example location)'], ['Packaging', '12 bags of 100 kg each'],
+    ].map(([label, value]) => `<tr><th>${label}</th><td>${value}</td></tr>`).join('')}</tbody></table>
+    <div class="notes"><h2>Supplier-declared material notes</h2>
+    <p>Segregated, dry polypropylene trimmings from a single manufacturing stream. No mixed plastics or visible oil are reported in this sample lot.</p>
+    <p>Grade and condition are sample supplier declarations for testing. No laboratory testing, purity measurement, hazardous-waste determination or quality certification is supplied.</p></div>
+    <div class="notice">This document contains sample test data. It is not a genuine commercial invoice, live price quote, available-stock listing, compliance document or proof of delivery. Transport, platform fees and taxes are excluded from the illustrative material subtotal.</div>
+  `);
+  await page.setContent(original);
+  const originalPath = path.join(root, 'samples/ScrapLoop_Material_Analysis_Sample.pdf');
+  await page.pdf({path: originalPath, format: 'A4', printBackground: true, preferCSSPageSize: true});
+  await copyFile(originalPath, path.join(root, 'dist/assets/ScrapLoop_Material_Analysis_Sample.pdf'));
   await writeFile(path.join(output, 'manifest.json'), JSON.stringify({purpose: 'Paired PDF / real-photo upload fixtures; not a benchmark or real supplier stock', files}, null, 2) + '\n');
   await writeFile(path.join(output, 'index.html'), html('ScrapLoop material upload samples', `
     <header><span class="brand">SCRAPLOOP</span><span class="eyebrow">Material upload kit / ${files.length} pairs</span></header>
     <h1>Five material families. Six upload pairs.</h1>
-    <p>Upload the <strong>PDF</strong> to extract fictional lot details through your configured document provider. Upload the <strong>JPG</strong> for a broad material suggestion from the local model. Files are separate uploads; a photo does not supply weight or prices.</p>
-    <div class="badge">FICTIONAL LOT DATA · REAL ILLUSTRATIVE PHOTOS</div>
+    <p>Upload the <strong>PDF</strong> to extract sample lot details through your configured document provider. Upload the <strong>JPG</strong> for a broad material suggestion from the local model. Files are separate uploads; a photo does not supply weight or prices.</p>
+    <div class="badge">SAMPLE LOT DATA · REAL ILLUSTRATIVE PHOTOS</div>
     ${files.map(item => `<section class="index-item"><h2>${item.title}</h2><p>${item.quantityKg.toLocaleString('en-IN')} kg · INR ${item.pricePerKg} / kg · illustrative subtotal INR ${item.subtotal.toLocaleString('en-IN')}</p><img src="${item.photo}" alt="${item.title}"><div class="links"><a href="${item.pdf}">Open PDF</a><a href="${item.photo}">Open original JPG</a></div><p>${item.description}</p><p class="eyebrow">Dataset label: ${item.material} · Grade and condition unverified</p></section>`).join('')}
     <p>Real photos: Gary Thung and Mindy Yang, <a href="https://huggingface.co/datasets/garythung/trashnet">TrashNet</a>. <a href="TRASHNET-LICENSE.txt">MIT license</a>. Photos are unchanged, isolated-object examples from the existing held-out split. These examples do not establish industrial accuracy. The white plastic insert is a retained model failure case; see local-inference-results.json.</p>
   `));

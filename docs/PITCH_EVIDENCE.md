@@ -1,12 +1,12 @@
 # ScrapLoop: pitch evidence and numbers
 
-Reviewed 25 November 2026. Open `/workspace#evidence` for case studies, calculator, business scenario and browser printing. `/workspace#sources` redirects there. Setup remains in README; directory import and provenance stay in Facility directory.
+Reviewed 26 November 2026. Open `/workspace#evidence` for case studies, the headline carbon example, measured classifier results, implementation budgets, funding prospects and browser printing. Detailed emissions and business calculators are no longer shown on this page; their calculation modules and API remain available to existing callers. `/workspace#sources` redirects there. Setup remains in README; directory import and provenance stay in Facility directory.
 
 ## Three types of evidence
 
 1. **Published precedent:** another organisation’s reported outcomes, clearly dated and attributed. Never count them as ScrapLoop results.
 2. **Project measurement:** read `reports/model/latest.json`. MobileNetV3 Small / ImageNet transfer learning, TrashNet fine-tuning; 1,778 train / 367 validation / 376 test images. Rounded held-out accuracy 90.2%, macro-F1 88.5% after validation-selected full-backbone fine-tuning; prior model 89.1% / 86.6%. Same previously reported test split reused, not a fresh external benchmark. Six household-object categories; industrial quality, purity, hazardous status, weight and price are not validated. Dataset labels are not factory expert labels.
-3. **Conditional projection:** user-supplied waste mass, adoption, successful recovery, orders and costs. No confirmed delivery or collected revenue is implied. Do not multiply classifier accuracy by climate savings.
+3. **Planning assumptions:** the headline carbon example and estimated implementation costs. The detailed calculator methodology below is retained as technical background, not a description of current page controls. No confirmed delivery or collected revenue is implied. Do not multiply classifier accuracy by climate savings.
 
 ## Real industrial precedents
 
@@ -66,3 +66,18 @@ Show buyers verified delivered-cost savings and dependable specifications; selle
 The three overview cards reproduce user-supplied reference values: 5.16 MMT monthly industrial waste, ₹14,200 crore delivered-cost opportunity with 34.2% assumed savings, and 1,850+ recovery/compounder plants. These figures have not been verified as industrial-market statistics. Their cards are labelled illustrative; they are not workspace facility counts, completed deals, registered recipient checks or realised savings. The ₹14,200 crore estimate has no established time basis or methodology here.
 
 The historical roughly 62 million tonnes/year figure is **municipal solid waste**, not a verified national industrial-waste stream; it must not support an industrial-waste attribution to CPCB. See [CPCB-hosted NGT order, 28 May 2020](https://www.cpcb.gov.in/NGT/ngt_order_28-05-2020.pdf). Actual facility records and source coverage remain in the directory and overview source panel.
+
+
+## Implementation budget and funding prospects
+
+The UI reads `dist/implementation-data.js`; totals are calculated from the cost rows. A one-cluster pilot assumes existing laptops, one paid field coordinator and part-time technical maintenance, with unpaid founder management/sales and no office, warehouse, owned fleet, stock purchases or buyer financing. Taxes, freight and material purchases are additional.
+
+- One-time launch preparation: ₹1,60,000–₹3,55,000.
+- Monthly operations: ₹67,000–₹1,18,000, including technical upkeep of ₹24,000–₹44,000.
+- Three-month transaction-cost allowance: 30 illustrative completed orders × ₹1,500 = ₹45,000. This is not an order forecast.
+- Three-month total: one-time setup + three months of operations + ₹45,000 = ₹4,06,000–₹7,54,000. Do not add technical upkeep a second time.
+- Proposed funding target: ₹6–8 lakh; illustrative mix ₹4 lakh grants + ₹3 lakh paid pilot contracts. No funding is committed.
+
+Labour, travel, professional services and verification costs are planning estimates that require local quotations. [DigitalOcean](https://www.digitalocean.com/pricing/droplets) lists a basic 4 GiB / 2-vCPU server at US$24/month before extras and taxes; this is a reference, not a quote for the entire hosting stack.
+
+Prospects: the team's college incubation centre; [IIMA Ventures](https://iimaventures.com/incubation/); [NSRCEL Campus Founders](https://nsrcel.org/campus-founders/) for eligible student teams; factories, recyclers and cluster associations for negotiated paid pilots; and [Climate Angels](https://climateangels.in/for-investors/) after transaction evidence. Programme intake and eligibility need confirmation. These are prospects, not endorsements, applications submitted or funding offers.

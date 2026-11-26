@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-test("evidence replaces setup, calculates bounded scenarios without export controls and enlarges workspace", async ({
+test("evidence keeps precedents and headline but replaces calculators with implementation costs and funding targets", async ({
   page,
 }, info) => {
   const errors = [];
@@ -28,72 +28,30 @@ test("evidence replaces setup, calculates bounded scenarios without export contr
   );
   await expect(page.locator("#main")).not.toContainText("OPENAI_API_KEY");
   await expect(page.locator("#main")).not.toContainText("ZAR 270,000");
-  await page.locator("#load-benchmark").click();
-  await expect(page.locator("#emissions-result")).toContainText("83.04");
-  await expect(page.locator("#emissions-result")).toContainText("27%");
-  await expect(page.locator("#emissions-result")).toContainText(
-    "Not a net climate saving",
-  );
-  await page.locator("#emissions-form [name=mode]").selectOption("lifecycle");
-  await expect(page.locator("#emissions-result")).toContainText(
-    "Assumptions changed",
-  );
-  await page
-    .getByRole("button", { name: "Calculate projection", exact: true })
-    .click();
-  await expect(page.locator("#emissions-result")).toContainText("Withheld");
-  await expect(page.locator("#carbon-headline-percent")).toHaveText("—");
-  await page
-    .locator("#emissions-form [name=condition]")
-    .selectOption("hazardous");
-  await page
-    .getByRole("button", { name: "Calculate projection", exact: true })
-    .click();
-  await expect(page.locator("#emissions-result")).toContainText(
-    "Insufficient published evidence",
-  );
-  await page.locator("#emissions-form [name=category]").selectOption("e-waste");
-  await page
-    .getByRole("button", { name: "Calculate projection", exact: true })
-    .click();
-  await expect(page.locator("#emissions-result")).toContainText(
-    "Insufficient published evidence",
-  );
-  await page.locator("#load-benchmark").click();
-  await expect(page.locator("#emissions-result")).toContainText("83.04");
-  await page.locator("#business-form [name=orders]").fill("20");
-  await page.locator("#business-form [name=materialValue]").fill("50000");
-  await page.locator("#business-form [name=fixedCosts]").fill("10000");
-  await page.locator("#business-form [name=variableCosts]").fill("500");
-  await page
-    .getByRole("button", { name: "Calculate business scenario" })
-    .click();
-  await expect(page.locator("#business-result")).toContainText("₹50,000.00");
-  await expect(page.locator("#business-result")).toContainText("₹30,000.00");
-  await expect(page.locator("#evidence-export")).toHaveCount(0);
-  await expect(page.locator("#evidence-print")).toHaveCount(0);
-  await expect
-    .poll(() =>
-      page.evaluate(
-        () => document.documentElement.scrollWidth <= innerWidth + 1,
-      ),
-    )
-    .toBe(true);
-  const fonts = await page.evaluate(() => ({
-    body: parseFloat(getComputedStyle(document.body).fontSize),
-    btn: parseFloat(
-      getComputedStyle(document.querySelector("#load-benchmark")).fontSize,
-    ),
-  }));
-  expect(fonts.body).toBeGreaterThanOrEqual(20);
-  expect(fonts.btn).toBeGreaterThanOrEqual(18);
-  await page.screenshot({
-    path: info.outputPath("evidence.png"),
-    fullPage: true,
-  });
-  await page.emulateMedia({ media: "print" });
-  await expect(page.locator("#emissions-form")).not.toBeVisible();
-  await expect(page.locator("#emissions-result")).toBeVisible();
-  await page.emulateMedia({ media: "screen" });
+  await expect(page.getByRole("heading", {name: "Implementation", exact: true})).toBeVisible();
+  await expect(page.locator("#emissions-form, #emissions-result, #business-form, #business-result, #adjust-carbon-assumptions")).toHaveCount(0);
+  await expect(page.locator("#main")).not.toContainText("Adoption sensitivity");
+  await expect(page.locator("#main")).not.toContainText("Carbon is only one part of pollution.");
+  await expect(page.locator(".implementation-summary .metric")).toHaveCount(3);
+  await expect(page.locator(".implementation-summary")).toContainText("₹4.06–7.54 lakh");
+  await expect(page.locator(".implementation-summary")).toContainText("₹24,000–₹44,000");
+  await expect(page.locator(".implementation-summary")).toContainText("₹67,000–₹1,18,000");
+  await expect(page.locator(".implementation-total")).toContainText("₹4,06,000");
+  await expect(page.locator(".implementation-total")).toContainText("₹7,54,000");
+  await expect(page.locator(".implementation-total")).toContainText("₹45,000");
+  await expect(page.locator(".implementation-funders article")).toHaveCount(5);
+  await expect(page.locator(".implementation-funding")).toContainText("No named organisation has committed funding");
+  await expect(page.locator(".implementation-funding")).toContainText("₹6–8 lakh");
+  for (const name of ["College incubation centre", "IIMA Ventures", "NSRCEL", "Climate Angels"])
+    await expect(page.locator(".implementation-funders")).toContainText(name);
+  await expect(page.locator(".implementation-funders a").filter({hasText:"Incubation and eligibility"})).toHaveAttribute("href","https://iimaventures.com/incubation/");
+  await expect(page.locator("#evidence-export, #evidence-print")).toHaveCount(0);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
+  expect(await page.evaluate(() => parseFloat(getComputedStyle(document.body).fontSize))).toBeGreaterThanOrEqual(20);
+  await page.screenshot({path: info.outputPath("evidence-implementation.png"), fullPage: true});
+  await page.emulateMedia({media:"print"});
+  await expect(page.locator("#implementation")).toBeVisible();
+  await expect(page.locator(".implementation-total")).toContainText("₹4,06,000");
+  await page.emulateMedia({media:"screen"});
   expect(errors).toEqual([]);
 });
