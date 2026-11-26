@@ -116,4 +116,5 @@ export function mountGalaxy(options = {}) {
     motion.removeEventListener('change',sync);
   };
 }
-mountGalaxy();
+const disposeGalaxy = mountGalaxy();
+window.addEventListener('scraploop:leave-landing', disposeGalaxy, {once: true});

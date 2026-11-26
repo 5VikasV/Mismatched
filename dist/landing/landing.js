@@ -182,7 +182,7 @@ function cycleRotatingWord() {
   }, 240);
 }
 
-window.setInterval(cycleRotatingWord, 2000);
+const wordTimer = window.setInterval(cycleRotatingWord, 2000);
 window.addEventListener('resize', setRingGeometry);
 window.addEventListener('load', setRingGeometry, { once: true });
 document.fonts.ready.then(setRingGeometry);
@@ -193,3 +193,12 @@ reducedMotion.addEventListener('change', syncMotionPreference);
 setRingGeometry();
 updateRing();
 syncMotionPreference();
+
+window.addEventListener('scraploop:leave-landing', () => {
+  stopRotation();
+  clearInterval(wordTimer);
+  geometryObserver?.disconnect();
+  window.removeEventListener('resize', setRingGeometry);
+  window.removeEventListener('load', setRingGeometry);
+  reducedMotion.removeEventListener('change', syncMotionPreference);
+}, {once:true});

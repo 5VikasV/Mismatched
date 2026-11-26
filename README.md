@@ -17,7 +17,7 @@ Import the public bundle explicitly using **Import public records**. It currentl
 
 ## Workspace experience
 
-The workspace uses an ink-dark masthead, a floating nine-tool navigation dock on laptops, a compact navigation grid on tablets and a mobile menu sheet. Shared forms, material records, directory views, cost summaries and evidence pages use the same workbench styling in `dist/workbench.css`. Long planner summaries scroll above the dock. The transparent Blender exhibit remains on Overview; the landing page keeps its existing design. This workspace preview is local and uncommitted.
+The workspace uses an ink-dark masthead, a floating nine-tool navigation dock on laptops, a compact navigation grid on tablets and a mobile menu sheet. Shared forms, material records, directory views, cost summaries and evidence pages use the same workbench styling in `dist/workbench.css`. Long planner summaries scroll above the dock. The transparent Blender exhibit remains on Overview; the landing page keeps its existing design. A top-right Fullscreen button is available from the first load; click to enter or exit, with keyboard and unsupported-browser feedback. Open workspace and Explore directory preserve active page fullscreen by loading the workspace in the same document; landing animations are disposed and an exit control stays available in the workspace. This workspace preview is local and uncommitted.
 
 - **Find anything** (Ctrl+K / Cmd+K) searches pages, imported facilities, saved material records and booking requests. Opening a result applies its search to the real feature page. Closing the finder preserves the current form draft.
 - **Overview** shows actual counts, recent reviewed records, source coverage and workflow entry points.
